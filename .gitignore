@@ -15,3 +15,6 @@ test-results/
 packages/database/src/generated/
 .DS_Store
 *.log
+
+.vercel
+.env*

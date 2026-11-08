@@ -16,6 +16,7 @@ allowBuilds:
   "@nestjs/core": true
   msgpackr-extract: true
   "@scarf/scarf": false
+  "@parcel/watcher": false
 minimumReleaseAgeExclude:
   - "@aws-sdk/checksums@3.1002.3"
   - "@aws-sdk/client-s3@3.1164.0"
