@@ -250,7 +250,8 @@
       "automations": "الأتمتة",
       "billing": "الفوترة",
       "settings": "الإعدادات"
-    }
+    },
+    "toggleMotion": "الحركة"
   },
   "footer": {
     "platform": "المنصة",

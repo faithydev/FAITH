@@ -1,9 +1,10 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { cx } from '../ui/primitives';
 import { useActive, useSceneSupport, type Quality } from './capability';
+import { buildShapes } from './particle-shapes';
 
 const EcosystemStoryScene = dynamic(() => import('./ecosystem-story-scene'), { ssr: false });
 
@@ -118,28 +119,46 @@ function EcosystemTabs({ nodes, label, showRing }: { nodes: EcosystemNode[]; lab
         </div>
       </div>
       <div className="relative aspect-square max-h-[30rem] w-full sm:aspect-[4/3] lg:aspect-square">
-        {showRing && <StaticRing count={nodes.length} selected={selected} />}
+        <div aria-hidden className="pointer-events-none absolute inset-[14%] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--neon)_12%,transparent),transparent_65%)] blur-2xl" />
+        {showRing && <StaticShape keys={nodes.map((n) => n.key)} selected={selected} />}
       </div>
     </div>
   );
 }
 
-function StaticRing({ count, selected }: { count: number; selected: number }) {
+const STATIC_POINTS = 1500;
+
+/**
+ * The same shapes as the live story, drawn once as still points: no WebGL, no movement. Each
+ * tab shows its own form, so the section is never a bare diagram.
+ */
+function StaticShape({ keys, selected }: { keys: string[]; selected: number }) {
+  const shapes = useMemo(() => buildShapes(keys, STATIC_POINTS), [keys]);
+  const points = useMemo(() => {
+    const shape = shapes[selected]!;
+    // A slight turn, so flat shapes still read as objects in space.
+    const ry = -0.32;
+    const rx = 0.12;
+    const out: { x: number; y: number; z: number; accent: number }[] = [];
+    for (let i = 0; i < STATIC_POINTS; i++) {
+      const x = shape.pos[i * 3]!;
+      const y = shape.pos[i * 3 + 1]!;
+      const z = shape.pos[i * 3 + 2]!;
+      const x1 = x * Math.cos(ry) + z * Math.sin(ry);
+      const z1 = -x * Math.sin(ry) + z * Math.cos(ry);
+      const y1 = y * Math.cos(rx) - z1 * Math.sin(rx);
+      out.push({ x: 100 + x1 * 30, y: 100 - y1 * 30, z: z1, accent: shape.accent[i]! });
+    }
+    return out.sort((a, b) => a.z - b.z);
+  }, [shapes, selected]);
   return (
-    <svg data-testid="ecosystem-fallback" viewBox="0 0 200 200" aria-hidden className="h-full w-full">
-      <circle cx="100" cy="100" r="14" fill="var(--surface-3)" />
-      {Array.from({ length: count }, (_, i) => {
-        const a = (i / count) * Math.PI * 2 - Math.PI / 2;
-        const x = 100 + Math.cos(a) * 74;
-        const y = 100 + Math.sin(a) * 74;
-        const on = i === selected;
-        return (
-          <g key={i}>
-            <line x1="100" y1="100" x2={x} y2={y} stroke={on ? 'var(--accent)' : 'var(--border-strong)'} strokeWidth={on ? 1.2 : 0.6} />
-            <circle cx={x} cy={y} r={on ? 7 : 4.5} fill={on ? 'var(--accent)' : 'var(--text-subtle)'} />
-          </g>
-        );
-      })}
+    <svg data-testid="ecosystem-fallback" viewBox="0 0 200 200" aria-hidden className="relative h-full w-full">
+      {points.map((p, i) => (
+        <circle
+          key={i} cx={p.x.toFixed(2)} cy={p.y.toFixed(2)} r={p.accent === 2 ? 0.35 : 0.55}
+          fill={p.accent === 1 ? 'var(--neon)' : 'var(--text)'} opacity={p.accent === 2 ? 0.25 : p.accent === 1 ? 0.95 : 0.7}
+        />
+      ))}
     </svg>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from '../motion/preference';
 
 export type Quality = 'high' | 'medium' | 'low';
 export type SceneSupport = { state: 'pending' } | { state: 'static'; reason: 'webgl' | 'motion' } | { state: 'ready'; quality: Quality };
@@ -26,17 +27,15 @@ function pickQuality(): Quality {
 
 /** Decides what a device gets: a live scene at some quality, or the static artwork. */
 export function useSceneSupport(): SceneSupport {
+  const reduced = useReducedMotion();
   const [support, set] = useState<SceneSupport>({ state: 'pending' });
   useEffect(() => {
     // `?webgl=off` lets the fallback be exercised on any machine.
     const forced = new URLSearchParams(location.search).get('webgl') === 'off';
     if (forced || !hasWebGL()) return set({ state: 'static', reason: 'webgl' });
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => set(media.matches ? { state: 'static', reason: 'motion' } : { state: 'ready', quality: pickQuality() });
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
-  }, []);
+    // Follows the site motion setting, which follows the system unless the visitor overrides it.
+    set(reduced ? { state: 'static', reason: 'motion' } : { state: 'ready', quality: pickQuality() });
+  }, [reduced]);
   return support;
 }
 

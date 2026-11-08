@@ -250,7 +250,8 @@
       "automations": "Автоматизация",
       "billing": "Оплата",
       "settings": "Настройки"
-    }
+    },
+    "toggleMotion": "Анимации"
   },
   "footer": {
     "platform": "Платформа",

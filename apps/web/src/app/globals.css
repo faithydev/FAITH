@@ -566,13 +566,16 @@
 @keyframes float-c { 50% { transform: translate3d(-12vmax, 8vmax, 0) scale(1.2); } to { transform: translate3d(6vmax, -10vmax, 0) scale(0.85); } }
 .animate-rise { animation: rise var(--dur-cinematic) var(--ease-out) both; animation-delay: var(--rise-delay, 0ms); }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-  .reveal { opacity: 1; transform: none; filter: none; }
+/*
+ * Reduced motion. <html data-reduced> follows the system setting unless the visitor overrides it
+ * with the site's motion switch (components/motion/preference.ts), so it is read here instead of
+ * the media query.
+ */
+:root[data-reduced='true'] { scroll-behavior: auto; }
+:root[data-reduced='true'] *, :root[data-reduced='true'] *::before, :root[data-reduced='true'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
+:root[data-reduced='true']::view-transition-group(*), :root[data-reduced='true']::view-transition-old(*), :root[data-reduced='true']::view-transition-new(*) { animation: none !important; }
+:root[data-reduced='true'] .reveal { opacity: 1; transform: none; filter: none; }

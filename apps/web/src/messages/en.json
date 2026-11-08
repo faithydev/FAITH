@@ -250,7 +250,8 @@
       "automations": "Automations",
       "billing": "Billing",
       "settings": "Settings"
-    }
+    },
+    "toggleMotion": "Animations"
   },
   "footer": {
     "platform": "Platform",

@@ -90,6 +90,21 @@ test.describe('three.js', () => {
     await context.close();
   });
 
+  test('a visitor can turn motion on even when the system reduces it', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(url('/'));
+    // Calm by default: the economy shows still shapes, not the live story.
+    await expect(page.getByTestId('ecosystem-fallback')).toBeAttached();
+    await page.getByTestId('motion-toggle').click();
+    await expect(page.getByTestId('ecosystem-story')).toBeAttached();
+    await expect(page.locator('canvas[data-engine^="three.js"]').first()).toBeVisible();
+    // The choice is remembered on this device.
+    await page.reload();
+    await expect(page.getByTestId('ecosystem-story')).toBeAttached();
+    await context.close();
+  });
+
   test('the ecosystem works by keyboard', async ({ page }) => {
     await page.goto(url('/?webgl=off'));
     const tab = page.getByRole('tab', { name: 'Rewards' });

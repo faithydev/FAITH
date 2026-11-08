@@ -36,6 +36,9 @@ export const viewport: Viewport = {
 /** Runs before paint. FAITH is black by default; light is an explicit choice, kept per device. */
 const themeScript = `(function(){try{var s=localStorage.getItem('faith-theme');document.documentElement.dataset.theme=s==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}})()`;
 
+/** Same moment: motion follows the system's reduce-motion setting unless the visitor chose otherwise. */
+const motionScript = `(function(){var m='auto';try{var v=localStorage.getItem('faith-motion');if(v==='on'||v==='off')m=v}catch(e){}var os=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var r=document.documentElement;r.dataset.motion=m;r.dataset.reduced=String(m==='off'||(m==='auto'&&os))})()`;
+
 const CLIENT_NAMESPACES = ['common', 'errors', 'status', 'nav'] as const;
 
 export default async function LocaleLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
@@ -48,6 +51,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     <html lang={locale} data-theme="dark" dir={RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: motionScript }} />
       </head>
       <body>
         <NextIntlClientProvider messages={clientMessages}>

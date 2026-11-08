@@ -250,7 +250,8 @@
       "automations": "Автоматтандыру",
       "billing": "Төлем",
       "settings": "Параметрлер"
-    }
+    },
+    "toggleMotion": "Анимациялар"
   },
   "footer": {
     "platform": "Платформа",

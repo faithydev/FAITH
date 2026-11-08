@@ -250,7 +250,8 @@
       "automations": "自动化",
       "billing": "账单",
       "settings": "设置"
-    }
+    },
+    "toggleMotion": "动画"
   },
   "footer": {
     "platform": "平台",

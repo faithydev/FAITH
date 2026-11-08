@@ -42,6 +42,13 @@ Last updated 2026-11-08 (second round). Every result below comes from a command 
   at a row from the previous database (both caches are now cleared); the computer went to sleep
   mid-test (`ERR_NETWORK_IO_SUSPENDED`). All three pass on rerun.
 
+### Motion switch
+
+On a computer with Windows "Animation effects" turned off, browsers ask sites to reduce motion,
+so FAITH showed its still fallbacks (including the plain tab list for the economy section). The
+header now has a ⚡ switch that turns motion on for this device, and the still fallback draws
+each part as a point shape instead of a bare diagram. Covered by a new browser test.
+
 ### Changed on purpose
 
 - The "no canvas on sign-in" test became "no three.js on sign-in": the new sign-in page has a

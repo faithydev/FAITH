@@ -5,6 +5,7 @@
  * on every visit and cost nothing to download.
  */
 
+/** `accent`: 0 for the shape, 1 for its lit part, 2 for the faint halo around it. */
 export type Shape = { pos: Float32Array; accent: Uint8Array };
 
 function rng(seed: number) {
@@ -112,6 +113,7 @@ class Builder {
       const s = Math.sqrt(1 - u * u);
       const rr = radius * (0.75 + this.r() * 0.6);
       this.push(s * Math.cos(t) * rr, u * rr * 0.7, s * Math.sin(t) * rr - 1.2);
+      this.accent[this.i - 1] = 2;
     }
     return { pos: this.pos, accent: this.accent };
   }

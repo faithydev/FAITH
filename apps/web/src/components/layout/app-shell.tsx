@@ -10,7 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { AmbientBackground, RouteTransition } from '../motion/fx';
 import { FaithLogo } from '../ui/logo';
-import { CartLink, CommandPalette, LocaleSwitcher, NotificationLink, ThemeToggle, UserAvatarMenu, WorkspaceSwitcher } from './controls';
+import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu, WorkspaceSwitcher } from './controls';
 import { SidebarDrawer, SidebarLink } from './sidebar';
 
 type Item = { href: string; key: string; icon: LucideIcon; exact?: boolean };
@@ -80,6 +80,7 @@ function Topbar({ me, cartLabel, notificationsLabel, drawer }: { me: Me; cartLab
       <div className="ms-auto flex items-center gap-1">
         <CommandPalette />
         <LocaleSwitcher persist />
+        <MotionToggle className="hidden sm:grid" />
         <ThemeToggle className="hidden sm:grid" />
         <CartLink count={me.cartCount} label={cartLabel} />
         <NotificationLink count={me.unreadNotifications} label={notificationsLabel} />

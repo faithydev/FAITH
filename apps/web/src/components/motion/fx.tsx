@@ -2,8 +2,8 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ReactNode, useCallback, useEffect, useRef, ViewTransition } from 'react';
+import { useReducedMotion } from './preference';
 
-const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * One listener for the whole document. It tells every `.fx-btn` where the pointer is, so its
@@ -11,8 +11,9 @@ const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matc
  * touch has no hover, and the CSS resting state already looks finished.
  */
 export function PointerFx() {
+  const reduced = useReducedMotion();
   useEffect(() => {
-    if (reduced()) return;
+    if (reduced) return;
     let last: HTMLElement | null = null;
     const reset = (el: HTMLElement | null) => {
       if (!el) return;
@@ -62,7 +63,7 @@ export function PointerFx() {
       document.removeEventListener('pointerdown', press);
       document.documentElement.removeEventListener('pointerleave', out);
     };
-  }, []);
+  }, [reduced]);
   return null;
 }
 
@@ -73,9 +74,10 @@ export function PointerFx() {
  */
 export function AmbientBackground({ strength = 'soft' }: { strength?: 'soft' | 'strong' }) {
   const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   useEffect(() => {
     const el = ref.current;
-    if (!el || reduced()) return;
+    if (!el || reduced) return;
     let tx = window.innerWidth * 0.5;
     let ty = window.innerHeight * 0.3;
     let x = tx;
@@ -108,7 +110,7 @@ export function AmbientBackground({ strength = 'soft' }: { strength?: 'soft' | '
       cancelAnimationFrame(frame);
       cancelAnimationFrame(scrolling);
     };
-  }, []);
+  }, [reduced]);
   return (
     <div ref={ref} aria-hidden className="ambient" data-strength={strength}>
       <i className="a-grid" />

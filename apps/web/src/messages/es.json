@@ -250,7 +250,8 @@
       "automations": "Automatizaciones",
       "billing": "Facturación",
       "settings": "Ajustes"
-    }
+    },
+    "toggleMotion": "Animaciones"
   },
   "footer": {
     "platform": "Plataforma",

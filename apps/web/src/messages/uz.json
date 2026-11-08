@@ -250,7 +250,8 @@
       "automations": "Avtomatlashtirish",
       "billing": "Hisob-kitob",
       "settings": "Sozlamalar"
-    }
+    },
+    "toggleMotion": "Animatsiyalar"
   },
   "footer": {
     "platform": "Platforma",

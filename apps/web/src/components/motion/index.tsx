@@ -3,8 +3,10 @@
 import { motion } from 'motion/react';
 import { Children, ComponentProps, ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../ui/primitives';
+import { isReduced } from './preference';
 
-export const prefersReducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** Follows the site motion setting, which itself follows the system unless the visitor overrides it. */
+export const prefersReducedMotion = () => isReduced();
 
 function useInView<T extends Element>(once = true) {
   const ref = useRef<T>(null);

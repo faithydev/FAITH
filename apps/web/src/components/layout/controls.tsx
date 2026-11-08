@@ -4,12 +4,13 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { clientApi } from '@/lib/client';
 import { LOCALE_LABELS, LOCALES, Locale } from '@faith/config';
 import { Command } from 'cmdk';
-import { Bell, Check, ChevronsUpDown, Globe, LogOut, Moon, Search, ShoppingBag, Sun, User } from 'lucide-react';
+import { Bell, Check, ChevronsUpDown, Globe, LogOut, Moon, Search, ShoppingBag, Sun, User, Zap, ZapOff } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { DropdownMenu, Dialog } from 'radix-ui';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { cx } from '../ui/primitives';
 import { toast } from '../ui/client';
+import { setMotion, useReducedMotion } from '../motion/preference';
 
 const menuClass = 'animate-rise z-80 min-w-44 rounded-xl border border-line-strong bg-surface/95 p-1 shadow-3 backdrop-blur-xl';
 const itemClass = 'flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none transition-colors data-highlighted:bg-[color-mix(in_srgb,var(--neon)_10%,transparent)] data-highlighted:text-ink';
@@ -25,6 +26,23 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button onClick={toggle} aria-label={t('nav.toggleTheme')} className={cx(iconButton, className)}>
       <Sun size={17} strokeWidth={1.6} className="hidden dark:block" /><Moon size={17} strokeWidth={1.6} className="dark:hidden" />
+    </button>
+  );
+}
+
+/**
+ * Turns the site's animation on or off for this device. It starts from the system setting, so a
+ * computer with "animation effects" switched off sees a calm site until the visitor opts in here.
+ */
+export function MotionToggle({ className }: { className?: string }) {
+  const t = useTranslations();
+  const reduced = useReducedMotion();
+  return (
+    <button
+      type="button" onClick={() => setMotion(reduced ? 'on' : 'off')} aria-pressed={!reduced} aria-label={t('nav.toggleMotion')} title={t('nav.toggleMotion')}
+      data-testid="motion-toggle" className={cx(iconButton, !reduced && 'text-neon hover:text-neon', className)}
+    >
+      {reduced ? <ZapOff size={17} strokeWidth={1.6} /> : <Zap size={17} strokeWidth={1.6} />}
     </button>
   );
 }

@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { FaithLockup, FaithLogo } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
 import { MobileNavigation, NavLinks, NavScrollFrame } from './mobile-nav';
-import { CartLink, CommandPalette, LocaleSwitcher, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
+import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
 
 export async function DemoBanner() {
   const [meta, t] = await Promise.all([getMeta(), getTranslations()]);
@@ -33,6 +33,7 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
         <div className="ms-auto flex items-center gap-1">
           <CommandPalette />
           <LocaleSwitcher persist={!!me} />
+          <MotionToggle className="hidden sm:grid" />
           <ThemeToggle className="hidden sm:grid" />
           {me ? (
             <>

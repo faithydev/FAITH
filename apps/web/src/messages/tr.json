@@ -250,7 +250,8 @@
       "automations": "Otomasyonlar",
       "billing": "Faturalandırma",
       "settings": "Ayarlar"
-    }
+    },
+    "toggleMotion": "Animasyonlar"
   },
   "footer": {
     "platform": "Platform",

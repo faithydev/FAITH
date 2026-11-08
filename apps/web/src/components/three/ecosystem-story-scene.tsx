@@ -39,7 +39,7 @@ void main() {
 
 const WHITE = [0.86, 0.92, 0.89];
 const NEON = [0.0, 1.0, 0.4];
-const DIM = [0.1, 0.22, 0.15];
+const DIM = [0.42, 0.48, 0.45];
 
 const smooth = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));

@@ -101,7 +101,11 @@ waves, which rise toward the pointer (one WebGL fragment shader; an SVG version 
 - **Dashboards.** A greeting by time of day; columns grow in from the baseline; donut segments
   draw themselves; cards lift under the pointer. Charts use only the brand greens and always
   carry labels, values and a hidden data table.
-- **Reduced motion.** Every animation and transition collapses to an instant change.
+- **Reduced motion.** The site follows the system setting (Windows "Animation effects", macOS
+  "Reduce motion") by default: every animation collapses to an instant change, 3D scenes become
+  still art, and the economy section shows each part as a still point shape. The ⚡ switch in the
+  header turns motion on or off for this device in either direction; the choice is stored and
+  applied before the first paint (`<html data-reduced>`, `components/motion/preference.ts`).
 
 ## Accessibility
 
