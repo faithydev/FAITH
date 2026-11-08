@@ -15,6 +15,11 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const prisma = createRequire(join(root, 'packages/database/package.json')).resolve('prisma/build/index.js');
 
+if (!process.env.DATABASE_URL) {
+  console.error('[faith] DATABASE_URL is not set. Add the Neon connection string in the service Environment tab, then deploy again.');
+  process.exit(1);
+}
+
 const migrate = spawnSync(process.execPath, [prisma, 'migrate', 'deploy'], { cwd: join(root, 'packages/database'), stdio: 'inherit' });
 if (migrate.status !== 0) process.exit(migrate.status ?? 1);
 
