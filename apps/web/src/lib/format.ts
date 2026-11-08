@@ -8,6 +8,11 @@ export function money(minor: string | bigint | null | undefined, currency: strin
   return formatMoney(minor, currency, localeTag(locale));
 }
 
+/** "155.2K" or "155,2 ming": a short, rounded count for tight places such as a chart's centre. */
+export function numberCompact(value: number, locale: string): string {
+  return new Intl.NumberFormat(localeTag(locale), { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+}
+
 export function number(value: number | string | bigint, locale: string): string {
   return new Intl.NumberFormat(localeTag(locale)).format(typeof value === 'string' ? Number(value) : value);
 }

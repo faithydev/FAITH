@@ -2,7 +2,7 @@ import { BarChart, Donut } from '@/components/ui/chart';
 import { Greeting } from '@/components/ui/greeting';
 import { Badge, Card, LinkButton, PageHeader, SectionTitle, StatCard } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
-import { date, number } from '@/lib/format';
+import { date, number, numberCompact } from '@/lib/format';
 import { pageContext } from '@/lib/page';
 import { Activity, CircleDollarSign, Megaphone, RotateCcw, Scale, Store, TriangleAlert, Users } from 'lucide-react';
 
@@ -55,7 +55,7 @@ export default async function AdminOverview() {
           <SectionTitle title={t('admin.platformRevenue')} />
           {streams.length === 0
             ? <p className="py-14 text-center text-sm text-muted">{t('common.noResults')}</p>
-            : <Donut title={t('admin.platformRevenue')} total={m(streamTotal.toString(), currency)} totalLabel={currency} rows={streams.map((r) => ({ label: t(`admin.streams.${r.stream}`), value: Number(r.amountMinor), display: m(r.amountMinor, r.currency) }))} />}
+            : <Donut title={t('admin.platformRevenue')} total={numberCompact(Number(streamTotal) / 100, locale)} totalLabel={currency} rows={streams.map((r) => ({ label: t(`admin.streams.${r.stream}`), value: Number(r.amountMinor), display: m(r.amountMinor, r.currency) }))} />}
         </Card>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

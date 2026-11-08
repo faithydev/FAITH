@@ -8,7 +8,8 @@
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "seed": "nest build && node dist/seed.js"
+    "seed": "nest build && node dist/seed.js",
+    "seed:showcase": "nest build && node dist/seed-showcase.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.6.0",

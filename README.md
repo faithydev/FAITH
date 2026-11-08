@@ -43,6 +43,11 @@ The password for all of them is `FaithDemo2026!`. The seed refuses to run in pro
 `admin@`, `moderator@`, `finance@`, `seller@`, `timur@`, `creator@`, `jasur@`, `kamola@`, `brand@`,
 `developer@`, `talent@`, `buyer@`, `customer1@` to `customer5@`, all at `faith.dev`.
 
+**Showcase account.** `pnpm showcase` (after `pnpm bootstrap`) adds `fayzziyo@faith.dev` with the same
+password: every role including super admin, three stores, about $4.5M of simulated sales across four
+months, funded campaigns with creator results, jobs with applicants, published apps with installs
+and paid-out payouts. Everything runs through the real services and the payment simulator.
+
 ## Commands
 
 | Command | Purpose |
@@ -54,6 +59,7 @@ The password for all of them is `FaithDemo2026!`. The seed refuses to run in pro
 | `pnpm test:e2e` | Playwright journeys, language, accessibility and fallback tests |
 | `pnpm i18n:check` | Every language has every key and placeholder |
 | `pnpm db:reset` | Rebuilds the local database. Destroys local data |
+| `pnpm showcase` | Adds the showcase account and its simulated history |
 | `node scripts/example-smoke.mjs` | Key, webhook and sample app against a running stack |
 
 ## Layout

@@ -12,6 +12,7 @@
     "db:start": "node scripts/dev-db.mjs",
     "db:migrate": "pnpm --filter @faith/database migrate:deploy",
     "db:seed": "pnpm --filter @faith/database seed",
+    "showcase": "pnpm --filter @faith/api seed:showcase",
     "db:reset": "node scripts/db-reset.mjs",
     "build:packages": "pnpm -r --filter \"./packages/*\" run build",
     "dev": "node scripts/dev.mjs",

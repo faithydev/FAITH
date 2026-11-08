@@ -49,6 +49,14 @@ so FAITH showed its still fallbacks (including the plain tab list for the econom
 header now has a ⚡ switch that turns motion on for this device, and the still fallback draws
 each part as a point shape instead of a bare diagram. Covered by a new browser test.
 
+### Showcase account
+
+`pnpm showcase` adds `fayzziyo@faith.dev` on top of the demo data: every role including super
+admin, three stores and ten products, 150 clients and 370 paid orders (about $4.5M through the
+payment simulator, spread over four months), 11 refunds, reviews, three funded campaigns with 24
+creators, jobs with applicants, nine advisory projects, two published apps with 127 installs and
+about $2.3M of payouts marked paid. It ran once, end to end, on a fresh database.
+
 ### Changed on purpose
 
 - The "no canvas on sign-in" test became "no three.js on sign-in": the new sign-in page has a

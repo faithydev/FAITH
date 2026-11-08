@@ -74,7 +74,12 @@ export function StatCard({ label, value, hint, icon }: { label: string; value: R
         <p className="min-w-0 text-[0.8125rem] text-muted">{label}</p>
         {icon && <span aria-hidden className="stat-icon shrink-0">{icon}</span>}
       </div>
-      <p className="mt-2 truncate font-display text-[1.7rem] font-semibold tracking-tight tabular-nums">{value}</p>
+      <p
+        title={typeof value === 'string' ? value : undefined}
+        className={cx('mt-2 truncate font-display font-semibold tracking-tight tabular-nums', typeof value === 'string' && value.length > 11 ? 'text-[clamp(1.1rem,1.45vw,1.4rem)] leading-[1.6]' : 'text-[1.7rem]')}
+      >
+        {value}
+      </p>
       {hint && <p className="mt-1 truncate text-xs text-subtle">{hint}</p>}
     </Card>
   );

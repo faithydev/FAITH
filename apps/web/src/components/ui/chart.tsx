@@ -212,7 +212,7 @@ export function Donut({ rows, title, total, totalLabel }: { rows: { label: strin
   });
   const shown = hover === null ? null : rows[hover];
   return (
-    <figure className="m-0 grid items-center gap-5 sm:grid-cols-[auto_1fr]">
+    <figure className="m-0 grid items-center gap-5">
       <figcaption className="sr-only">{title}</figcaption>
       <div className="relative mx-auto size-40">
         <svg viewBox="0 0 140 140" className="size-40 -rotate-90" aria-hidden>
