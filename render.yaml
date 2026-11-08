@@ -1,7 +1,6 @@
 # FAITH public demo: the API (with its worker loop) on Render's free plan, data in Neon.
 # Payments run through the labelled simulator and email is recorded, not sent (PUBLIC_DEMO).
-# In the Render dashboard you set two values yourself: DATABASE_URL (from Neon) and WEB_ORIGIN
-# (the Vercel address of the web app).
+# In the Render dashboard you set one value yourself: DATABASE_URL (from Neon).
 services:
   - type: web
     name: faith-api
@@ -26,10 +25,9 @@ services:
         value: "10000"
       - key: DATABASE_URL
         sync: false
+      # The web app on Vercel. The API's own address comes from Render (RENDER_EXTERNAL_URL).
       - key: WEB_ORIGIN
-        sync: false
-      - key: API_ORIGIN
-        sync: false
+        value: https://faith-platform-green.vercel.app
       - key: APP_ENCRYPTION_KEY
         generateValue: true
       - key: SESSION_COOKIE_SECRET

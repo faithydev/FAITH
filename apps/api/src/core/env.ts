@@ -12,7 +12,8 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().optional(),
   WEB_ORIGIN: z.string().url().default('http://localhost:3000'),
-  API_ORIGIN: z.string().url().default('http://localhost:4000'),
+  // On Render the service's public address arrives as RENDER_EXTERNAL_URL.
+  API_ORIGIN: z.string().url().default(process.env.RENDER_EXTERNAL_URL || 'http://localhost:4000'),
   API_PORT: z.coerce.number().default(4000),
   /**
    * A public demonstration on real hosting: payments stay simulated and email is recorded, not
