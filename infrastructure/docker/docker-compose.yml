@@ -1,0 +1,89 @@
+# FAITH local stack in containers: PostgreSQL, Redis, API, web and worker.
+#
+#   docker compose -f infrastructure/docker/docker-compose.yml up --build
+#
+# This is a local, development-configured stack running compiled code. The API and worker run
+# with NODE_ENV=development on purpose: the payment simulator and the development mailbox are
+# refused in production, and no real payment provider is integrated yet. It is not a deployment.
+# Secrets below are placeholders for local use only. Replace every one of them anywhere else.
+
+name: faith
+
+x-app-env: &app-env
+  NODE_ENV: development
+  DATABASE_URL: postgresql://faith:faith_local_only@postgres:5432/faith
+  REDIS_URL: redis://redis:6379
+  WEB_ORIGIN: http://localhost:3000
+  API_ORIGIN: http://localhost:4000
+  API_PORT: '4000'
+  APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-local-only-change-me-local-only-change-me-0000}
+  SESSION_COOKIE_SECRET: ${SESSION_COOKIE_SECRET:-local-only-change-me-local-only-change-me-0001}
+  DOWNLOAD_SIGNING_SECRET: ${DOWNLOAD_SIGNING_SECRET:-local-only-change-me-local-only-change-me-0002}
+  MOCK_PAYMENT_WEBHOOK_SECRET: ${MOCK_PAYMENT_WEBHOOK_SECRET:-local-only-change-me-local-only-change-me-0003}
+  PAYMENT_PROVIDER: mock
+  ALLOW_MOCK_PAYMENTS: 'true'
+  STORAGE_DRIVER: local
+  STORAGE_DIR: /repo/.dev/storage
+  EMAIL_DRIVER: dev
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: faith
+      POSTGRES_PASSWORD: faith_local_only
+      POSTGRES_DB: faith
+    ports: ['54329:5432']
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U faith -d faith']
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports: ['6379:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      retries: 20
+
+  migrate:
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile }
+    environment: *app-env
+    command: ['sh', '-c', 'pnpm --filter @faith/database exec prisma migrate deploy && node apps/api/dist/seed.js']
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile }
+    environment: *app-env
+    command: ['node', 'apps/api/dist/main.js']
+    ports: ['4000:4000']
+    volumes: [storage:/repo/.dev/storage]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  worker:
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile }
+    environment: *app-env
+    command: ['node', 'apps/worker/dist/main.js']
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  web:
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile }
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://api:4000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    command: ['pnpm', '--filter', '@faith/web', 'start']
+    ports: ['3000:3000']
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  storage:

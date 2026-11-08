@@ -1,0 +1,48 @@
+{
+  "name": "@faith/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "predev": "node ../../scripts/gen-tokens.mjs",
+    "prebuild": "node ../../scripts/gen-tokens.mjs",
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "node ../../scripts/gen-tokens.mjs && tsc --noEmit"
+  },
+  "dependencies": {
+    "@faith/config": "workspace:*",
+    "@faith/design-tokens": "workspace:*",
+    "@faith/money": "workspace:*",
+    "@faith/validators": "workspace:*",
+    "@fontsource-variable/alexandria": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/onest": "^5.3.1",
+    "@hookform/resolvers": "7.0.3",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
+    "@tanstack/react-query": "5.107.1",
+    "cmdk": "1.1.1",
+    "lucide-react": "1.70.0",
+    "motion": "14.10.1",
+    "next": "16.4.5",
+    "next-intl": "4.14.9",
+    "radix-ui": "1.8.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-hook-form": "7.91.0",
+    "three": "0.187.0",
+    "zod": "4.6.7",
+    "zustand": "5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/three": "0.187.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.9.3"
+  }
+}

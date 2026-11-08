@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, types, unit, integration, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Dictionaries
+        run: pnpm i18n:check
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Integration tests (throwaway PostgreSQL)
+        run: pnpm test:api
+      - name: Production build
+        run: pnpm build
+
+  e2e:
+    name: Browser journeys
+    runs-on: ubuntu-latest
+    needs: checks
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Configure
+        run: |
+          cp .env.example .env
+          for name in APP_ENCRYPTION_KEY SESSION_COOKIE_SECRET DOWNLOAD_SIGNING_SECRET MOCK_PAYMENT_WEBHOOK_SECRET; do
+            sed -i "s|^$name=.*|$name=$(openssl rand -base64 32)|" .env
+          done
+      - name: Build
+        run: pnpm build
+      - name: Database, migrations and seed
+        run: |
+          node scripts/dev-db.mjs > db.log 2>&1 &
+          for i in $(seq 1 60); do nc -z 127.0.0.1 54329 && break; sleep 1; done
+          pnpm --filter @faith/database exec prisma migrate deploy
+          node apps/api/dist/seed.js
+      - name: Start the stack
+        run: |
+          node apps/api/dist/main.js > api.log 2>&1 &
+          for i in $(seq 1 60); do nc -z 127.0.0.1 4000 && break; sleep 1; done
+          NODE_ENV=production pnpm --filter @faith/web start > web.log 2>&1 &
+          node apps/worker/dist/main.js > worker.log 2>&1 &
+          for i in $(seq 1 60); do nc -z 127.0.0.1 3000 && break; sleep 1; done
+      - name: Playwright
+        run: pnpm test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: |
+            *.log
+            test-results

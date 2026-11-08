@@ -1,0 +1,13 @@
+{
+  "name": "@faith/example-order-notifier",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sample FAITH app: verifies signed webhooks and calls the API with a scoped key.",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": { "@faith/sdk": "workspace:*" },
+  "devDependencies": { "@types/node": "^24.0.0", "typescript": "5.9.3" }
+}
