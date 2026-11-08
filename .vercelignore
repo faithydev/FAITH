@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/.next
+.dev
+.env
+test-results
+playwright-report
+*.log
+public-assets

@@ -8,7 +8,7 @@
  *   node scripts/covers.mjs          only products without a cover
  *   node scripts/covers.mjs --all    redraw every product
  */
-import { mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 
@@ -17,7 +17,11 @@ const require = createRequire(join(root, 'packages/database/package.json'));
 const { createPrismaClient } = require('./dist/index.js');
 const sharp = createRequire(join(root, 'package.json'))('sharp');
 
-const env = Object.fromEntries(readFileSync(join(root, '.env'), 'utf8').split(/\r?\n/).map((l) => /^([A-Z0-9_]+)=(.*)$/.exec(l)).filter(Boolean).map((m) => [m[1], m[2]]));
+// Local runs read .env; hosted runs (Render) get the same values from the environment.
+const fileEnv = existsSync(join(root, '.env'))
+  ? Object.fromEntries(readFileSync(join(root, '.env'), 'utf8').split(/\r?\n/).map((l) => /^([A-Z0-9_]+)=(.*)$/.exec(l)).filter(Boolean).map((m) => [m[1], m[2]]))
+  : {};
+const env = { ...fileEnv, ...(process.env.DATABASE_URL ? { DATABASE_URL: process.env.DATABASE_URL } : {}), ...(process.env.STORAGE_DIR ? { STORAGE_DIR: process.env.STORAGE_DIR } : {}) };
 const storageDir = resolve(root, env.STORAGE_DIR || '.dev/storage');
 const db = createPrismaClient(env.DATABASE_URL);
 
@@ -124,7 +128,9 @@ function cover(slug, type) {
 }
 
 const all = process.argv.includes('--all');
-const products = await db.product.findMany({ where: all ? {} : { coverKey: null }, select: { id: true, slug: true, type: true, store: { select: { ownerId: true } } } });
+const products = (await db.product.findMany({ select: { id: true, slug: true, type: true, coverKey: true, store: { select: { ownerId: true } } } }))
+  // Redraw when asked, when there is no cover, or when the file is gone (hosts with a temporary disk).
+  .filter((p) => all || !p.coverKey || !existsSync(join(storageDir, p.coverKey)));
 mkdirSync(join(storageDir, 'public', 'covers'), { recursive: true });
 for (const p of products) {
   const key = `public/covers/${p.slug}.webp`;
@@ -139,4 +145,17 @@ for (const p of products) {
   await db.product.update({ where: { id: p.id }, data: { coverKey: key } });
 }
 console.log(`[faith] drew ${products.length} covers into ${join(storageDir, 'public', 'covers')}`);
+
+// Seeded product files are tiny placeholder archives. On a host whose disk is wiped on restart,
+// put back any that are missing so their download links keep working.
+const placeholder = Buffer.from('504b050600000000000000000000000000000000000000', 'hex');
+let restored = 0;
+for (const u of await db.upload.findMany({ where: { purpose: 'product', mime: 'application/zip', sizeBytes: placeholder.length } })) {
+  const file = join(storageDir, u.storageKey);
+  if (existsSync(file)) continue;
+  mkdirSync(join(file, '..'), { recursive: true });
+  writeFileSync(file, placeholder);
+  restored++;
+}
+if (restored) console.log(`[faith] restored ${restored} placeholder product files`);
 await db.$disconnect();

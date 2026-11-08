@@ -479,7 +479,9 @@
     "showPassword": "显示密码",
     "hidePassword": "隐藏密码",
     "agree": "创建账户即表示您同意<terms>服务条款</terms>和<privacy>隐私政策</privacy>。",
-    "loginBody": "欢迎回来。一个账户，畅享 FAITH 的一切。"
+    "loginBody": "欢迎回来。一个账户，畅享 FAITH 的一切。",
+    "demoReadyTitle": "您的账户已就绪",
+    "demoReadyBody": "这是公开演示，不会发送邮件：您可以立即登录。此处的付款均为模拟。"
   },
   "market": {
     "title": "市场",

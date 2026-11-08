@@ -74,11 +74,13 @@ export class AuthService {
         email: body.email,
         passwordHash,
         locale,
+        // A public demo cannot send email, so its accounts are usable at once.
+        emailVerifiedAt: env.PUBLIC_DEMO ? new Date() : null,
         profile: { create: { displayName: body.displayName, username: await this.freeUsername(body.displayName) } },
         roles: { create: { roleId: customer.id } },
       },
     });
-    await this.sendVerification(user);
+    if (!env.PUBLIC_DEMO) await this.sendVerification(user);
   }
 
   private async freeUsername(displayName: string) {

@@ -29,7 +29,7 @@ let attempt = 0;
 const key = (p: string) => `seed-${p}-${Date.now()}-${++attempt}`;
 
 async function main() {
-  if (isProd) throw new Error('The demo seed never runs in production.');
+  if (isProd && !env.PUBLIC_DEMO) throw new Error('The demo seed never runs in production.');
   const db = createPrismaClient(env.DATABASE_URL);
   await seedReference(db);
 

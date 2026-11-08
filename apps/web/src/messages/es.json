@@ -479,7 +479,9 @@
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
     "agree": "Al crear una cuenta, aceptas los <terms>Términos del servicio</terms> y la <privacy>Política de privacidad</privacy>.",
-    "loginBody": "Hola de nuevo. Una cuenta para todo en FAITH."
+    "loginBody": "Hola de nuevo. Una cuenta para todo en FAITH.",
+    "demoReadyTitle": "Tu cuenta está lista",
+    "demoReadyBody": "Es una demo pública, así que no se envía ningún correo: puedes iniciar sesión ya. Aquí los pagos son simulados."
   },
   "market": {
     "title": "Marketplace",

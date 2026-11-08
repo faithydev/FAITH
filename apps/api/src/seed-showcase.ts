@@ -52,7 +52,7 @@ const fullName = () => {
 };
 
 async function main() {
-  if (isProd) throw new Error('The showcase never runs in production.');
+  if (isProd && !env.PUBLIC_DEMO) throw new Error('The showcase never runs in production.');
   if (!env.ALLOW_MOCK_PAYMENTS) throw new Error('The showcase needs ALLOW_MOCK_PAYMENTS=true.');
   const db = createPrismaClient(env.DATABASE_URL);
 

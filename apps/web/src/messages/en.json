@@ -479,7 +479,9 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "agree": "By creating an account, you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
-    "loginBody": "Welcome back. One account for everything on FAITH."
+    "loginBody": "Welcome back. One account for everything on FAITH.",
+    "demoReadyTitle": "Your account is ready",
+    "demoReadyBody": "This is a public demo, so no email is sent: you can sign in straight away. Payments here are simulated."
   },
   "market": {
     "title": "Marketplace",

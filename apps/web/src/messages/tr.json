@@ -479,7 +479,9 @@
     "showPassword": "Şifreyi göster",
     "hidePassword": "Şifreyi gizle",
     "agree": "Hesap oluşturarak <terms>Hizmet Şartları</terms> ve <privacy>Gizlilik Politikası</privacy> metinlerini kabul etmiş olursunuz.",
-    "loginBody": "Tekrar hoş geldiniz. FAITH’teki her şey için tek hesap."
+    "loginBody": "Tekrar hoş geldiniz. FAITH’teki her şey için tek hesap.",
+    "demoReadyTitle": "Hesabınız hazır",
+    "demoReadyBody": "Bu herkese açık bir demo, e-posta gönderilmez: hemen giriş yapabilirsiniz. Buradaki ödemeler simülasyondur."
   },
   "market": {
     "title": "Pazar yeri",

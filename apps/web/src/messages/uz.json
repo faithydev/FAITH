@@ -479,7 +479,9 @@
     "showPassword": "Parolni koʻrsatish",
     "hidePassword": "Parolni yashirish",
     "agree": "Hisob yaratib, <terms>Foydalanish shartlari</terms> va <privacy>Maxfiylik siyosati</privacy>ga rozilik bildirasiz.",
-    "loginBody": "Qaytganingizdan xursandmiz. FAITH ichidagi hamma narsa uchun bitta hisob."
+    "loginBody": "Qaytganingizdan xursandmiz. FAITH ichidagi hamma narsa uchun bitta hisob.",
+    "demoReadyTitle": "Akkauntingiz tayyor",
+    "demoReadyBody": "Bu ochiq demo, shuning uchun email yuborilmaydi: darhol kirishingiz mumkin. Bu yerdagi toʻlovlar simulyatsiya."
   },
   "market": {
     "title": "Marketpleys",

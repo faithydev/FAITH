@@ -14,6 +14,15 @@ const schema = z.object({
   WEB_ORIGIN: z.string().url().default('http://localhost:3000'),
   API_ORIGIN: z.string().url().default('http://localhost:4000'),
   API_PORT: z.coerce.number().default(4000),
+  /**
+   * A public demonstration on real hosting: payments stay simulated and email is recorded, not
+   * sent, while everything else runs in production mode. The development mailbox stays closed.
+   */
+  PUBLIC_DEMO: bool.default(false),
+  /** Runs the outbox and webhook loop inside the API process, for hosts without a worker. */
+  RUN_WORKER: bool.default(false),
+  /** Proxy hops in front of the API: 1 for a load balancer, 2 behind the web app's rewrite too. */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
   APP_ENCRYPTION_KEY: secret,
   DOWNLOAD_SIGNING_SECRET: secret,
   MOCK_PAYMENT_WEBHOOK_SECRET: secret,
@@ -52,7 +61,7 @@ function load(): Env {
     throw new Error(`Invalid environment:\n${lines.join('\n')}`);
   }
   const env = parsed.data;
-  if (env.NODE_ENV === 'production') {
+  if (env.NODE_ENV === 'production' && !env.PUBLIC_DEMO) {
     if (env.PAYMENT_PROVIDER === 'mock' || env.ALLOW_MOCK_PAYMENTS) {
       throw new Error('The mock payment provider cannot run with NODE_ENV=production.');
     }

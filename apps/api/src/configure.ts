@@ -13,7 +13,7 @@ import { env } from './core/env';
 /** Shared by the server and the integration tests, so tests run the real middleware stack. */
 export function configureApp(app: INestApplication) {
   const express = app as NestExpressApplication;
-  express.set('trust proxy', 1);
+  express.set('trust proxy', env.TRUST_PROXY_HOPS);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
   app.use(cookieParser());
   app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });

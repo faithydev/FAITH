@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, cx } from '@/components/ui/primitives';
+import { Button, cx, LinkButton } from '@/components/ui/primitives';
 import { useErrorMessage } from '@/components/ui/client';
 import { Link, useRouter } from '@/i18n/navigation';
 import { clientApi } from '@/lib/client';
@@ -161,7 +161,8 @@ function DevMailbox({ email }: { email: string }) {
   );
 }
 
-export function RegisterForm({ oauth }: { oauth: { google: boolean } }) {
+/** `demo`: a public demonstration, where accounts are ready at once because no email is sent. */
+export function RegisterForm({ oauth, demo = false }: { oauth: { google: boolean }; demo?: boolean }) {
   const t = useTranslations();
   const locale = useLocale();
   const errorMessage = useErrorMessage();
@@ -186,6 +187,16 @@ export function RegisterForm({ oauth }: { oauth: { google: boolean } }) {
     }
   }
 
+  if (sentTo && demo) {
+    return (
+      <div data-testid="demo-ready" className="animate-rise">
+        <span className="mb-4 grid size-12 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--neon)_12%,transparent)] text-neon ring-1 ring-[color-mix(in_srgb,var(--neon)_30%,transparent)]"><MailCheck size={22} strokeWidth={1.6} /></span>
+        <h2 className="font-display text-xl font-semibold tracking-tight">{t('auth.demoReadyTitle')}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">{t('auth.demoReadyBody')}</p>
+        <LinkButton href="/login" size="lg" arrow className="mt-6 w-full">{t('auth.loginCta')}</LinkButton>
+      </div>
+    );
+  }
   if (sentTo) {
     return (
       <div data-testid="check-email" className="animate-rise">

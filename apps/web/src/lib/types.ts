@@ -8,7 +8,7 @@ export type Me = {
   features: string[]; flags: Record<string, boolean>; unreadNotifications: number; cartCount: number;
 };
 
-export type PlatformMeta = { demoData: boolean; mockPayments: boolean; aiLive: boolean };
+export type PlatformMeta = { demoData: boolean; mockPayments: boolean; aiLive: boolean; publicDemo?: boolean };
 export type Paged<T> = { items: T[]; total: number; page: number; pageSize: number; pages: number };
 
 export type Category = { id: string; slug: string; names: Record<string, string> };

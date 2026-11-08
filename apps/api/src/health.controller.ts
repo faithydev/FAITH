@@ -17,6 +17,7 @@ export class HealthController {
     return {
       demoData: demo?.value === true,
       mockPayments: this.payments.active().name === 'mock',
+      publicDemo: env.PUBLIC_DEMO,
       aiLive: !!env.ANTHROPIC_API_KEY,
     };
   }
