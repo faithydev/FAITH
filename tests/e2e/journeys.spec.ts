@@ -177,13 +177,11 @@ test('a job seeker applies and a developer submits an app', async ({ page, brows
   await devContext.close();
 });
 
-test('Free to Pro through the simulator, once a price exists', async ({ page }) => {
+test('Free to Pro through the simulator at the set price', async ({ page }) => {
+  // Pro is $11.99 a month, set in the reference data.
   await login(page, 'admin@faith.dev');
   await page.goto(url('/admin/settings'));
-  await page.getByLabel('Monthly price in USD').fill('19.00');
-  await page.getByLabel('Yearly price in USD').fill('190.00');
-  await page.getByRole('button', { name: 'Save' }).first().click();
-  await expect(page.getByText(/Now: \$19.00 monthly/)).toBeVisible();
+  await expect(page.getByText(/Now: \$11.99 monthly/)).toBeVisible();
 
   await register(page, 'Upgrading Person');
   await page.getByTestId('onboarding-skip').click();

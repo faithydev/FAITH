@@ -12,7 +12,7 @@
     "db:start": "node scripts/dev-db.mjs",
     "db:migrate": "pnpm --filter @faith/database migrate:deploy",
     "db:seed": "pnpm --filter @faith/database seed",
-    "showcase": "pnpm --filter @faith/api seed:showcase",
+    "showcase": "pnpm --filter @faith/api seed:showcase && node scripts/covers.mjs",
     "db:reset": "node scripts/db-reset.mjs",
     "build:packages": "pnpm -r --filter \"./packages/*\" run build",
     "dev": "node scripts/dev.mjs",
@@ -28,7 +28,8 @@
     "test:api": "node scripts/test-api.mjs",
     "test:e2e": "playwright test",
     "i18n:check": "node scripts/check-i18n.mjs",
-    "brand:assets": "node scripts/brand-assets.mjs"
+    "brand:assets": "node scripts/brand-assets.mjs",
+    "covers": "node scripts/covers.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

@@ -16,6 +16,7 @@ const db = await ensureDatabase(env);
 try {
   run('pnpm --filter @faith/database exec prisma migrate deploy', { env: { ...process.env, ...env } });
   run('pnpm --filter @faith/api seed', { env: { ...process.env, ...env } });
+  run('node scripts/covers.mjs');
   clearWebDataCache();
 } finally {
   if (db) {

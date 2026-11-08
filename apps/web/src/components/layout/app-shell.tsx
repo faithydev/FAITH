@@ -1,5 +1,4 @@
 import { Link } from '@/i18n/navigation';
-import { getMeta } from '@/lib/api';
 import type { Me } from '@/lib/types';
 import {
   BarChart3, Bell, BookOpen, Bot, Briefcase, Code2, CreditCard, FileCheck2, FolderKanban, Heart, KeyRound, Layers, Library,
@@ -109,14 +108,13 @@ function ProfileChip({ me, planLabel }: { me: Me; planLabel: string }) {
  * The signed-in frame, after the dashboard reference: frosted glass panels floating over slow
  * green light. The sidebar and the top bar float with a margin; the page content changes inside.
  */
-function Frame({ sidebar, topbar, banner, children }: { sidebar: ReactNode; topbar: ReactNode; banner?: ReactNode; children: ReactNode }) {
+function Frame({ sidebar, topbar, children }: { sidebar: ReactNode; topbar: ReactNode; children: ReactNode }) {
   return (
     <div className="shell flex min-h-svh">
       <AmbientBackground strength="strong" />
       <aside className="vt-sidebar glass sticky top-3 m-3 me-0 hidden h-[calc(100svh-1.5rem)] w-64 shrink-0 overflow-hidden rounded-[24px] lg:block">{sidebar}</aside>
       <div className="min-w-0 flex-1 pt-3 lg:px-3">
         {topbar}
-        {banner}
         <main id="main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"><RouteTransition>{children}</RouteTransition></main>
       </div>
     </div>
@@ -124,7 +122,7 @@ function Frame({ sidebar, topbar, banner, children }: { sidebar: ReactNode; topb
 }
 
 export async function AppShell({ me, children }: { me: Me; children: ReactNode }) {
-  const [t, meta] = await Promise.all([getTranslations(), getMeta()]);
+  const t = await getTranslations();
   const active = me.activeWorkspace === 'admin' ? 'buyer' : me.activeWorkspace;
   const items = WORKSPACE_ITEMS[active] ?? WORKSPACE_ITEMS.buyer!;
   const sidebar = (
@@ -148,11 +146,8 @@ export async function AppShell({ me, children }: { me: Me; children: ReactNode }
       <ProfileChip me={me} planLabel={t(`app.plans.${me.plan.key}`)} />
     </div>
   );
-  const banner = (meta?.mockPayments || meta?.demoData)
-    ? <p data-testid="demo-banner" className="mx-3 mt-3 rounded-xl border border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[color-mix(in_srgb,var(--neon)_7%,transparent)] px-4 py-1.5 font-mono text-[0.7rem] tracking-wide text-[color-mix(in_srgb,var(--neon)_75%,var(--text))] backdrop-blur-xl lg:mx-0">{t('common.demoBanner')}</p>
-    : undefined;
   return (
-    <Frame sidebar={sidebar} banner={banner} topbar={<Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />}>
+    <Frame sidebar={sidebar} topbar={<Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />}>
       {children}
     </Frame>
   );

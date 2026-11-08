@@ -50,7 +50,10 @@ export async function seedReference(db: PrismaClient): Promise<void> {
   }
 
   const free = await db.subscriptionPlan.upsert({ where: { key: 'free' }, update: {}, create: { key: 'free', name: 'Free' } });
-  const pro = await db.subscriptionPlan.upsert({ where: { key: 'pro' }, update: {}, create: { key: 'pro', name: 'Pro' } });
+  // Pro costs $11.99 a month (decided by the business). Set only where no price exists yet, so a
+  // price changed later in Admin → Settings is never overwritten by a reseed.
+  const pro = await db.subscriptionPlan.upsert({ where: { key: 'pro' }, update: {}, create: { key: 'pro', name: 'Pro', monthlyMinor: 1199n, currency: 'USD' } });
+  await db.subscriptionPlan.updateMany({ where: { key: 'pro', monthlyMinor: null }, data: { monthlyMinor: 1199n, currency: 'USD' } });
 
   const limit = async (planId: string, limits: Record<string, number>) => {
     for (const [name, value] of Object.entries(limits)) {

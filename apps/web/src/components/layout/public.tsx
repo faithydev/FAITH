@@ -1,21 +1,11 @@
 import { Link } from '@/i18n/navigation';
-import { getMe, getMeta } from '@/lib/api';
+import { getMe } from '@/lib/api';
 import { Menu } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { FaithLockup, FaithLogo } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
 import { MobileNavigation, NavLinks, NavScrollFrame } from './mobile-nav';
 import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
-
-export async function DemoBanner() {
-  const [meta, t] = await Promise.all([getMeta(), getTranslations()]);
-  if (!meta?.demoData && !meta?.mockPayments) return null;
-  return (
-    <div data-testid="demo-banner" className="border-b border-[color-mix(in_srgb,var(--neon)_22%,transparent)] bg-[color-mix(in_srgb,var(--neon)_9%,var(--bg))] px-4 py-1.5 text-center font-mono text-[0.7rem] tracking-wide text-[color-mix(in_srgb,var(--neon)_80%,var(--text))]">
-      {t('common.demoBanner')}
-    </div>
-  );
-}
 
 export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean }) {
   const [t, me] = await Promise.all([getTranslations(), getMe()]);
@@ -26,7 +16,6 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
   ];
   return (
     <NavScrollFrame overlay={overlay}>
-      <DemoBanner />
       <nav aria-label={t('nav.primary')} className="mx-auto flex h-15 max-w-[92rem] items-center gap-3 px-3 sm:gap-5 sm:px-6 lg:px-8">
         <Link href="/" aria-label={t('nav.home')} className="shrink-0"><FaithLogo compact /></Link>
         <NavLinks links={links} />
