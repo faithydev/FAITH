@@ -16,9 +16,22 @@ export function PointerFx() {
     let last: HTMLElement | null = null;
     const reset = (el: HTMLElement | null) => {
       if (!el) return;
-      el.style.removeProperty('--mx');
-      el.style.removeProperty('--my');
+      for (const p of ['--mx', '--my', '--tx', '--ty']) el.style.removeProperty(p);
     };
+    // A ripple of light from the exact point of the press, on touch as well as mouse.
+    const press = (e: PointerEvent) => {
+      const el = (e.target as Element | null)?.closest?.<HTMLElement>('.fx-btn');
+      if (!el || el.matches(':disabled, [aria-disabled="true"]')) return;
+      const r = el.getBoundingClientRect();
+      const dot = document.createElement('span');
+      dot.className = 'fx-ripple';
+      dot.setAttribute('aria-hidden', 'true');
+      dot.style.left = `${e.clientX - r.left}px`;
+      dot.style.top = `${e.clientY - r.top}px`;
+      el.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove(), { once: true });
+    };
+    document.addEventListener('pointerdown', press, { passive: true });
     const move = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
       const el = (e.target as Element | null)?.closest?.<HTMLElement>('.fx-btn, .hover-depth') ?? null;
@@ -31,6 +44,11 @@ export function PointerFx() {
       if (el.classList.contains('fx-btn')) {
         el.style.setProperty('--mx', `${((x / r.width) * 100).toFixed(1)}%`);
         el.style.setProperty('--my', `${((y / r.height) * 100).toFixed(1)}%`);
+        // Larger buttons lean a few pixels toward the pointer, like a magnet.
+        if (!el.classList.contains('fx-sm')) {
+          el.style.setProperty('--tx', `${((x - r.width / 2) * 0.14).toFixed(1)}px`);
+          el.style.setProperty('--ty', `${((y - r.height / 2) * 0.22).toFixed(1)}px`);
+        }
       } else {
         el.style.setProperty('--sx', `${x.toFixed(0)}px`);
         el.style.setProperty('--sy', `${y.toFixed(0)}px`);
@@ -41,10 +59,65 @@ export function PointerFx() {
     document.documentElement.addEventListener('pointerleave', out);
     return () => {
       document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerdown', press);
       document.documentElement.removeEventListener('pointerleave', out);
     };
   }, []);
   return null;
+}
+
+/**
+ * The fixed background layer behind a whole page. Because every section sits on the same layer,
+ * there is no edge where one section's background stops and the next begins. The glow eases
+ * after the pointer instead of snapping to it; the dot grid drifts slower than the content.
+ */
+export function AmbientBackground({ strength = 'soft' }: { strength?: 'soft' | 'strong' }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced()) return;
+    let tx = window.innerWidth * 0.5;
+    let ty = window.innerHeight * 0.3;
+    let x = tx;
+    let y = ty;
+    let frame = 0;
+    const tick = () => {
+      x += (tx - x) * 0.07;
+      y += (ty - y) * 0.07;
+      el.style.setProperty('--gx', `${x.toFixed(1)}px`);
+      el.style.setProperty('--gy', `${y.toFixed(1)}px`);
+      frame = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(tick) : 0;
+    };
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      tx = e.clientX;
+      ty = e.clientY;
+      el.style.setProperty('--g-on', '1');
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    let scrolling = 0;
+    const scroll = () => {
+      if (scrolling) return;
+      scrolling = requestAnimationFrame(() => { scrolling = 0; el.style.setProperty('--scroll', String(window.scrollY)); });
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('scroll', scroll, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('scroll', scroll);
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(scrolling);
+    };
+  }, []);
+  return (
+    <div ref={ref} aria-hidden className="ambient" data-strength={strength}>
+      <i className="a-grid" />
+      <i className="a-blob a-1" />
+      <i className="a-blob a-2" />
+      <i className="a-blob a-3" />
+      <i className="a-glow" />
+    </div>
+  );
 }
 
 /**

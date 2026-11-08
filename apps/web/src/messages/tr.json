@@ -950,7 +950,10 @@
       "noOrdersBody": "Satın aldıklarınız burada görünecek.",
       "opportunities": "Size özel fırsatlar",
       "noOpportunities": "Henüz eşleşme yok.",
-      "consentOff": "Öneriler ayarlarınızda kapalı."
+      "consentOff": "Öneriler ayarlarınızda kapalı.",
+      "greetMorning": "Günaydın, {name}",
+      "greetAfternoon": "İyi günler, {name}",
+      "greetEvening": "İyi akşamlar, {name}"
     },
     "explore": {
       "title": "Keşfet",

@@ -950,7 +950,10 @@
       "noOrdersBody": "Xaridlaringiz shu yerda paydo boʻladi.",
       "opportunities": "Siz uchun imkoniyatlar",
       "noOpportunities": "Hozircha mos narsa yoʻq.",
-      "consentOff": "Tavsiyalar sozlamalarda oʻchirilgan."
+      "consentOff": "Tavsiyalar sozlamalarda oʻchirilgan.",
+      "greetMorning": "Xayrli tong, {name}",
+      "greetAfternoon": "Xayrli kun, {name}",
+      "greetEvening": "Xayrli kech, {name}"
     },
     "explore": {
       "title": "Kashf etish",

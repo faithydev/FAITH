@@ -65,7 +65,6 @@ export async function Footer() {
   ];
   return (
     <footer className="relative overflow-hidden">
-      <div aria-hidden className="h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--neon)_70%,transparent),transparent)]" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(50%_100%_at_50%_0%,color-mix(in_srgb,var(--neon)_9%,transparent),transparent)]" />
       <div className="relative mx-auto grid max-w-[92rem] gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)] lg:px-8">
         <div>
@@ -82,7 +81,7 @@ export async function Footer() {
         ))}
       </div>
       <p aria-hidden className="pointer-events-none relative -mb-[0.18em] select-none text-center font-display text-[clamp(4rem,19vw,17rem)] leading-none font-semibold tracking-[-0.06em] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--text)_16%,transparent),transparent_80%)] bg-clip-text text-transparent">FAITH</p>
-      <div className="relative border-t border-line">
+      <div className="relative">
         <p className="mx-auto max-w-[92rem] px-4 py-5 font-mono text-[0.7rem] tracking-wide text-subtle sm:px-6 lg:px-8">{t('brand.tagline')}</p>
       </div>
     </footer>

@@ -11,6 +11,9 @@
 @property --fx-drift { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 @property --fa { syntax: '<number>'; inherits: true; initial-value: 0; }
 @property --sheen { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+@property --fx-sweep { syntax: '<percentage>'; inherits: false; initial-value: 140%; }
+@property --tx { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --ty { syntax: '<length>'; inherits: false; initial-value: 0px; }
 
 @theme inline {
   --color-bg: var(--bg);
@@ -66,8 +69,8 @@
     background: var(--bg);
     scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent;
   }
+  /* No body background: <html> carries the colour, so the fixed ambient layer can show through. */
   body {
-    background: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
     font-optical-sizing: auto;
@@ -198,6 +201,9 @@
     --b-rest: 0.6;
     --b-shadow: 0 12px 26px -14px rgba(0, 0, 0, 0.35), inset 0 -2px 6px rgba(0, 0, 0, 0.05);
     --b-text-shadow: none;
+    --b-sheen: rgba(0, 200, 90, 0.18);
+    /* A band of light that crosses the button once each time the pointer arrives. */
+    --fx-sheen-layer: linear-gradient(105deg, transparent 38%, var(--b-sheen) 50%, transparent 62%) var(--fx-sweep) 0 / 260% 100% no-repeat;
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -214,7 +220,8 @@
     cursor: pointer;
     color: var(--b-text);
     text-shadow: var(--b-text-shadow);
-    background: var(--b-bg);
+    background: var(--fx-sheen-layer), var(--b-bg);
+    translate: var(--tx) var(--ty);
     box-shadow:
       inset 0 1px 0 var(--b-hi),
       inset 0 0 0 1px var(--b-edge),
@@ -225,9 +232,26 @@
       --fx-bloom 1.2s var(--ease-out),
       --mx 0.5s var(--ease-out),
       --my 0.5s var(--ease-out),
+      --tx 0.5s var(--ease-spring),
+      --ty 0.5s var(--ease-spring),
       transform 0.35s var(--ease-spring),
       color 0.3s var(--ease-standard);
     -webkit-tap-highlight-color: transparent;
+  }
+  @media (hover: hover) {
+    .fx-btn:hover { animation: fx-sweep 0.95s var(--ease-out); }
+  }
+  /* Press ripple, placed at the pointer by PointerFx. Under the label, over the light. */
+  .fx-ripple {
+    position: absolute;
+    z-index: -1;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    translate: -50% -50%;
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--b-light) 85%, white) 0%, color-mix(in srgb, var(--b-light) 45%, transparent) 40%, transparent 70%);
+    animation: fx-ripple 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
   }
   [dir='rtl'] .fx-btn { --mx: 14%; }
   .fx-btn::before {
@@ -275,8 +299,9 @@
   .fx-btn > svg { flex: none; }
   .fx-arrow { transition: translate 0.45s var(--ease-spring); }
   @media (hover: hover) {
-    .fx-btn:hover .fx-arrow { translate: 3px 0; }
-    [dir='rtl'] .fx-btn:hover .fx-arrow { translate: -3px 0; }
+    /* The arrow leaves through the end and comes back from the start: a small "go". */
+    .fx-btn:hover .fx-arrow { animation: arrow-go 0.6s var(--ease-out); translate: 2px 0; }
+    [dir='rtl'] .fx-btn:hover .fx-arrow { animation-name: arrow-go-rtl; translate: -2px 0; }
   }
 
   [data-theme='dark'] .fx-btn {
@@ -290,6 +315,7 @@
     --b-rest: 0.42;
     --b-shadow: 0 10px 26px -14px rgba(0, 0, 0, 1);
     --b-text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+    --b-sheen: rgba(214, 255, 232, 0.2);
   }
 
   /* Primary: green light drifts behind the label all the time, like liquid under glass. */
@@ -297,10 +323,14 @@
     --b-rest: 0.75;
     --b-edge: color-mix(in srgb, var(--neon) 45%, transparent);
     background:
+      var(--fx-sheen-layer),
       radial-gradient(38% 95% at calc(76% + cos(var(--fx-drift)) * 12%) calc(58% + sin(var(--fx-drift)) * 34%), color-mix(in srgb, var(--b-light) 62%, transparent), transparent 70%),
       radial-gradient(30% 80% at calc(90% - sin(var(--fx-drift)) * 9%) calc(30% + cos(var(--fx-drift)) * 22%), color-mix(in srgb, var(--b-light-2) 55%, transparent), transparent 70%),
       var(--b-bg);
     animation: drift 9s linear infinite;
+  }
+  @media (hover: hover) {
+    .fx-primary:hover { animation: drift 9s linear infinite, fx-sweep 0.95s var(--ease-out); }
   }
   [data-theme='dark'] .fx-primary {
     --b-bg: linear-gradient(180deg, #03140a, #010703);
@@ -416,6 +446,88 @@
     box-shadow: 0 0 12px var(--neon-glow);
   }
   [dir='rtl'] .side-link[aria-current='page']::before { border-radius: 3px 0 0 3px; }
+
+  /* ------------------------------------------------------------------------------------------
+   * Ambient background: one fixed layer behind every page, so sections never meet at a seam.
+   * Slow green light drifts; a soft glow follows the pointer; the dot grid moves with scroll.
+   * ------------------------------------------------------------------------------------------ */
+  .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+  .ambient > i { position: absolute; border-radius: 999px; will-change: transform; }
+  .ambient .a-blob {
+    width: 52vmax;
+    height: 52vmax;
+    background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--neon) var(--a-strength, 14%), transparent), transparent 62%);
+    filter: blur(40px);
+  }
+  .ambient .a-1 { top: -26vmax; inset-inline-start: -18vmax; animation: float-a 28s ease-in-out infinite alternate; }
+  .ambient .a-2 { bottom: -30vmax; inset-inline-end: -20vmax; animation: float-b 34s ease-in-out infinite alternate; }
+  .ambient .a-3 { top: 28%; inset-inline-start: 48%; width: 34vmax; height: 34vmax; opacity: 0.7; animation: float-c 24s ease-in-out infinite alternate; }
+  .ambient .a-glow {
+    left: 0;
+    top: 0;
+    width: 44vmax;
+    height: 44vmax;
+    margin: -22vmax 0 0 -22vmax;
+    background: radial-gradient(circle, color-mix(in srgb, var(--neon) 9%, transparent), transparent 62%);
+    transform: translate3d(var(--gx, 50vw), var(--gy, 30vh), 0);
+    opacity: var(--g-on, 0);
+    transition: opacity 1.2s var(--ease-out);
+  }
+  .ambient .a-grid {
+    inset: -10vh 0;
+    border-radius: 0;
+    background-image: radial-gradient(color-mix(in srgb, var(--text) 7%, transparent) 1px, transparent 1.3px);
+    background-size: 26px 26px;
+    mask: radial-gradient(80% 70% at 50% 40%, #000 20%, transparent 80%);
+    transform: translate3d(0, calc(var(--scroll, 0) * -0.06px), 0);
+  }
+  .ambient[data-strength='strong'] { --a-strength: 22%; }
+  :root:not([data-theme='dark']) .ambient { --a-strength: 10%; }
+
+  /* A section that must be black even in the light theme fades in and out instead of cutting in. */
+  .section-dark { position: relative; isolation: isolate; }
+  .section-dark::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  :root:not([data-theme='dark']) .section-dark::before {
+    background: #000;
+    mask: linear-gradient(180deg, transparent, #000 9rem, #000 calc(100% - 9rem), transparent);
+  }
+  :root:not([data-theme='dark']) .section-dark.flush-top::before { mask: linear-gradient(180deg, #000 calc(100% - 9rem), transparent); }
+
+  /* ------------------------------------------------------------------------------------------
+   * Glass, after the dashboard reference: frosted panels over the moving light.
+   * ------------------------------------------------------------------------------------------ */
+  .glass {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--text) 6%, transparent), color-mix(in srgb, var(--text) 2%, transparent));
+    border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent), 0 24px 60px -36px rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+  }
+  :root:not([data-theme='dark']) .glass { background: rgba(255, 255, 255, 0.62); border-color: rgba(0, 0, 0, 0.06); box-shadow: inset 0 1px 0 #fff, 0 24px 60px -36px rgba(0, 0, 0, 0.25); }
+  .shell .card {
+    border-radius: 20px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--text) 5.5%, transparent), color-mix(in srgb, var(--text) 2%, transparent));
+    border-color: color-mix(in srgb, var(--text) 9%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 7%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+  }
+  :root:not([data-theme='dark']) .shell .card { background: rgba(255, 255, 255, 0.7); }
+  .lift { transition: transform 0.5s var(--ease-spring), border-color 0.3s var(--ease-standard), box-shadow 0.5s var(--ease-out); }
+  @media (hover: hover) {
+    .lift:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--neon) 35%, transparent); box-shadow: 0 26px 50px -30px color-mix(in srgb, var(--neon) 45%, transparent), inset 0 1px 0 color-mix(in srgb, var(--text) 9%, transparent); }
+  }
+  .stat-icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 12px;
+    color: var(--neon);
+    background: color-mix(in srgb, var(--neon) 11%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--neon) 22%, transparent), 0 0 24px -6px color-mix(in srgb, var(--neon) 50%, transparent);
+  }
+  :root:not([data-theme='dark']) .stat-icon { color: var(--accent); }
 }
 
 /* ------------------------------------------------------------------------------------------
@@ -443,6 +555,15 @@
 @keyframes sheen { to { --sheen: 200%; } }
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 @keyframes pulse-dot { 50% { opacity: 0.35; } }
+@keyframes bar-rise { from { transform: scaleY(0); } }
+@keyframes donut-draw { from { stroke-dasharray: 0 var(--circ); } }
+@keyframes fx-sweep { from { --fx-sweep: 140%; } to { --fx-sweep: -40%; } }
+@keyframes fx-ripple { from { transform: scale(0.4); opacity: 1; } to { transform: scale(26); opacity: 0; } }
+@keyframes arrow-go { 0% { translate: 0 0; opacity: 1; } 42% { translate: 12px 0; opacity: 0; } 43% { translate: -12px 0; opacity: 0; } 100% { translate: 2px 0; opacity: 1; } }
+@keyframes arrow-go-rtl { 0% { translate: 0 0; opacity: 1; } 42% { translate: -12px 0; opacity: 0; } 43% { translate: 12px 0; opacity: 0; } 100% { translate: -2px 0; opacity: 1; } }
+@keyframes float-a { to { transform: translate3d(18vmax, 14vmax, 0) scale(1.15); } }
+@keyframes float-b { to { transform: translate3d(-16vmax, -12vmax, 0) scale(0.9); } }
+@keyframes float-c { 50% { transform: translate3d(-12vmax, 8vmax, 0) scale(1.2); } to { transform: translate3d(6vmax, -10vmax, 0) scale(0.85); } }
 .animate-rise { animation: rise var(--dur-cinematic) var(--ease-out) both; animation-delay: var(--rise-delay, 0ms); }
 
 @media (prefers-reduced-motion: reduce) {

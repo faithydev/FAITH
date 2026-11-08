@@ -950,7 +950,10 @@
       "noOrdersBody": "Сатып алғандарыңыз осында көрінеді.",
       "opportunities": "Сізге арналған мүмкіндіктер",
       "noOpportunities": "Әзірге сәйкес ештеңе жоқ.",
-      "consentOff": "Ұсыныстар параметрлерде өшірілген."
+      "consentOff": "Ұсыныстар параметрлерде өшірілген.",
+      "greetMorning": "Қайырлы таң, {name}",
+      "greetAfternoon": "Қайырлы күн, {name}",
+      "greetEvening": "Қайырлы кеш, {name}"
     },
     "explore": {
       "title": "Ұсыныстар",

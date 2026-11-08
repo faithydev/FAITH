@@ -25,7 +25,7 @@ export function SidebarDrawer({ label, children }: { label: string; children: Re
       <Dialog.Trigger aria-label={label} className="grid size-9 place-items-center rounded-md text-muted hover:bg-surface-2 hover:text-ink lg:hidden"><Menu size={19} strokeWidth={1.7} /></Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-90 bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="animate-rise fixed inset-y-0 start-0 z-90 w-[min(17rem,84vw)] border-e border-line bg-surface shadow-3">
+        <Dialog.Content className="animate-rise fixed inset-y-2 start-2 z-90 w-[min(17rem,84vw)] overflow-hidden rounded-[22px] border border-line bg-surface/85 shadow-3 backdrop-blur-2xl">
           <Dialog.Title className="sr-only">{label}</Dialog.Title>
           <Dialog.Description className="sr-only">{label}</Dialog.Description>
           {children}

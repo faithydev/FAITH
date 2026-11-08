@@ -950,7 +950,10 @@
       "noOrdersBody": "تظهر مشترياتك هنا.",
       "opportunities": "فرص لك",
       "noOpportunities": "لا يوجد ما يطابق حاليًا.",
-      "consentOff": "التوصيات معطّلة في الإعدادات."
+      "consentOff": "التوصيات معطّلة في الإعدادات.",
+      "greetMorning": "صباح الخير، {name}",
+      "greetAfternoon": "طاب يومك، {name}",
+      "greetEvening": "مساء الخير، {name}"
     },
     "explore": {
       "title": "مقترحات لك",

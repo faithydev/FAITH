@@ -36,8 +36,8 @@ export function ThreeDHero({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <section ref={ref} data-theme="dark" className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-black text-white">
-      <div className="absolute inset-0 -z-10">
+    <section ref={ref} data-theme="dark" className="section-dark flush-top flex min-h-[100svh] items-end overflow-hidden text-white">
+      <div className="absolute inset-0 -z-10 [mask:linear-gradient(180deg,#000_calc(100%-9rem),transparent)]">
         {support.state === 'ready' ? <NetworkScene quality={support.quality} active={active} scrollProgress={scroll} /> : support.state === 'static' ? <StaticBackdrop /> : null}
         <div aria-hidden className="dot-grid pointer-events-none absolute inset-0 opacity-40 [mask:radial-gradient(70%_60%_at_70%_40%,#000,transparent)]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(42%_55%_at_72%_42%,rgba(0,255,102,0.14),transparent_70%)] rtl:scale-x-[-1]" />

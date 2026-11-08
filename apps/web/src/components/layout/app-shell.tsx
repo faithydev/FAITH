@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { RouteTransition } from '../motion/fx';
+import { AmbientBackground, RouteTransition } from '../motion/fx';
 import { FaithLogo } from '../ui/logo';
 import { CartLink, CommandPalette, LocaleSwitcher, NotificationLink, ThemeToggle, UserAvatarMenu, WorkspaceSwitcher } from './controls';
 import { SidebarDrawer, SidebarLink } from './sidebar';
@@ -75,7 +75,7 @@ const ADMIN_ITEMS: (Item & { permission: string })[] = [
 
 function Topbar({ me, cartLabel, notificationsLabel, drawer }: { me: Me; cartLabel: string; notificationsLabel: string; drawer: ReactNode }) {
   return (
-    <header className="vt-topbar sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-line bg-bg/75 px-3 backdrop-blur-xl backdrop-saturate-150 sm:px-5">
+    <header className="vt-topbar glass sticky top-3 z-40 mx-3 flex h-14 items-center gap-2 rounded-2xl px-2.5 sm:px-3 lg:mx-0">
       {drawer}
       <div className="ms-auto flex items-center gap-1">
         <CommandPalette />
@@ -86,6 +86,39 @@ function Topbar({ me, cartLabel, notificationsLabel, drawer }: { me: Me; cartLab
         <span className="ms-1.5"><UserAvatarMenu name={me.profile?.displayName ?? me.email} email={me.email} isStaff={me.permissions.includes('admin.access')} /></span>
       </div>
     </header>
+  );
+}
+
+/** The signed-in person at the foot of the sidebar, as in the dashboard reference. */
+function ProfileChip({ me, planLabel }: { me: Me; planLabel: string }) {
+  const name = me.profile?.displayName ?? me.email;
+  const initials = name.split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+  return (
+    <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-[color-mix(in_srgb,var(--text)_3%,transparent)] p-2.5">
+      <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-neon text-[0.72rem] font-semibold text-black shadow-[0_0_18px_-4px_var(--neon)]">{initials}</span>
+      <span className="min-w-0">
+        <span className="block truncate text-[0.8125rem] font-medium">{name}</span>
+        <span className="block truncate font-mono text-[0.66rem] tracking-wide text-subtle uppercase">{planLabel}</span>
+      </span>
+    </div>
+  );
+}
+
+/**
+ * The signed-in frame, after the dashboard reference: frosted glass panels floating over slow
+ * green light. The sidebar and the top bar float with a margin; the page content changes inside.
+ */
+function Frame({ sidebar, topbar, banner, children }: { sidebar: ReactNode; topbar: ReactNode; banner?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="shell flex min-h-svh">
+      <AmbientBackground strength="strong" />
+      <aside className="vt-sidebar glass sticky top-3 m-3 me-0 hidden h-[calc(100svh-1.5rem)] w-64 shrink-0 overflow-hidden rounded-[24px] lg:block">{sidebar}</aside>
+      <div className="min-w-0 flex-1 pt-3 lg:px-3">
+        {topbar}
+        {banner}
+        <main id="main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"><RouteTransition>{children}</RouteTransition></main>
+      </div>
+    </div>
   );
 }
 
@@ -111,17 +144,16 @@ export async function AppShell({ me, children }: { me: Me; children: ReactNode }
           <Bot size={15} strokeWidth={1.6} />{t('nav.upgrade')}
         </Link>
       )}
+      <ProfileChip me={me} planLabel={t(`app.plans.${me.plan.key}`)} />
     </div>
   );
+  const banner = (meta?.mockPayments || meta?.demoData)
+    ? <p data-testid="demo-banner" className="mx-3 mt-3 rounded-xl border border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[color-mix(in_srgb,var(--neon)_7%,transparent)] px-4 py-1.5 font-mono text-[0.7rem] tracking-wide text-[color-mix(in_srgb,var(--neon)_75%,var(--text))] backdrop-blur-xl lg:mx-0">{t('common.demoBanner')}</p>
+    : undefined;
   return (
-    <div className="flex min-h-svh">
-      <aside className="vt-sidebar sticky top-0 hidden h-svh w-60 shrink-0 border-e border-line bg-[linear-gradient(180deg,color-mix(in_srgb,var(--neon)_4%,var(--surface)),var(--surface)_30%)] lg:block">{sidebar}</aside>
-      <div className="min-w-0 flex-1">
-        <Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />
-        {(meta?.mockPayments || meta?.demoData) && <p data-testid="demo-banner" className="border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[color-mix(in_srgb,var(--neon)_7%,var(--bg))] px-5 py-1.5 font-mono text-[0.7rem] tracking-wide text-[color-mix(in_srgb,var(--neon)_75%,var(--text))]">{t('common.demoBanner')}</p>}
-        <main id="main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"><RouteTransition>{children}</RouteTransition></main>
-      </div>
-    </div>
+    <Frame sidebar={sidebar} banner={banner} topbar={<Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />}>
+      {children}
+    </Frame>
   );
 }
 
@@ -131,22 +163,19 @@ export async function AdminShell({ me, children }: { me: Me; children: ReactNode
   const sidebar = (
     <div className="flex h-full flex-col gap-4 p-3">
       <Link href="/" aria-label={t('nav.home')} className="px-2 pt-1.5"><FaithLogo /></Link>
-      <p className="flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 py-2 font-mono text-[0.7rem] tracking-wide text-muted uppercase"><ShieldCheck size={14} className="text-neon" />{t('admin.console')}</p>
+      <p className="flex items-center gap-2 rounded-xl border border-line bg-[color-mix(in_srgb,var(--text)_3%,transparent)] px-3 py-2 font-mono text-[0.7rem] tracking-wide text-muted uppercase"><ShieldCheck size={14} className="text-neon" />{t('admin.console')}</p>
       <nav aria-label={t('admin.console')} className="flex-1 overflow-y-auto">
         <ul className="space-y-0.5">
           {items.map((i) => <li key={i.href}><SidebarLink href={i.href} exact={i.exact} label={t(`admin.nav.${i.key}`)} icon={<i.icon size={16} strokeWidth={1.6} />} /></li>)}
         </ul>
       </nav>
-      <Link href="/app" className="px-2.5 py-2 text-[0.8125rem] text-muted hover:text-ink">{t('admin.exit')}</Link>
+      <Link href="/app" className="px-2.5 py-1 text-[0.8125rem] text-muted hover:text-ink">{t('admin.exit')}</Link>
+      <ProfileChip me={me} planLabel={t('admin.console')} />
     </div>
   );
   return (
-    <div className="flex min-h-svh">
-      <aside className="vt-sidebar sticky top-0 hidden h-svh w-60 shrink-0 border-e border-line bg-[linear-gradient(180deg,color-mix(in_srgb,var(--neon)_4%,var(--surface)),var(--surface)_30%)] lg:block">{sidebar}</aside>
-      <div className="min-w-0 flex-1">
-        <Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />
-        <main id="main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"><RouteTransition>{children}</RouteTransition></main>
-      </div>
-    </div>
+    <Frame sidebar={sidebar} topbar={<Topbar me={me} cartLabel={t('nav.cart')} notificationsLabel={t('nav.notifications')} drawer={<SidebarDrawer label={t('nav.menu')}>{sidebar}</SidebarDrawer>} />}>
+      {children}
+    </Frame>
   );
 }

@@ -950,7 +950,10 @@
       "noOrdersBody": "What you buy will show up here.",
       "opportunities": "Opportunities for you",
       "noOpportunities": "Nothing matches yet.",
-      "consentOff": "Recommendations are off in your settings."
+      "consentOff": "Recommendations are off in your settings.",
+      "greetMorning": "Good morning, {name}",
+      "greetAfternoon": "Good afternoon, {name}",
+      "greetEvening": "Good evening, {name}"
     },
     "explore": {
       "title": "Discover",

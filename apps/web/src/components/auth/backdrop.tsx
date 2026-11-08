@@ -6,50 +6,54 @@ import { useActive, useSceneSupport } from '../three/capability';
 const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
 
 /**
- * A dark planet edge with green light rising off it. Pure maths in one fragment shader:
- * no textures, no libraries, a few hundred bytes over the wire.
+ * Ribbons of green light that roll like waves under the sign-in card and swell toward the
+ * pointer. One fragment shader: no textures, no libraries, only the brand's black and greens.
  */
 const FRAG = `
 precision highp float;
 uniform vec2 r;
 uniform float t;
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float noise(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-float fbm(vec2 p){
-  float v = 0.0, a = 0.5;
-  for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
-  return v;
+uniform vec2 m;
+uniform float mOn;
+float wave(float x, float base, float amp, float freq, float speed, float phase, float bump) {
+  return base
+    + (amp + bump) * sin(x * freq + t * speed + phase)
+    + amp * 0.55 * sin(x * freq * 1.87 - t * speed * 1.31 + phase * 1.9)
+    + amp * 0.25 * sin(x * freq * 3.1 + t * speed * 0.7 + phase * 0.6);
 }
 void main(){
   vec2 uv = gl_FragCoord.xy / r;
   float ar = r.x / r.y;
-  // The limb of the planet: high on the left, low past the middle, lifting again at the right.
-  float hy = 0.5 - 0.17 * smoothstep(0.0, 0.66, uv.x) + 0.04 * smoothstep(0.66, 1.0, uv.x);
-  float d = (uv.y - hy);
-  float above = step(0.0, d);
-  float side = smoothstep(0.2, 1.0, uv.x);
-  float n = fbm(vec2(uv.x * 2.4 * ar * 0.6 - t * 0.035, d * 3.2 - t * 0.06));
-  float h = d - n * 0.09 * side;
-  float curtain = exp(-max(h, 0.0) * mix(26.0, 3.4, side)) * above;
-  float bands = 0.6 + 0.4 * sin(h * 32.0 + n * 6.5 - t * 0.4 + uv.x * 3.0);
+  float x = uv.x * ar;
   vec3 neon = vec3(0.0, 1.0, 0.4);
-  vec3 lime = vec3(0.74, 1.0, 0.2);
-  vec3 teal = vec3(0.0, 0.78, 0.6);
-  vec3 col = mix(neon, lime, smoothstep(0.03, 0.22, h + 0.06 * sin(uv.x * 9.0 + t * 0.2)));
-  col = mix(col, teal, smoothstep(0.2, 0.55, h));
-  float rim = exp(-abs(d) * mix(260.0, 120.0, side)) * (0.45 + 0.9 * side);
-  vec3 o = col * curtain * bands * (0.12 + 1.35 * side);
-  o += vec3(0.62, 1.0, 0.8) * rim;
-  o += neon * exp(-max(d, 0.0) * 34.0) * 0.08 * above;
-  // Quiet the middle, where the form sits, and the far corners.
+  vec3 mint = vec3(0.62, 1.0, 0.8);
+  vec3 deep = vec3(0.0, 0.42, 0.18);
+  vec3 col = vec3(0.0);
+  float lowest = 1.0;
+  // Near the pointer the waves rise a little, as if pushed.
+  float near = mOn * exp(-pow((uv.x - m.x) * 3.2, 2.0)) * 0.05;
+  for (int i = 0; i < 7; i++) {
+    float f = float(i) / 6.0;
+    float y = wave(x, 0.2 + f * 0.2, 0.035 + f * 0.022, 2.1 + f * 1.3, 0.32 + f * 0.16, f * 5.3, near * (1.0 - f * 0.5));
+    lowest = min(lowest, y);
+    float d = abs(uv.y - y);
+    float core = exp(-d * mix(520.0, 260.0, f));
+    float glow = exp(-d * 26.0) * 0.16;
+    vec3 c = mix(neon, mint, f * 0.85);
+    // Each ribbon brightens where it crests.
+    float crest = 0.55 + 0.45 * sin(x * (1.6 + f) - t * (0.5 + f * 0.3) + f * 4.0);
+    col += c * (core * (0.55 + 0.6 * crest) + glow * crest) * (0.55 + 0.45 * f);
+  }
+  // The water under the waves: a deep green that darkens with depth.
+  float below = smoothstep(0.0, 0.02, lowest - uv.y);
+  col += deep * below * (0.16 + 0.22 * smoothstep(0.0, lowest, uv.y));
+  // A faint haze above the crests.
+  col += neon * exp(-max(uv.y - 0.42, 0.0) * 9.0) * 0.035;
+  // Keep the middle calm behind the form, and the corners dark.
   vec2 q = (uv - vec2(0.5, 0.52)) * vec2(ar * 0.9, 1.0);
-  o *= mix(0.55, 1.0, smoothstep(0.08, 0.55, length(q)));
-  o *= smoothstep(1.35, 0.4, length((uv - 0.5) * vec2(ar * 0.65, 1.0)));
-  gl_FragColor = vec4(o, 1.0);
+  col *= mix(0.5, 1.0, smoothstep(0.06, 0.5, length(q)));
+  col *= smoothstep(1.3, 0.35, length((uv - vec2(0.5, 0.4)) * vec2(ar * 0.6, 1.0)));
+  gl_FragColor = vec4(col, 1.0);
 }`;
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
@@ -59,17 +63,27 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
 }
 
-/** The same scene as a gradient, for no WebGL. */
-function StaticHorizon() {
+const wavePath = (base: number, amp: number, phase: number) => {
+  let d = `M0 ${base}`;
+  for (let x = 0; x <= 1600; x += 40) d += ` L${x} ${(base + Math.sin(x / 160 + phase) * amp + Math.sin(x / 83 - phase) * amp * 0.4).toFixed(1)}`;
+  return d;
+};
+
+/** The same scene without WebGL: layered wave lines in SVG, greens only. */
+function StaticWaves() {
   return (
-    <div data-testid="auth-fallback" aria-hidden className="absolute inset-0" style={{
-      background: [
-        'radial-gradient(60% 40% at 85% 58%, rgba(0,255,102,0.38), transparent 70%)',
-        'radial-gradient(40% 26% at 70% 62%, rgba(184,255,60,0.22), transparent 70%)',
-        'linear-gradient(176deg, transparent 49.6%, rgba(160,255,200,0.7) 50%, transparent 50.6%)',
-        '#000',
-      ].join(','),
-    }} />
+    <svg data-testid="auth-fallback" aria-hidden viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full">
+      <defs>
+        <linearGradient id="auth-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#00FF66" stopOpacity="0.14" />
+          <stop offset="1" stopColor="#000000" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${wavePath(660, 26, 0)} L1600 900 L0 900 Z`} fill="url(#auth-sea)" />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <path key={i} d={wavePath(560 + i * 34, 22 + i * 6, i * 1.3)} fill="none" stroke={i % 2 ? '#7DFFB2' : '#00FF66'} strokeOpacity={0.35 + i * 0.1} strokeWidth={1.4} />
+      ))}
+    </svg>
   );
 }
 
@@ -101,6 +115,17 @@ export function AuthBackdrop() {
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const uR = gl.getUniformLocation(prog, 'r');
     const uT = gl.getUniformLocation(prog, 't');
+    const uM = gl.getUniformLocation(prog, 'm');
+    const uOn = gl.getUniformLocation(prog, 'mOn');
+
+    // The pointer, eased so the waves follow it softly instead of jumping.
+    const pointer = { x: 0.5, tx: 0.5, on: 0, ton: 0 };
+    const onMove = (e: PointerEvent) => {
+      const b = el.getBoundingClientRect();
+      pointer.tx = (e.clientX - b.left) / b.width;
+      pointer.ton = 1;
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
 
     const quality = support.state === 'ready' ? support.quality : 'low';
     const dpr = Math.min(window.devicePixelRatio || 1, quality === 'high' ? 1.5 : 1);
@@ -114,14 +139,19 @@ export function AuthBackdrop() {
     ro.observe(el);
 
     const draw = (time: number) => {
+      pointer.x += (pointer.tx - pointer.x) * 0.06;
+      pointer.on += (pointer.ton - pointer.on) * 0.04;
       gl.uniform2f(uR, el.width, el.height);
       gl.uniform1f(uT, time);
+      gl.uniform2f(uM, pointer.x, 0.5);
+      gl.uniform1f(uOn, pointer.on);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
+    const stop = () => { ro.disconnect(); window.removeEventListener('pointermove', onMove); };
     // Reduced motion: one still frame, the composition without the movement.
     if (support.state === 'static') {
       draw(12);
-      return () => ro.disconnect();
+      return stop;
     }
     let frame = 0;
     let last = 0;
@@ -133,12 +163,12 @@ export function AuthBackdrop() {
       draw(12 + (now - begin) / 1000);
     };
     frame = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(frame); ro.disconnect(); };
+    return () => { cancelAnimationFrame(frame); stop(); };
   }, [support]);
 
   return (
     <div ref={wrap} aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-black">
-      {support.state === 'static' && support.reason === 'webgl' ? <StaticHorizon /> : <canvas ref={canvas} className="h-full w-full" />}
+      {support.state === 'static' && support.reason === 'webgl' ? <StaticWaves /> : <canvas ref={canvas} className="h-full w-full" />}
     </div>
   );
 }

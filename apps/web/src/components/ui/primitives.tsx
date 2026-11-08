@@ -53,7 +53,7 @@ export function Card({ className, ...p }: ComponentProps<'div'>) {
   return <div {...p} className={cx('card', className)} />;
 }
 
-export function PageHeader({ title, description, actions, eyebrow }: { title: string; description?: string; actions?: ReactNode; eyebrow?: string }) {
+export function PageHeader({ title, description, actions, eyebrow }: { title: ReactNode; description?: string; actions?: ReactNode; eyebrow?: string }) {
   return (
     <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
@@ -66,12 +66,16 @@ export function PageHeader({ title, description, actions, eyebrow }: { title: st
   );
 }
 
-export function StatCard({ label, value, hint }: { label: string; value: ReactNode; hint?: ReactNode }) {
+/** A number that matters, with an optional icon. Lifts toward the pointer like the glass reference. */
+export function StatCard({ label, value, hint, icon }: { label: string; value: ReactNode; hint?: ReactNode; icon?: ReactNode }) {
   return (
-    <Card className="min-w-0 p-4 sm:p-5">
-      <p className="text-[0.8125rem] text-muted">{label}</p>
-      <p className="mt-2 truncate font-display text-[1.6rem] font-semibold tracking-tight tabular-nums">{value}</p>
-      {hint && <p className="mt-1 text-xs text-subtle">{hint}</p>}
+    <Card className="lift min-w-0 p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 text-[0.8125rem] text-muted">{label}</p>
+        {icon && <span aria-hidden className="stat-icon shrink-0">{icon}</span>}
+      </div>
+      <p className="mt-2 truncate font-display text-[1.7rem] font-semibold tracking-tight tabular-nums">{value}</p>
+      {hint && <p className="mt-1 truncate text-xs text-subtle">{hint}</p>}
     </Card>
   );
 }

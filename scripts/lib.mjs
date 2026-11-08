@@ -77,7 +77,10 @@ export async function ensureDatabase(env) {
  * answers point at rows that no longer exist, so the cache goes with the old data.
  */
 export function clearWebDataCache() {
-  rmSync(resolve(root, 'apps/web/.next/cache/fetch-cache'), { recursive: true, force: true });
+  // `next build`/`next start` and `next dev` keep separate caches.
+  for (const dir of ['apps/web/.next/cache/fetch-cache', 'apps/web/.next/dev/cache/fetch-cache']) {
+    rmSync(resolve(root, dir), { recursive: true, force: true });
+  }
 }
 
 const palette = { api: 36, web: 35, worker: 33 };

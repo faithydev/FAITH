@@ -1,6 +1,6 @@
 # FAITH status
 
-Last updated 2026-11-08. Every result below comes from a command that was actually run.
+Last updated 2026-11-08 (second round). Every result below comes from a command that was actually run.
 
 ## Verified
 
@@ -12,7 +12,8 @@ Last updated 2026-11-08. Every result below comes from a command that was actual
 | `pnpm i18n:check` | Passes: 1345 keys in 8 languages |
 | `pnpm test:unit` | 21/21 |
 | `pnpm test:api` (real PostgreSQL) | 66/66 |
-| Playwright on the production build, fresh database | 38/39 first run; the one failure is explained below and passes on rerun |
+| Playwright on the production build, fresh database (first round) | 38/39 first run; the one failure is explained below and passes on rerun |
+| Playwright on the dev server after the second round of design work | 36/39 first run; the three failures are explained below and all pass on rerun |
 | `node scripts/example-smoke.mjs` | Passes: real simulated order, signed webhook verified by the sample app, scoped key read through the SDK |
 | `pnpm bootstrap` from nothing (no `.env`, no database) | Passes in about 45 s |
 | `pnpm dev` | Database, API, web and worker all start; pages answer 200 |
@@ -29,6 +30,17 @@ Last updated 2026-11-08. Every result below comes from a command that was actual
 - **Kazakh letters fell back to another font** (Manrope has no ұ, ү, ғ). Display and interface
   fonts are now Onest and Geist, which cover Uzbek, Russian and Kazakh fully.
 - Reward rules with a unit of one read "per 1 leads"; they now read "per lead" in all languages.
+
+### Second round
+
+- New: button ripple, light sweep, arrow "go" and magnet pull; one fixed ambient background
+  for whole pages (no seams between sections); rolling wave background on sign-up and sign-in;
+  the FAITH economy as a scroll-driven three.js story (eight particle shapes); frosted glass
+  dashboards with a time-of-day greeting, column and donut charts, and icon stat cards.
+- The three first-run failures: the greeting text changed by design (test updated); the dev
+  server keeps its own data cache, which `pnpm bootstrap` did not clear, so one job link pointed
+  at a row from the previous database (both caches are now cleared); the computer went to sleep
+  mid-test (`ERR_NETWORK_IO_SUSPENDED`). All three pass on rerun.
 
 ### Changed on purpose
 
@@ -67,9 +79,9 @@ and the full page list at 375/768/1440/1920 px are covered by the browser tests,
 
 ## Local data
 
-`.dev/postgres` holds a freshly seeded demo database. Two earlier databases with test data were
-set aside, not deleted: `.dev/postgres-before-bootstrap-20261108` and
-`.dev/postgres-e2e-20261108`, plus the earlier `.env` in `.dev/env.before-bootstrap-20261108`.
+`.dev/postgres` holds a freshly seeded demo database. Earlier databases with test data were
+set aside, not deleted: `.dev/postgres-before-bootstrap-20261108`, `.dev/postgres-e2e-20261108`
+and `.dev/postgres-e2e-20261108b`, plus the earlier `.env` in `.dev/env.before-bootstrap-20261108`.
 They are git-ignored and can be removed when no longer needed.
 
 Running the browser suite writes test records and a $19/$190 Pro price into the database it runs

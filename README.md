@@ -81,10 +81,11 @@ Anthropic adapter stay off until their credentials exist, and the interface says
 
 ## Look and feel
 
-Pure black with one neon green. Buttons hold light in a corner that floods toward the pointer
-and blooms when pressed; sign-in is black glass over a lit horizon; pages hand over to each
-other through View Transitions with no flash. Onest and Geist cover Uzbek, Russian and Kazakh
-fully. Details in [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).
+Pure black with one neon green on a single moving background, so sections never meet at a
+seam. Buttons hold light that floods toward the pointer, ripples where pressed and blooms on
+release. Sign-up sits over rolling waves of green light; the FAITH economy is a scroll-driven
+three.js story; the signed-in dashboards are frosted glass. Pages hand over through View
+Transitions with no flash. Details in [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).
 
 ## Documentation
 

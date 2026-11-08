@@ -3,6 +3,8 @@ import { Link, redirect } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import type { LibraryItem, Order } from '@/lib/types';
+import { Greeting } from '@/components/ui/greeting';
+import { Gem, Library, Receipt } from 'lucide-react';
 
 const HOME: Record<string, string> = { seller: '/app/seller', creator: '/app/creator', work: '/app/work', freelance: '/app/freelance', brand: '/app/brand', developer: '/app/developer' };
 
@@ -18,11 +20,11 @@ export default async function DashboardPage() {
   ]);
   return (
     <>
-      <PageHeader title={t('app.home.greeting', { name: me.profile?.displayName ?? '' })} description={t('app.home.body')} />
+      <PageHeader title={<Greeting name={me.profile?.displayName ?? ''} />} description={t('app.home.body')} />
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label={t('app.home.orders')} value={orders.length} />
-        <StatCard label={t('app.home.library')} value={library.length} />
-        <StatCard label={t('app.home.plan')} value={t(`app.plans.${me.plan.key}`)} />
+        <StatCard icon={<Receipt size={17} strokeWidth={1.7} />} label={t('app.home.orders')} value={orders.length} />
+        <StatCard icon={<Library size={17} strokeWidth={1.7} />} label={t('app.home.library')} value={library.length} />
+        <StatCard icon={<Gem size={17} strokeWidth={1.7} />} label={t('app.home.plan')} value={t(`app.plans.${me.plan.key}`)} />
       </div>
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section>

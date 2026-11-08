@@ -950,7 +950,10 @@
       "noOrdersBody": "您的购买会显示在这里。",
       "opportunities": "为您推荐的机会",
       "noOpportunities": "目前没有匹配项。",
-      "consentOff": "推荐已在设置中关闭。"
+      "consentOff": "推荐已在设置中关闭。",
+      "greetMorning": "早上好，{name}",
+      "greetAfternoon": "下午好，{name}",
+      "greetEvening": "晚上好，{name}"
     },
     "explore": {
       "title": "为您推荐",

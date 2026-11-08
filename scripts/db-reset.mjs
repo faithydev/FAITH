@@ -31,5 +31,7 @@ const run = (cmd) => {
 run('pnpm --filter @faith/database exec prisma migrate reset --force');
 run('pnpm run build:packages');
 run('pnpm --filter @faith/api seed');
-// Cached public answers point at the old rows; drop them with the old data.
-rmSync(resolve(root, 'apps/web/.next/cache/fetch-cache'), { recursive: true, force: true });
+// Cached public answers point at the old rows; drop them with the old data (build and dev caches).
+for (const dir of ['apps/web/.next/cache/fetch-cache', 'apps/web/.next/dev/cache/fetch-cache']) {
+  rmSync(resolve(root, dir), { recursive: true, force: true });
+}

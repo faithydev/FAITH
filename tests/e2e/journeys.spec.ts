@@ -25,7 +25,8 @@ test('a person can skip onboarding and just explore', async ({ page }) => {
   await register(page);
   await page.getByTestId('onboarding-skip').click();
   await page.waitForURL(/\/app/);
-  await expect(page.getByRole('heading', { name: /Hello/ })).toBeVisible();
+  // The greeting follows the visitor's time of day.
+  await expect(page.getByRole('heading', { name: /^(Hello|Good (morning|afternoon|evening)),/ })).toBeVisible();
 });
 
 test('seller publishes, buyer pays, refund reverses access', async ({ page, browser }) => {

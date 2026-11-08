@@ -950,7 +950,10 @@
       "noOrdersBody": "Здесь появятся ваши покупки.",
       "opportunities": "Возможности для вас",
       "noOpportunities": "Подходящего пока нет.",
-      "consentOff": "Рекомендации отключены в настройках."
+      "consentOff": "Рекомендации отключены в настройках.",
+      "greetMorning": "Доброе утро, {name}",
+      "greetAfternoon": "Добрый день, {name}",
+      "greetEvening": "Добрый вечер, {name}"
     },
     "explore": {
       "title": "Рекомендации",

@@ -43,7 +43,13 @@ with an optional `arrow`. All variants share one effect, after the brand referen
 1. **Rest.** A glass body with green light resting in one corner (the reading-end corner in RTL).
 2. **Hover.** The light follows the pointer and floods across the button. `PointerFx` sets
    `--mx`/`--my`; the values are registered with `@property`, so they glide instead of jumping.
-3. **Press.** A neon bloom spreads outside the button and fades slowly after release.
+3. **Press.** A neon bloom spreads outside the button and fades slowly after release, and a
+   ripple of light spreads from the exact point that was pressed (touch included).
+
+Small actions on top of that: a band of light sweeps across the label each time the pointer
+arrives; the arrow leaves through the end and comes back from the start; medium and large
+buttons lean a few pixels toward the pointer like a magnet (`--tx`/`--ty`, also registered, so
+they spring back smoothly).
 
 `primary` also has green light drifting behind the label (after the reference pill image);
 `secondary` rests darker; `ghost` has no body until hover; `danger` uses red light. In the light
@@ -56,8 +62,25 @@ reduced motion turns the drift and bloom off.
 trailing corner and a soft ring appears. Sign-in fields carry icons and a show/hide password
 control.
 
+## Background
+
+`AmbientBackground` is one fixed layer behind a whole page: slow drifting green light, a dot grid
+that moves slower than the content, and a soft glow that eases after the pointer. Every section
+sits on that one layer, so no two sections meet at an edge; there are no hairline separators
+between sections. A section that must stay black in the light theme (`.section-dark`) fades in and
+out over 9rem instead of cutting in. The signed-in shell uses a stronger version of the layer so
+the glass panels have light to frost.
+
+The sign-up and sign-in pages use their own background: ribbons of green light rolling like
+waves, which rise toward the pointer (one WebGL fragment shader; an SVG version without WebGL).
+
 ## Surfaces
 
+- `.glass`: frosted panel (translucent fill, hairline border, top highlight, backdrop blur). The
+  signed-in sidebar and top bar float as glass panels with a margin, after the dashboard
+  reference; every `.card` inside the shell becomes glass.
+- `.lift`: rises 5px with a green-tinted shadow on hover (stat and chart cards).
+- `.stat-icon`: a small glowing neon tile for card icons.
 - `.card`: near-black surface with a faint top light.
 - `.hover-depth`: lifts on hover and draws a neon rim that follows the pointer.
 - `.eyebrow`: mono, uppercase, with a glowing dot.
@@ -75,6 +98,9 @@ control.
 - **Feedback.** `NavProgress` draws a neon hairline the moment an internal link is clicked and
   completes it on arrival.
 - **Reveal.** Sections rise and un-blur once as they enter the viewport.
+- **Dashboards.** A greeting by time of day; columns grow in from the baseline; donut segments
+  draw themselves; cards lift under the pointer. Charts use only the brand greens and always
+  carry labels, values and a hidden data table.
 - **Reduced motion.** Every animation and transition collapses to an instant change.
 
 ## Accessibility

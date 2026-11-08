@@ -950,7 +950,10 @@
       "noOrdersBody": "Tus compras aparecerán aquí.",
       "opportunities": "Oportunidades para ti",
       "noOpportunities": "Nada coincide por ahora.",
-      "consentOff": "Las recomendaciones están desactivadas en Ajustes."
+      "consentOff": "Las recomendaciones están desactivadas en Ajustes.",
+      "greetMorning": "Buenos días, {name}",
+      "greetAfternoon": "Buenas tardes, {name}",
+      "greetEvening": "Buenas noches, {name}"
     },
     "explore": {
       "title": "Para ti",

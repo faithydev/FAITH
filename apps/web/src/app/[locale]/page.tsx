@@ -1,5 +1,5 @@
-import { InteractiveSpotlight, MagneticButton, RevealOnScroll, StaggeredReveal } from '@/components/motion';
-import { RouteTransition } from '@/components/motion/fx';
+import { InteractiveSpotlight, RevealOnScroll, StaggeredReveal } from '@/components/motion';
+import { AmbientBackground, RouteTransition } from '@/components/motion/fx';
 import { Footer, PrimaryNavigation } from '@/components/layout/public';
 import { ProductCardView } from '@/components/commerce/product-card';
 import { ThreeDEcosystem } from '@/components/three/ecosystem';
@@ -44,6 +44,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <AmbientBackground />
       <PrimaryNavigation overlay />
       <main id="main">
         <RouteTransition>
@@ -56,7 +57,7 @@ export default async function HomePage() {
               </h1>
               <p className="animate-rise mt-7 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg" style={{ '--rise-delay': '360ms' } as React.CSSProperties}>{t('brand.vision')}</p>
               <div className="animate-rise mt-9 flex flex-wrap items-center gap-3" style={{ '--rise-delay': '480ms' } as React.CSSProperties}>
-                <MagneticButton><LinkButton href="/register" size="lg" arrow>{t('home.ctaStart')}</LinkButton></MagneticButton>
+                <LinkButton href="/register" size="lg" arrow>{t('home.ctaStart')}</LinkButton>
                 <LinkButton href="/explore" size="lg" variant="secondary">{t('home.ctaExplore')}</LinkButton>
               </div>
               {stats.length > 0 && (
@@ -73,13 +74,13 @@ export default async function HomePage() {
           </ThreeDHero>
 
           {band.length > 1 && (
-            <div aria-hidden className="marquee-frame overflow-hidden border-y border-line bg-black py-5" data-theme="dark">
+            <div aria-hidden className="marquee-frame overflow-hidden py-6">
               <div className="marquee">
                 {[0, 1].map((copy) => (
                   <div key={copy} className="flex shrink-0 items-center">
                     {[...band, ...band].map((w, i) => (
                       <span key={`${copy}-${i}`} className="flex items-center font-display text-[clamp(2rem,5vw,4.2rem)] leading-none font-semibold tracking-[-0.04em]">
-                        <span className={i % 2 ? 'text-white' : 'text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.4)]'}>{w}</span>
+                        <span className={i % 2 ? 'text-ink' : 'text-transparent [-webkit-text-stroke:1px_color-mix(in_srgb,var(--text)_40%,transparent)]'}>{w}</span>
                         <span className="mx-8 size-2.5 rounded-full bg-neon shadow-[0_0_16px_var(--neon)]" />
                       </span>
                     ))}
@@ -108,8 +109,8 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section className="relative">
-            <div className="mx-auto max-w-[92rem] px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
+          <section data-theme="dark" className="section-dark text-white">
+            <div className="mx-auto max-w-[92rem] px-4 pt-28 pb-24 sm:px-6 lg:px-8 lg:pb-32">
               <RevealOnScroll className="mb-10 max-w-2xl">
                 <p className="eyebrow">{t('home.ecosystemEyebrow')}</p>
                 <h2 className="tracking-display mt-4 text-[length:var(--text-title)] leading-[1.02] font-semibold">{t('home.ecosystemTitle')}</h2>
@@ -118,9 +119,8 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section data-theme="dark" className="relative overflow-hidden bg-black text-white">
-            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_85%_10%,rgba(0,255,102,0.12),transparent_70%)]" />
-            <div aria-hidden className="h-px bg-[linear-gradient(90deg,transparent,rgba(0,255,102,0.5),transparent)]" />
+          <section data-theme="dark" className="section-dark overflow-hidden text-white">
+            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_45%_at_80%_45%,rgba(0,255,102,0.12),transparent_70%)]" />
             <div className="relative mx-auto max-w-[92rem] px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
               <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-end">
                 <RevealOnScroll>
@@ -216,9 +216,9 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section data-theme="dark" className="relative overflow-hidden bg-black text-white">
+          <section data-theme="dark" className="section-dark overflow-hidden text-white">
             <div aria-hidden className="dot-grid pointer-events-none absolute inset-0 opacity-50 [mask:radial-gradient(60%_70%_at_50%_100%,#000,transparent)]" />
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] bg-[radial-gradient(55%_80%_at_50%_100%,rgba(0,255,102,0.22),transparent_70%)]" />
+            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_42%_at_50%_62%,rgba(0,255,102,0.2),transparent_72%)]" />
             <RevealOnScroll className="relative mx-auto max-w-4xl px-4 py-28 text-center sm:px-6 lg:py-36">
               <p className="eyebrow justify-center text-white/50!">{t('brand.tagline')}</p>
               <h2 className="tracking-display mt-5 text-[length:var(--text-title)] leading-[1.02] font-semibold">
