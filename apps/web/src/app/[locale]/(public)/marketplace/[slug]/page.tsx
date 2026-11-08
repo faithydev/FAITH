@@ -1,6 +1,8 @@
 import { IntlScope } from '@/components/auth/scope';
 import { BuyBox } from '@/components/commerce/buy-box';
+import { Gallery } from '@/components/commerce/gallery';
 import { Cover } from '@/components/ui/cover';
+import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { Badge, Breadcrumbs, Card, SectionTitle } from '@/components/ui/primitives';
 import { Link } from '@/i18n/navigation';
 import { api, getMe, publicApi } from '@/lib/api';
@@ -27,14 +29,18 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
   const score = rating(p.ratingSum, p.ratingCount);
   const files = p.assets.filter((a) => a.kind === 'FILE');
 
+  // The cover first, then the other preview images in the seller's order.
+  const gallery = [...new Set([p.coverKey, ...p.assets.filter((a) => a.kind === 'IMAGE' && a.storageKey?.startsWith('public/')).map((a) => a.storageKey!)].filter((k): k is string => !!k))];
   return (
     <div className="mx-auto max-w-[92rem] px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumbs label={t('common.breadcrumbs')} items={[{ label: t('market.title'), href: '/marketplace' }, { label: p.title }]} />
       <div className="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-start">
         <div className="min-w-0">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-surface-2">
-            {p.coverKey ? <Image src={fileUrl(p.coverKey)} alt={p.title} fill unoptimized className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" priority /> : <Cover seed={p.slug} label={p.title} />}
-          </div>
+          {gallery.length > 1 ? <Gallery images={gallery} title={p.title} /> : (
+            <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-surface-2">
+              {p.coverKey ? <Image src={fileUrl(p.coverKey)} alt={p.title} fill unoptimized className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" priority /> : <Cover seed={p.slug} label={p.title} />}
+            </div>
+          )}
           <section className="mt-8">
             <SectionTitle title={t('market.about')} />
             <div className="prose-faith text-[0.95rem] text-muted">
@@ -90,7 +96,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
 
         <aside className="lg:sticky lg:top-20">
           <Card className="p-5 sm:p-6">
-            <p className="text-sm text-muted"><Link href={`/stores/${p.store.slug}`} className="hover:text-ink">{p.store.name}</Link></p>
+            <p className="flex items-center gap-1.5 text-sm text-muted"><Link href={`/stores/${p.store.slug}`} className="hover:text-ink">{p.store.name}</Link>{p.store.badge && <VerifiedBadge kind={p.store.badge} label={`${t('badges.verified')} · ${t(`badges.kinds.${p.store.badge}`)}`} size={18} />}</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">{p.title}</h1>
             <p className="mt-2 text-sm text-muted">{p.summary}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">

@@ -1035,7 +1035,8 @@
         "staff_subscription": "新增一位 Pro 订阅用户",
         "staff_product_published": "新商品上架：{title}",
         "staff_job_application": "{title} 收到新申请",
-        "staff_app_installed": "有应用被安装"
+        "staff_app_installed": "有应用被安装",
+        "badge_verified": "你的 FAITH Verified 徽章已生效"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "每月",
         "YEARLY": "每年"
-      }
+      },
+      "chooseBadge": "选择你的角色",
+      "chooseBadgeBody": "请选择真正属于你的一个角色。Pro 会开通该角色，FAITH Verified 徽章将在 24 小时内出现在你的资料中。",
+      "chooseBadgeFirst": "请先选择角色再继续。"
     },
     "ai": {
       "title": "AI 助手",
@@ -1252,7 +1256,17 @@
       "viewsHint": "观看量：{views}",
       "repeat": "回头客",
       "topProducts": "热门商品",
-      "advancedPitch": "Pro 提供更深入的分析和报告。"
+      "advancedPitch": "Pro 提供更深入的分析和报告。",
+      "storeImages": "标志和横幅",
+      "logo": "标志",
+      "banner": "横幅",
+      "uploadImage": "上传图片",
+      "imagesTitle": "图片和预览",
+      "imagesHint": "PNG、JPG、WebP 或 GIF。封面显示在卡片上，其余图片作为商品页的预览。",
+      "uploadImages": "添加图片",
+      "makeCover": "设为封面",
+      "cover": "封面",
+      "noImages": "还没有图片。"
     },
     "growth": {
       "body": "付费展示位和合作伙伴。广告始终有标识，不会改变自然排名。",
@@ -1481,6 +1495,20 @@
       "events": "事件",
       "noWebhooks": "暂无 Webhook。",
       "deleteWebhook": "删除此 Webhook？"
+    },
+    "badge": {
+      "title": "FAITH Verified 徽章",
+      "verified": "你的资料已带有官方 FAITH Verified 徽章。",
+      "pending": "徽章将在 {date} 前出现在你的资料中。",
+      "none": "Pro 会员可在 24 小时内获得官方 FAITH Verified 徽章。",
+      "rejected": "你的徽章申请被拒绝。如有误，请联系支持。",
+      "revoked": "Pro 重新生效后徽章会恢复。",
+      "getPro": "开通 Pro"
+    },
+    "proGate": {
+      "title": "{role}是 Pro 功能",
+      "body": "免费账户可以浏览和购买。Pro 开通 FAITH 的全部工具，并在 24 小时内为你的资料加上官方 FAITH Verified 徽章。",
+      "cta": "查看 Pro"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "待处理",
     "exportUsers": "用户 (Excel)",
     "exportActivity": "全部动态 (Excel)",
-    "exportOrders": "订单 (Excel)"
+    "exportOrders": "订单 (Excel)",
+    "badges": {
+      "title": "徽章申请",
+      "empty": "没有待处理的申请。",
+      "approve": "立即认证",
+      "reject": "拒绝",
+      "rejectConfirm": "拒绝此徽章申请？",
+      "autoOn": "将于 {date} 自动认证"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "创始人",
+      "customer": "买家 / 客户",
+      "job_seeker": "求职者",
+      "freelancer": "自由职业者",
+      "seller": "卖家",
+      "creator": "创作者",
+      "brand": "品牌",
+      "developer": "开发者"
+    }
   }
 }

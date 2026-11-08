@@ -48,6 +48,8 @@ const schema = z.object({
   AI_MODEL: z.string().default('claude-opus-5-5'),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  /** Comma-separated emails of the platform founders (proven through Google or Apple). */
+  FOUNDER_EMAILS: z.string().optional(),
   APPLE_CLIENT_ID: z.string().optional(),
   APPLE_TEAM_ID: z.string().optional(),
   APPLE_KEY_ID: z.string().optional(),

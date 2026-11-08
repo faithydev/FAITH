@@ -62,7 +62,7 @@ export class CatalogService {
     const product = await this.prisma.db.product.findUnique({
       where: { slug },
       include: {
-        store: { select: { id: true, slug: true, name: true, tagline: true, ownerId: true, logoKey: true } },
+        store: { select: { id: true, slug: true, name: true, tagline: true, ownerId: true, logoKey: true, owner: { select: { badge: { select: { kind: true, status: true } } } } } },
         category: { select: { slug: true, names: true } },
         variants: { where: { active: true }, orderBy: { position: 'asc' } },
         assets: { orderBy: { position: 'asc' }, select: { id: true, kind: true, storageKey: true, filename: true, sizeBytes: true, mime: true } },
@@ -80,10 +80,10 @@ export class CatalogService {
       userId ? this.prisma.db.digitalEntitlement.findFirst({ where: { userId, productId: product.id, status: 'ACTIVE' }, select: { id: true } }) : null,
       this.reviews(product.id),
     ]);
-    const { ownerId, ...store } = product.store;
+    const { ownerId, owner, ...store } = product.store;
     return {
       ...product,
-      store,
+      store: { ...store, badge: owner.badge?.status === 'VERIFIED' ? owner.badge.kind : null },
       // Buyers see that files exist, never where they live.
       assets: product.assets.map((a) => (a.kind === 'IMAGE' ? a : { ...a, storageKey: undefined })),
       wishlisted: !!wishlisted,
@@ -111,6 +111,7 @@ export class CatalogService {
       select: {
         id: true, slug: true, name: true, tagline: true, description: true, logoKey: true, bannerKey: true,
         theme: true, status: true, country: true, createdAt: true,
+        owner: { select: { badge: { select: { kind: true, status: true } } } },
       },
     });
     if (!store || store.status !== 'ACTIVE') throw notFound('STORE_NOT_FOUND');
@@ -118,7 +119,8 @@ export class CatalogService {
       where: { storeId: store.id, status: 'PUBLISHED' },
       _count: true, _sum: { salesCount: true, ratingCount: true, ratingSum: true },
     });
-    return { ...store, productCount: stats._count, salesCount: stats._sum.salesCount ?? 0, ratingCount: stats._sum.ratingCount ?? 0, ratingSum: stats._sum.ratingSum ?? 0 };
+    const { owner, ...rest } = store;
+    return { ...rest, badge: owner.badge?.status === 'VERIFIED' ? owner.badge.kind : null, productCount: stats._count, salesCount: stats._sum.salesCount ?? 0, ratingCount: stats._sum.ratingCount ?? 0, ratingSum: stats._sum.ratingSum ?? 0 };
   }
 
   /** Paid placements, each marked so the interface always labels it as advertising. */

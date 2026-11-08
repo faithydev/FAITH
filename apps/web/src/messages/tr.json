@@ -1035,7 +1035,8 @@
         "staff_subscription": "Yeni bir Pro abonesi katıldı",
         "staff_product_published": "Yeni ürün yayınlandı: {title}",
         "staff_job_application": "{title} için yeni başvuru",
-        "staff_app_installed": "Bir uygulama yüklendi"
+        "staff_app_installed": "Bir uygulama yüklendi",
+        "badge_verified": "FAITH Verified rozetiniz yayında"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "Aylık",
         "YEARLY": "Yıllık"
-      }
+      },
+      "chooseBadge": "Rolünüzü seçin",
+      "chooseBadgeBody": "Gerçekten size ait olan tek rolü seçin. Pro bu rolü açar ve FAITH Verified rozeti 24 saat içinde profilinizde görünür.",
+      "chooseBadgeFirst": "Devam etmek için rolünüzü seçin."
     },
     "ai": {
       "title": "Yapay zeka asistanı",
@@ -1252,7 +1256,17 @@
       "viewsHint": "Görüntülenme: {views}",
       "repeat": "Tekrar eden müşteriler",
       "topProducts": "En iyi ürünler",
-      "advancedPitch": "Pro gelişmiş analiz ve raporlar ekler."
+      "advancedPitch": "Pro gelişmiş analiz ve raporlar ekler.",
+      "storeImages": "Logo ve banner",
+      "logo": "Logo",
+      "banner": "Banner",
+      "uploadImage": "Görsel yükle",
+      "imagesTitle": "Görseller ve önizlemeler",
+      "imagesHint": "PNG, JPG, WebP veya GIF. Kapak kartlarda görünür; diğerleri ürün sayfasında önizleme olur.",
+      "uploadImages": "Görsel ekle",
+      "makeCover": "Kapak yap",
+      "cover": "Kapak",
+      "noImages": "Henüz görsel yok."
     },
     "growth": {
       "body": "Ücretli yerleşim ve bağlı ortaklar. Sponsorlu öğeler her zaman etiketlenir ve organik sıralamayı değiştirmez.",
@@ -1481,6 +1495,20 @@
       "events": "Olaylar",
       "noWebhooks": "Henüz webhook yok.",
       "deleteWebhook": "Bu webhook silinsin mi?"
+    },
+    "badge": {
+      "title": "FAITH Verified rozeti",
+      "verified": "Profilinizde resmi FAITH Verified rozeti var.",
+      "pending": "Rozetiniz {date} tarihine kadar profilinizde görünecek.",
+      "none": "Pro üyeler 24 saat içinde resmi FAITH Verified rozeti alır.",
+      "rejected": "Rozet talebiniz reddedildi. Hata olduğunu düşünüyorsanız destekle iletişime geçin.",
+      "revoked": "Pro yeniden etkin olduğunda rozetiniz geri gelir.",
+      "getPro": "Pro al"
+    },
+    "proGate": {
+      "title": "{role} bir Pro özelliğidir",
+      "body": "Ücretsiz hesaplar göz atabilir ve satın alabilir. Pro, FAITH'teki tüm araçları açar ve 24 saat içinde profilinize resmi FAITH Verified rozeti ekler.",
+      "cta": "Pro'yu gör"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "Bekliyor",
     "exportUsers": "Kullanıcılar (Excel)",
     "exportActivity": "Tüm etkinlik (Excel)",
-    "exportOrders": "Siparişler (Excel)"
+    "exportOrders": "Siparişler (Excel)",
+    "badges": {
+      "title": "Rozet talepleri",
+      "empty": "Bekleyen rozet talebi yok.",
+      "approve": "Şimdi doğrula",
+      "reject": "Reddet",
+      "rejectConfirm": "Bu rozet talebi reddedilsin mi?",
+      "autoOn": "{date} tarihinde otomatik doğrulanır"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "Kurucu",
+      "customer": "Alıcı / Müşteri",
+      "job_seeker": "İş Arayan",
+      "freelancer": "Serbest Çalışan",
+      "seller": "Satıcı",
+      "creator": "İçerik Üretici",
+      "brand": "Marka",
+      "developer": "Geliştirici"
+    }
   }
 }

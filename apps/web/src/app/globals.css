@@ -388,7 +388,42 @@
   .fx-input[aria-invalid='true'] { border-color: var(--negative); }
   .fx-input.has-icon { padding-inline-start: 2.6rem; }
   .fx-input.has-trailing { padding-inline-end: 2.8rem; }
-  select.fx-input { appearance: auto; }
+  /* Dropdowns. Browsers that can style the open list (customizable select) get a glass panel
+   * with a neon pick; the rest still get a list in the page's own theme, never white on white. */
+  select { cursor: pointer; color-scheme: light; }
+  [data-theme='dark'] select { color-scheme: dark; }
+  select option { background-color: var(--surface); color: var(--text); }
+  @supports (appearance: base-select) {
+    select, select::picker(select) { appearance: base-select; }
+    select, select.fx-input { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    select::picker-icon { color: var(--text-subtle); transition: rotate 0.25s var(--ease-out), color 0.2s; }
+    select:open::picker-icon { rotate: 180deg; color: var(--neon); }
+    select::picker(select) {
+      margin-block: 0.4rem;
+      padding: 0.3rem;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-md);
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(18px) saturate(140%);
+      box-shadow: 0 22px 44px -16px rgb(0 0 0 / 0.55), 0 0 0 1px color-mix(in srgb, var(--neon) 9%, transparent);
+      opacity: 0;
+      translate: 0 -4px;
+      transition: opacity 0.18s var(--ease-out), translate 0.18s var(--ease-out), display 0.18s allow-discrete, overlay 0.18s allow-discrete;
+    }
+    select:open::picker(select) { opacity: 1; translate: 0 0; }
+    @starting-style { select:open::picker(select) { opacity: 0; translate: 0 -4px; } }
+    select option {
+      padding: 0.55rem 0.75rem;
+      border-radius: calc(var(--r-md) - 4px);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    select option:hover, select option:focus-visible { background: color-mix(in srgb, var(--neon) 11%, transparent); outline: none; }
+    select option:checked { color: var(--neon); font-weight: 500; }
+    select option::checkmark { color: var(--neon); }
+  }
 
   /* ------------------------------------------------------------------------------------------
    * Authentication card, after the brand reference: black glass over a lit horizon.

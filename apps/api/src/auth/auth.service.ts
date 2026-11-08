@@ -9,6 +9,7 @@ import { EmailService } from '../core/adapters';
 import { decrypt, encrypt, randomToken, sha256, slugify } from '../core/crypto';
 import { env } from '../core/env';
 import { appleConfigured } from './apple';
+import { applyFounder } from '../identity/badges';
 import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
 import { AuditService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
@@ -305,6 +306,12 @@ export class AuthService {
       if (existing) {
         if (existing.status !== 'ACTIVE') throw forbidden('ACCOUNT_SUSPENDED');
         userId = existing.id;
+        // On the public demo an email is never proven by mail, so a password set on this address
+        // may belong to someone else. The provider has just proven the owner: that password goes.
+        if (env.PUBLIC_DEMO && existing.passwordHash) {
+          await this.prisma.db.user.update({ where: { id: existing.id }, data: { passwordHash: null } });
+          await this.prisma.db.session.updateMany({ where: { userId: existing.id, revokedAt: null }, data: { revokedAt: new Date() } });
+        }
       } else {
         const customer = await this.prisma.db.role.findUniqueOrThrow({ where: { key: PERSONA_ROLE.discover } });
         const locale = LOCALES.find((l) => l === input.locale) ?? DEFAULT_LOCALE;
@@ -320,6 +327,7 @@ export class AuthService {
       }
       await this.prisma.db.account.create({ data: { userId, provider: input.provider, providerAccountId: input.subject } });
     }
+    await applyFounder(this.prisma.db, userId);
     return this.createSession(userId, meta);
   }
 }

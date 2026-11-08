@@ -2,7 +2,7 @@ import {
   CanActivate, createParamDecorator, ExecutionContext, Injectable, SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Feature, Permission } from '@faith/config';
+import { FREE_ROLES, STAFF_ROLES, type Feature, type Permission, type RoleKey } from '@faith/config';
 import type { Session, User } from '@faith/database';
 import type { Request } from 'express';
 import { env } from '../core/env';
@@ -16,7 +16,11 @@ export const SESSION_COOKIE = 'faith_session';
 export type AuthContext = {
   user: User;
   session: Session;
+  /** Roles in effect now. Without Pro only free roles (and staff roles) are in effect. */
   roles: string[];
+  /** Roles the person holds that wait for Pro. */
+  lockedRoles: string[];
+  pro: boolean;
   permissions: Set<string>;
 };
 
@@ -61,7 +65,12 @@ export class SessionGuard implements CanActivate {
     const session = await this.prisma.db.session.findUnique({
       where: { tokenHash: sha256(token) },
       include: {
-        user: { include: { roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } } } },
+        user: {
+          include: {
+            roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
+            subscriptions: { where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } }, select: { id: true }, take: 1 },
+          },
+        },
       },
     });
     if (!session || session.revokedAt || session.expiresAt <= new Date()) return undefined;
@@ -71,12 +80,17 @@ export class SessionGuard implements CanActivate {
     if (Date.now() - session.lastSeenAt.getTime() > 60_000) {
       await this.prisma.db.session.update({ where: { id: session.id }, data: { lastSeenAt: new Date() } });
     }
-    const { roles, ...plainUser } = user;
+    const { roles, subscriptions, ...plainUser } = user;
+    const pro = subscriptions.length > 0;
+    const open = (key: string) => pro || FREE_ROLES.includes(key as RoleKey) || STAFF_ROLES.includes(key as RoleKey);
+    const active = roles.filter((r) => open(r.role.key));
     return {
       user: plainUser,
       session: rest,
-      roles: roles.map((r) => r.role.key),
-      permissions: new Set(roles.flatMap((r) => r.role.permissions.map((p) => p.permission.key))),
+      roles: active.map((r) => r.role.key),
+      lockedRoles: roles.filter((r) => !open(r.role.key)).map((r) => r.role.key),
+      pro,
+      permissions: new Set(active.flatMap((r) => r.role.permissions.map((p) => p.permission.key))),
     };
   }
 }

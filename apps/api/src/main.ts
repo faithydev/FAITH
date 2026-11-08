@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { deliverWebhooks, drainOutbox, expireSubscriptions } from '@faith/automation';
+import { deliverWebhooks, drainOutbox, expireSubscriptions, settleBadges } from '@faith/automation';
+import { BadgesService } from './identity/badges';
 import { AppModule } from './app.module';
 import { configureApp, setupOpenApi } from './configure';
 import { env } from './core/env';
@@ -12,6 +13,7 @@ async function bootstrap() {
   configureApp(app);
   setupOpenApi(app);
   await app.listen(env.API_PORT);
+  await app.get(BadgesService).boot().catch((err: unknown) => logger.error({ err }, 'badge start-up failed'));
   logger.info({ port: env.API_PORT }, 'FAITH API listening');
   if (env.RUN_WORKER) startWorker(app.get(PrismaService));
 }
@@ -33,6 +35,7 @@ function startWorker(prisma: PrismaService) {
     }
   }, 4000);
   setInterval(() => { expireSubscriptions(prisma.db).catch((err) => logger.error({ err }, 'expiry failed')); }, 3_600_000);
+  setInterval(() => { settleBadges(prisma.db).catch((err) => logger.error({ err }, 'badges failed')); }, 300_000);
   logger.info('worker running inside the API');
 }
 

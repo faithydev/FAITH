@@ -1,3 +1,4 @@
+import { ImageSlot } from '@/components/commerce/image-slot';
 import { CreateStore, NoRole } from '@/components/seller/shared';
 import { ActionButton, AutoForm, FormDialog } from '@/components/ui/client';
 import { Badge, Card, LinkButton, PageHeader, SectionTitle } from '@/components/ui/primitives';
@@ -19,6 +20,13 @@ export default async function StoreSettingsPage() {
     <>
       <PageHeader title={t('nav.items.store')} actions={<LinkButton variant="secondary" size="sm" href={`/stores/${store.slug}`}>{t('app.seller.viewStore')}</LinkButton>} />
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card className="p-5 lg:col-span-2">
+          <SectionTitle title={t('app.seller.storeImages')} />
+          <div className="grid gap-5 sm:grid-cols-[auto_1fr]">
+            <ImageSlot endpoint={`/seller/stores/${store.id}/images/logo`} current={store.logoKey ?? null} label={t('app.seller.logo')} upload={t('app.seller.uploadImage')} remove={t('common.remove')} />
+            <ImageSlot endpoint={`/seller/stores/${store.id}/images/banner`} current={store.bannerKey ?? null} label={t('app.seller.banner')} upload={t('app.seller.uploadImage')} remove={t('common.remove')} shape="wide" />
+          </div>
+        </Card>
         <Card className="p-5">
           <SectionTitle title={t('app.seller.branding')} />
           <AutoForm

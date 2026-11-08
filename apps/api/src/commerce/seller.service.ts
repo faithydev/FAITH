@@ -87,6 +87,26 @@ export class SellerService {
     return this.prisma.db.store.update({ where: { id: storeId }, data });
   }
 
+  async setStoreImage(storeId: string, userId: string, slot: 'logo' | 'banner', uploadId: string | null) {
+    await this.ownedStore(storeId, userId);
+    let key: string | null = null;
+    if (uploadId) {
+      const upload = await this.prisma.db.upload.findUnique({ where: { id: uploadId } });
+      if (!upload || upload.ownerId !== userId) throw notFound('UPLOAD_NOT_FOUND');
+      if (!upload.mime.startsWith('image/') || !upload.storageKey.startsWith('public/')) throw badRequest('IMAGE_REQUIRED');
+      key = upload.storageKey;
+    }
+    return this.prisma.db.store.update({ where: { id: storeId }, data: slot === 'logo' ? { logoKey: key } : { bannerKey: key }, select: { id: true, logoKey: true, bannerKey: true } });
+  }
+
+  async setCover(productId: string, userId: string, assetId: string) {
+    await this.ownedProduct(productId, userId);
+    const asset = await this.prisma.db.productAsset.findFirst({ where: { id: assetId, productId, kind: 'IMAGE' } });
+    if (!asset || !asset.storageKey.startsWith('public/')) throw notFound();
+    await this.prisma.db.product.update({ where: { id: productId }, data: { coverKey: asset.storageKey } });
+    return { status: 'ok' };
+  }
+
   async products(storeId: string, userId: string) {
     await this.ownedStore(storeId, userId);
     return this.prisma.db.product.findMany({
@@ -211,8 +231,15 @@ export class SellerService {
 
   async removeAsset(productId: string, userId: string, assetId: string) {
     await this.ownedProduct(productId, userId);
-    const { count } = await this.prisma.db.productAsset.deleteMany({ where: { id: assetId, productId } });
-    if (count === 0) throw notFound();
+    const asset = await this.prisma.db.productAsset.findFirst({ where: { id: assetId, productId } });
+    if (!asset) throw notFound();
+    await this.prisma.db.productAsset.delete({ where: { id: asset.id } });
+    // Removing the cover image promotes the next gallery image, if any.
+    const product = await this.prisma.db.product.findUniqueOrThrow({ where: { id: productId }, select: { coverKey: true } });
+    if (product.coverKey === asset.storageKey) {
+      const next = await this.prisma.db.productAsset.findFirst({ where: { productId, kind: 'IMAGE', storageKey: { startsWith: 'public/' } }, orderBy: { position: 'asc' } });
+      await this.prisma.db.product.update({ where: { id: productId }, data: { coverKey: next?.storageKey ?? null } });
+    }
     return { status: 'ok' };
   }
 

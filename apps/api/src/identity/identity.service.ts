@@ -28,13 +28,14 @@ export class IdentityService {
   ) {}
 
   async me(a: AuthContext) {
-    const [profile, plan, features, flags, unread, cartCount] = await Promise.all([
+    const [profile, plan, features, flags, unread, cartCount, badge] = await Promise.all([
       this.prisma.db.userProfile.findUnique({ where: { userId: a.user.id } }),
       this.entitlements.activePlan(a.user.id),
       this.entitlements.features(a.user.id),
       this.flags.publicState(a.user.id),
       this.prisma.db.notification.count({ where: { userId: a.user.id, readAt: null } }),
       this.prisma.db.cartItem.count({ where: { cart: { userId: a.user.id } } }),
+      this.prisma.db.verifiedBadge.findUnique({ where: { userId: a.user.id }, select: { kind: true, status: true, grantAt: true, verifiedAt: true } }),
     ]);
     const workspaces = workspacesFor(a.roles);
     return {
@@ -47,6 +48,9 @@ export class IdentityService {
       twoFactor: !!a.user.twoFactorEnabledAt,
       profile,
       roles: a.roles,
+      lockedRoles: a.lockedRoles,
+      pro: a.pro,
+      badge,
       permissions: [...a.permissions],
       workspaces,
       plan: { key: plan.plan?.key ?? 'free', renewsAt: plan.subscription?.currentPeriodEnd ?? null, cancelAtPeriodEnd: plan.subscription?.cancelAtPeriodEnd ?? false },

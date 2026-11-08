@@ -28,6 +28,7 @@ import { LedgerService } from './finance/ledger.service';
 import { PayoutsService } from './finance/payouts.service';
 import { HealthController } from './health.controller';
 import { IdentityController } from './identity/identity.controller';
+import { BadgesService } from './identity/badges';
 import { IdentityService } from './identity/identity.service';
 import { PaymentsController } from './payments/payments.controller';
 import { PaymentsService } from './payments/payments.service';
@@ -42,7 +43,7 @@ import { WorkService } from './work/work.service';
 
 const shared = [
   PrismaService, AuditService, EventsService, SettingsService, FlagsService, EmailService, StorageService,
-  EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService,
+  EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService, BadgesService,
 ];
 
 /** Services every domain may depend on. Domains never reach into each other's internals. */

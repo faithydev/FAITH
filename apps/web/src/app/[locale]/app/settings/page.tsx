@@ -1,5 +1,6 @@
 import { ActionButton, AutoForm, FormDialog } from '@/components/ui/client';
-import { Badge, Card, PageHeader, SectionTitle } from '@/components/ui/primitives';
+import { Badge, Card, LinkButton, PageHeader, SectionTitle } from '@/components/ui/primitives';
+import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { TwoFactorPanel } from '@/components/settings/two-factor';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
@@ -14,6 +15,24 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader title={t('nav.settings')} />
+      <Card className="mb-6 flex flex-wrap items-center gap-4 p-5" data-testid="badge-card">
+        {me.badge && me.badge.status !== 'REJECTED' && me.badge.status !== 'REVOKED'
+          ? <VerifiedBadge kind={me.badge.kind} label={t(`badges.kinds.${me.badge.kind}`)} size={64} className={me.badge.status === 'PENDING' ? 'opacity-45 grayscale' : undefined} />
+          : <VerifiedBadge kind="customer" label="" size={64} className="opacity-25 grayscale" />}
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-semibold">
+            {me.badge?.status === 'VERIFIED' ? `${t('badges.verified')} · ${t(`badges.kinds.${me.badge.kind}`)}` : t('app.badge.title')}
+          </p>
+          <p className="text-sm text-muted">
+            {me.badge?.status === 'VERIFIED' ? t('app.badge.verified')
+              : me.badge?.status === 'PENDING' ? t('app.badge.pending', { date: d(me.badge.grantAt) })
+              : me.badge?.status === 'REJECTED' ? t('app.badge.rejected')
+              : me.badge?.status === 'REVOKED' ? t('app.badge.revoked')
+              : t('app.badge.none')}
+          </p>
+        </div>
+        {!me.pro && <LinkButton href="/app/billing" variant="primary" size="sm" arrow>{t('app.badge.getPro')}</LinkButton>}
+      </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-5">
           <SectionTitle title={t('app.settings.profile')} />

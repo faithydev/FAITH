@@ -6,6 +6,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { SYSTEM_RULES, drainOutbox } from '@faith/automation';
+import { compSampleAccounts } from './identity/badges';
 import { createPrismaClient, seedReference } from '@faith/database';
 import { hash } from '@node-rs/argon2';
 import type { RoleKey } from '@faith/config';
@@ -42,6 +43,7 @@ async function main() {
   }
 
   if (await db.user.findUnique({ where: { email: 'admin@faith.dev' } })) {
+    await compSampleAccounts(db);
     console.log('Demo data already present. Run `pnpm db:reset` to rebuild it.');
     await db.$disconnect();
     return;
@@ -350,6 +352,7 @@ async function main() {
   await db.platformSetting.upsert({ where: { key: 'platform.demoData' }, update: { value: true }, create: { key: 'platform.demoData', value: true } });
 
   await app.close();
+  await compSampleAccounts(db);
   await db.$disconnect();
   console.log(`
 FAITH demo data is ready. All data is fictional. Password for every account below: ${DEMO_PASSWORD}

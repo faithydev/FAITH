@@ -10,6 +10,7 @@ import { ZBody, ZQuery } from '../core/zod';
 import { DeveloperService } from '../developer/developer.service';
 import { PayoutsService } from '../finance/payouts.service';
 import { RewardsService } from '../rewards/rewards.service';
+import { BadgesService } from '../identity/badges';
 import { AdminService } from './admin.service';
 
 const userQuery = pageQuery.extend({ q: z.string().trim().max(120).optional() });
@@ -18,6 +19,8 @@ const statusBody = z.object({ status: z.enum(['ACTIVE', 'SUSPENDED']) });
 const contentStatus = z.object({ status: z.enum(['VISIBLE', 'HIDDEN', 'REMOVED']) });
 const reviewStatus = z.object({ status: z.enum(['VISIBLE', 'HIDDEN']) });
 const ticketStatus = z.object({ status: z.enum(['OPEN', 'PENDING', 'CLOSED']) });
+const badgeDecision = z.object({ approve: z.boolean(), note: z.string().trim().max(500).optional() });
+const badgeQuery = z.object({ status: z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'REVOKED']).optional() });
 
 /** Every route needs `admin.access` plus its own permission. Checks run on the server. */
 @ApiTags('admin')
@@ -29,7 +32,18 @@ export class AdminController {
     private readonly payouts: PayoutsService,
     private readonly rewards: RewardsService,
     private readonly dev: DeveloperService,
+    private readonly badges: BadgesService,
   ) {}
+
+  @Get('badges') @RequirePermission('admin.users.read')
+  badgeList(@ZQuery(badgeQuery) q: z.infer<typeof badgeQuery>) {
+    return this.badges.list(q.status);
+  }
+
+  @Post('badges/:userId/decide') @HttpCode(200) @RequirePermission('admin.users.write')
+  badgeDecide(@Auth() a: AuthContext, @Param('userId') userId: string, @ZBody(badgeDecision) b: z.infer<typeof badgeDecision>) {
+    return this.badges.decide(userId, b.approve, a.user.id, b.note);
+  }
 
   @Get('overview') @RequirePermission('admin.finance.read')
   overview() {

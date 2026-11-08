@@ -9,6 +9,7 @@ import {
 import { z } from 'zod';
 import { Auth, AuthContext, OptionalAuth, Public, RequirePermission } from '../auth/context';
 import { StorageService } from '../core/adapters';
+import { badRequest } from '../core/errors';
 import { ZBody, ZQuery } from '../core/zod';
 import { CatalogService } from './catalog.service';
 import { OrdersService } from './orders.service';
@@ -18,6 +19,9 @@ const assetBody = z.object({ uploadId: z.string().min(1), kind: z.enum(['IMAGE',
 const versionBody = z.object({ version: z.string().trim().min(1).max(30), changelog: z.string().trim().max(4000).optional() });
 const activeBody = z.object({ active: z.boolean() });
 const sponsoredQuery = z.object({ placement: z.enum(['MARKETPLACE_TOP', 'PROMOTED_LISTING', 'CREATOR_DISCOVERY', 'SPONSORED_COLLECTION']).default('MARKETPLACE_TOP') });
+
+const imageBody = z.object({ uploadId: z.string().min(1).nullable() });
+const coverBody = z.object({ assetId: z.string().min(1) });
 
 @ApiTags('marketplace')
 @Controller('marketplace')
@@ -196,6 +200,19 @@ export class SellerController {
   @Post('products/:id/assets') @RequirePermission('product.manage')
   attach(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(assetBody) b: z.infer<typeof assetBody>) {
     return this.seller.attachAsset(id, a.user.id, b.uploadId, b.kind, b.versionId);
+  }
+
+  /** Store logo or banner: a public image the seller uploaded, or null to remove it. */
+  @Put('stores/:id/images/:slot') @RequirePermission('store.manage')
+  storeImage(@Auth() a: AuthContext, @Param('id') id: string, @Param('slot') slot: string, @ZBody(imageBody) b: z.infer<typeof imageBody>) {
+    if (slot !== 'logo' && slot !== 'banner') throw badRequest('INVALID_SLOT');
+    return this.seller.setStoreImage(id, a.user.id, slot, b.uploadId);
+  }
+
+  /** Picks which gallery image is the product's cover. */
+  @Put('products/:id/cover') @RequirePermission('product.manage')
+  cover(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(coverBody) b: z.infer<typeof coverBody>) {
+    return this.seller.setCover(id, a.user.id, b.assetId);
   }
 
   @Delete('products/:id/assets/:assetId') @RequirePermission('product.manage')

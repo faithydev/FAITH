@@ -3,7 +3,8 @@
 export type Me = {
   id: string; email: string; locale: string; currency: string; activeWorkspace: string; onboarded: boolean; twoFactor: boolean;
   profile: { displayName: string; username: string; bio: string | null; country: string | null; website: string | null; recommendationsConsent: boolean } | null;
-  roles: string[]; permissions: string[]; workspaces: string[];
+  roles: string[]; lockedRoles: string[]; pro: boolean; permissions: string[]; workspaces: string[];
+  badge: { kind: string; status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'REVOKED'; grantAt: string; verifiedAt: string | null } | null;
   plan: { key: string; renewsAt: string | null; cancelAtPeriodEnd: boolean };
   features: string[]; flags: Record<string, boolean>; unreadNotifications: number; cartCount: number;
 };
@@ -26,7 +27,7 @@ export type ProductDetail = ProductCard & {
   course: { slug: string; title: string } | null; community: { slug: string; name: string } | null;
   wishlisted: boolean; ownedEntitlementId: string | null; isOwnProduct: boolean;
   reviews: { id: string; rating: number; body: string; createdAt: string; user: { profile: { displayName: string } | null } }[];
-  store: { id?: string; slug: string; name: string; tagline?: string | null };
+  store: { id?: string; slug: string; name: string; tagline?: string | null; logoKey?: string | null; badge?: string | null };
 };
 export type Sponsored = { id: string; title: string; sponsored: true; product: ProductCard | null };
 export type CartView = {
@@ -42,12 +43,12 @@ export type LibraryItem = {
   id: string; licenseKey: string; licenseTerms: { name?: string; terms?: string } | null; grantedAt: string; expiresAt: string | null;
   product: { id: string; slug: string; title: string; type: string; assets: { id: string; filename: string; sizeBytes: number }[]; course: { slug: string } | null; community: { slug: string } | null };
 };
-export type Store = { id: string; slug: string; name: string; tagline: string | null; description: string | null; currency: string; status: string; country: string | null; _count?: { products: number } };
+export type Store = { id: string; slug: string; name: string; tagline: string | null; description: string | null; currency: string; status: string; country: string | null; logoKey?: string | null; bannerKey?: string | null; _count?: { products: number } };
 export type SellerProduct = {
   id: string; slug: string; title: string; summary: string; description: string; type: string; status: string; currency: string; priceFromMinor: string; salesCount: number; viewCount: number; updatedAt: string;
   tags: string[]; categoryId: string | null; licenseId: string | null; affiliateBps: number | null;
   variants: { id: string; name: string; priceMinor: string; active: boolean }[];
-  assets: { id: string; kind: string; filename: string; sizeBytes: number }[];
+  assets: { id: string; kind: string; filename: string; sizeBytes: number; storageKey?: string }[]; coverKey?: string | null;
 };
 export type RewardRule = { metric: string; unitSize: string; rateMinor: string; capMinor: string | null; minQualified: string };
 export type Campaign = {

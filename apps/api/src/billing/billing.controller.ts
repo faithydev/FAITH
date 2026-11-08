@@ -23,7 +23,7 @@ export class BillingController {
 
   @Post('upgrade')
   upgrade(@Auth() a: AuthContext, @ZBody(upgradeBody) b: z.infer<typeof upgradeBody>) {
-    return this.billing.upgrade(a.user.id, b.interval, b.idempotencyKey);
+    return this.billing.upgrade(a.user.id, b.interval, b.idempotencyKey, b.badgeKind);
   }
 
   @Post('cancel') @HttpCode(200)

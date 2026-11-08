@@ -1,4 +1,4 @@
-import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions } from '@faith/automation';
+import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions, settleBadges } from '@faith/automation';
 
 /** Drains every pending event; one call handles a batch, and sign-ups add events of their own. */
 const drainAll = async (db: Parameters<typeof drainOutbox>[0]) => { while ((await drainOutbox(db, { batch: 200 })).processed > 0); };
@@ -496,25 +496,29 @@ describe('automation', () => {
       create: { key: 'grant-plan-communities', name: 'Grant', trigger: 'subscription.activated', actions: [{ type: 'grant_community', byPlan: true }] },
     });
     const u = await t.signUp();
-    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') }).expect(201)).body;
+    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'customer' }).expect(201)).body;
     await u.agent.post(`/v1/payments/${pay.paymentId}/simulate`).send({ outcome: 'success' }).expect(200);
     await drainAll(t.db);
     expect((await u.agent.get(`/v1/communities/${c.slug}`).expect(200)).body.canRead).toBe(true);
   });
 
   it('expires a subscription after its paid period and removes the entitlement', async () => {
-    const u = await t.signUp(['sell']);
-    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') }).expect(201)).body;
+    const u = await t.signUp(['sell'], { free: true });
+    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'seller' }).expect(201)).body;
     await u.agent.post(`/v1/payments/${pay.paymentId}/simulate`).send({ outcome: 'success' }).expect(200);
     await t.db.subscription.updateMany({ where: { userId: u.id }, data: { currentPeriodEnd: new Date(Date.now() - 1000) } });
-    expect((await u.agent.get('/v1/me')).body.plan.key).toBe('free');
+    const after = (await u.agent.get('/v1/me')).body;
+    expect(after.plan.key).toBe('free');
+    expect(after.lockedRoles).toContain('seller');
     expect(await expireSubscriptions(t.db)).toBeGreaterThan(0);
+    expect((await settleBadges(t.db)).revoked).toBeGreaterThan(0);
+    expect((await u.agent.get('/v1/me')).body.badge.status).toBe('REVOKED');
   });
 });
 
 describe('ai', () => {
   it('labels demo output, logs it and enforces the Pro gate', async () => {
-    const u = await t.signUp(['sell']);
+    const u = await t.signUp(['sell'], { free: true });
     const status = (await u.agent.get('/v1/ai/status').expect(200)).body;
     expect(status).toMatchObject({ provider: 'demo', live: false });
     const r = (await u.agent.post('/v1/ai/run').send({ capability: 'product_description', prompt: 'A pack of icons', locale: 'en' }).expect(200)).body;

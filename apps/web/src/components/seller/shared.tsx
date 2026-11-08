@@ -1,5 +1,6 @@
 import { ActionButton, AutoForm } from '@/components/ui/client';
-import { Card, EmptyState, PageHeader, cx } from '@/components/ui/primitives';
+import { Card, EmptyState, LinkButton, PageHeader, cx } from '@/components/ui/primitives';
+import { pageContext } from '@/lib/page';
 import { Link } from '@/i18n/navigation';
 import type { Store } from '@/lib/types';
 import { getTranslations } from 'next-intl/server';
@@ -13,7 +14,16 @@ export type Analytics = {
 
 /** Shown when someone opens a workspace they have no role for. Adding the role is one click. */
 export async function NoRole({ persona }: { persona: string }) {
-  const t = await getTranslations();
+  const { t, me } = await pageContext();
+  // Free accounts browse and buy; every other role opens with Pro.
+  if (!me.pro && persona !== 'discover') {
+    return (
+      <EmptyState
+        title={t('app.proGate.title', { role: t(`onboarding.personas.${persona}.title`) })} description={t('app.proGate.body')}
+        action={<LinkButton href="/app/billing" variant="primary" size="md" arrow>{t('app.proGate.cta')}</LinkButton>}
+      />
+    );
+  }
   return (
     <EmptyState
       title={t('app.noRole.title', { role: t(`onboarding.personas.${persona}.title`) })} description={t('app.noRole.body')}

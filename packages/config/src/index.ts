@@ -89,6 +89,18 @@ export const SELF_ASSIGNABLE_ROLES: readonly RoleKey[] = [
 ];
 export const STAFF_ROLES: readonly RoleKey[] = ['moderator', 'finance', 'support', 'admin', 'super_admin'];
 
+/**
+ * "FAITH Verified" badges. A Pro subscriber picks exactly one role at checkout; that role is
+ * unlocked and its badge appears on the profile within BADGE_GRANT_HOURS. "founder" is kept for
+ * the platform owners and can never be asked for.
+ */
+export const BADGE_KINDS = ['customer', 'job_seeker', 'freelancer', 'seller', 'creator', 'brand', 'developer'] as const;
+export type BadgeKind = (typeof BADGE_KINDS)[number] | 'founder';
+export const BADGE_GRANT_HOURS = 24;
+
+/** Free accounts browse and buy. Every other role works only while Pro is active (staff excepted). */
+export const FREE_ROLES: readonly RoleKey[] = ['customer'];
+
 export const PERMISSIONS = [
   'marketplace.buy',
   'store.manage',

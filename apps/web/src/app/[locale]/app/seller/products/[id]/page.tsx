@@ -3,7 +3,8 @@ import { ActionButton, AutoForm, FormDialog } from '@/components/ui/client';
 import { Breadcrumbs, Card, LinkButton, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
-import { fileSize } from '@/lib/format';
+import { fileSize, fileUrl } from '@/lib/format';
+import Image from 'next/image';
 import { pageContext } from '@/lib/page';
 import type { SellerProduct } from '@/lib/types';
 import { notFound } from 'next/navigation';
@@ -20,6 +21,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     throw e;
   });
   const files = p.assets.filter((a) => a.kind === 'FILE');
+  const images = p.assets.filter((a) => a.kind === 'IMAGE' && a.storageKey?.startsWith('public/'));
   return (
     <>
       <Breadcrumbs label={t('common.breadcrumbs')} items={[{ label: t('nav.items.products'), href: '/app/seller/products' }, { label: p.title }]} />
@@ -49,7 +51,30 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
             ]}
           />
         </Card>
-        <div className="space-y-6">
+        <Card className="p-5 lg:col-start-1">
+          <SectionTitle title={t('app.seller.imagesTitle')} />
+          {images.length === 0 ? <p className="mb-3 text-sm text-muted">{t('app.seller.noImages')}</p> : (
+            <ul className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {images.map((img) => {
+                const isCover = img.storageKey === p.coverKey;
+                return (
+                  <li key={img.id} className="overflow-hidden rounded-xl border border-line">
+                    <div className="relative aspect-[16/10] bg-surface-2">
+                      <Image src={fileUrl(img.storageKey!)} alt={img.filename} fill unoptimized className="object-cover" />
+                      {isCover && <span className="absolute start-2 top-2 rounded-full bg-neon px-2 py-0.5 text-[0.65rem] font-semibold text-black">{t('app.seller.cover')}</span>}
+                    </div>
+                    <div className="flex items-center justify-between gap-1 p-1.5">
+                      {!isCover ? <ActionButton endpoint={`/seller/products/${p.id}/cover`} method="PUT" body={{ assetId: img.id }} label={t('app.seller.makeCover')} variant="ghost" /> : <span />}
+                      <ActionButton endpoint={`/seller/products/${p.id}/assets/${img.id}`} method="DELETE" label={t('common.remove')} variant="ghost" />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <FileUploader productId={p.id} accept="image/png,image/jpeg,image/webp,image/gif" multiple label={t('app.seller.uploadImages')} hint={t('app.seller.imagesHint')} />
+        </Card>
+        <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <Card className="p-5">
             <SectionTitle title={t('app.seller.pricing')} />
             <ul className="space-y-1.5 text-sm">

@@ -1,3 +1,4 @@
+import { settleBadges } from '@faith/automation';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { MockPaymentProvider } from '../src/payments/provider';
 import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
@@ -291,12 +292,26 @@ describe('isolation', () => {
 
 describe('billing', () => {
   it('moves from Free to Pro through the simulator and gates a feature', async () => {
-    const u = await t.signUp(['sell']);
-    expect((await u.agent.get('/v1/me')).body.plan.key).toBe('free');
-    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') }).expect(201)).body;
+    const u = await t.signUp(['sell'], { free: true });
+    const free = (await u.agent.get('/v1/me')).body;
+    expect(free.plan.key).toBe('free');
+    // Free accounts browse and buy; the seller role waits for Pro.
+    expect(free.lockedRoles).toContain('seller');
+    expect(free.permissions).not.toContain('store.manage');
+    await u.agent.post('/v1/seller/stores').send({ name: t.unique('Locked shop') }).expect(403);
+    // Pro needs exactly one role from the list.
+    await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') }).expect(422);
+    await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'founder' }).expect(422);
+    const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'seller' }).expect(201)).body;
     await u.agent.post(`/v1/payments/${pay.paymentId}/simulate`).send({ outcome: 'success' }).expect(200);
     const me = (await u.agent.get('/v1/me')).body;
     expect(me.plan.key).toBe('pro');
+    expect(me.permissions).toContain('store.manage');
+    expect(me.badge).toMatchObject({ kind: 'seller', status: 'PENDING' });
+    // Within 24 hours the badge goes live on its own.
+    await t.db.verifiedBadge.update({ where: { userId: u.id }, data: { grantAt: new Date(Date.now() - 1000) } });
+    expect((await settleBadges(t.db)).granted).toBeGreaterThan(0);
+    expect((await u.agent.get('/v1/me')).body.badge).toMatchObject({ kind: 'seller', status: 'VERIFIED' });
     expect(me.features).toContain('analytics.advanced');
     await u.agent.post('/v1/billing/cancel').expect(200);
     expect((await u.agent.get('/v1/me')).body.plan).toMatchObject({ key: 'pro', cancelAtPeriodEnd: true });
@@ -306,7 +321,7 @@ describe('billing', () => {
   it('keeps upgrades closed when no price is configured', async () => {
     await t.db.subscriptionPlan.update({ where: { key: 'pro' }, data: { monthlyMinor: null } });
     const u = await t.signUp();
-    const r = await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') });
+    const r = await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'customer' });
     expect(r.body.error.code).toBe('PLAN_PRICE_NOT_SET');
     await t.db.subscriptionPlan.update({ where: { key: 'pro' }, data: { monthlyMinor: 1900n } });
   });

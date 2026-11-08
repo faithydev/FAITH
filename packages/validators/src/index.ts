@@ -1,6 +1,6 @@
 /** Request contracts shared by the API (enforcement) and the web app (form feedback). */
 import { z } from 'zod';
-import { API_SCOPES, APP_PERMISSIONS, LOCALES, PERSONAS, WEBHOOK_EVENTS, WORKSPACES } from '@faith/config';
+import { API_SCOPES, APP_PERMISSIONS, BADGE_KINDS, LOCALES, PERSONAS, WEBHOOK_EVENTS, WORKSPACES } from '@faith/config';
 
 // --- Primitives -------------------------------------------------------------
 
@@ -186,7 +186,7 @@ export const payoutDecisionBody = z.object({
 
 // --- Billing ----------------------------------------------------------------
 
-export const upgradeBody = z.object({ interval: z.enum(['MONTHLY', 'YEARLY']), idempotencyKey: z.string().min(8).max(100) });
+export const upgradeBody = z.object({ interval: z.enum(['MONTHLY', 'YEARLY']), idempotencyKey: z.string().min(8).max(100), badgeKind: z.enum(BADGE_KINDS) });
 export const planPriceBody = z.object({
   monthlyMinor: minorAmount.nullable(),
   yearlyMinor: minorAmount.nullable(),

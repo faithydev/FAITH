@@ -55,6 +55,7 @@ model User {
   memberships         OrganizationMember[]
   verificationRequests VerificationRequest[] @relation("VerificationSubject")
   subscriptions       Subscription[]
+  badge               VerifiedBadge?
   stores              Store[]
   cart                Cart?
   orders              Order[]
@@ -341,6 +342,8 @@ model Subscription {
   currentPeriodEnd   DateTime?
   cancelAtPeriodEnd  Boolean            @default(false)
   canceledAt         DateTime?
+  /// The verified badge the subscriber asked for at checkout (a role key, never "founder").
+  badgeKind          String?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   payments           Payment[]
@@ -2285,4 +2288,29 @@ model Upload {
   createdAt  DateTime @default(now())
 
   @@index([ownerId])
+}
+
+enum BadgeStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  REVOKED
+}
+
+/// "FAITH Verified" mark on a profile. Pro subscribers pick the role it shows at checkout; it is
+/// granted by staff or automatically once grantAt passes while Pro is still active. Founders
+/// carry the gold "founder" kind, which no checkout can ask for.
+model VerifiedBadge {
+  userId      String      @id
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        String
+  status      BadgeStatus @default(PENDING)
+  requestedAt DateTime    @default(now())
+  grantAt     DateTime
+  verifiedAt  DateTime?
+  decidedById String?
+  note        String?
+  updatedAt   DateTime    @updatedAt
+
+  @@index([status, grantAt])
 }

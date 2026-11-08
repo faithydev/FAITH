@@ -1035,7 +1035,8 @@
         "staff_subscription": "Se unió un nuevo suscriptor Pro",
         "staff_product_published": "Nuevo producto publicado: {title}",
         "staff_job_application": "Nueva solicitud para {title}",
-        "staff_app_installed": "Se instaló una aplicación"
+        "staff_app_installed": "Se instaló una aplicación",
+        "badge_verified": "Tu insignia FAITH Verified está activa"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "Mensual",
         "YEARLY": "Anual"
-      }
+      },
+      "chooseBadge": "Elige tu rol",
+      "chooseBadgeBody": "Elige el único rol que de verdad es tuyo. Pro lo desbloquea y la insignia FAITH Verified aparece en tu perfil en 24 horas.",
+      "chooseBadgeFirst": "Elige tu rol para continuar."
     },
     "ai": {
       "title": "Asistente de IA",
@@ -1252,7 +1256,17 @@
       "viewsHint": "Visitas: {views}",
       "repeat": "Clientes recurrentes",
       "topProducts": "Productos destacados",
-      "advancedPitch": "Pro añade analítica e informes más profundos."
+      "advancedPitch": "Pro añade analítica e informes más profundos.",
+      "storeImages": "Logo y banner",
+      "logo": "Logo",
+      "banner": "Banner",
+      "uploadImage": "Subir imagen",
+      "imagesTitle": "Imágenes y vistas previas",
+      "imagesHint": "PNG, JPG, WebP o GIF. La portada aparece en las tarjetas; el resto, como vistas previas en la página del producto.",
+      "uploadImages": "Añadir imágenes",
+      "makeCover": "Usar como portada",
+      "cover": "Portada",
+      "noImages": "Aún no hay imágenes."
     },
     "growth": {
       "body": "Espacios de pago y socios. La publicidad siempre va etiquetada y nunca cambia el orden orgánico.",
@@ -1481,6 +1495,20 @@
       "events": "Eventos",
       "noWebhooks": "Aún no hay webhooks.",
       "deleteWebhook": "¿Eliminar este webhook?"
+    },
+    "badge": {
+      "title": "Insignia FAITH Verified",
+      "verified": "Tu perfil lleva la insignia oficial FAITH Verified.",
+      "pending": "Tu insignia aparecerá en tu perfil antes del {date}.",
+      "none": "Los miembros Pro reciben la insignia oficial FAITH Verified en 24 horas.",
+      "rejected": "Se rechazó tu solicitud de insignia. Contacta con soporte si es un error.",
+      "revoked": "Tu insignia vuelve cuando Pro esté activo de nuevo.",
+      "getPro": "Obtener Pro"
+    },
+    "proGate": {
+      "title": "{role} es una función Pro",
+      "body": "Las cuentas gratuitas pueden explorar y comprar. Pro desbloquea todas las herramientas de FAITH y añade la insignia oficial FAITH Verified a tu perfil en 24 horas.",
+      "cta": "Ver Pro"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "Pendiente",
     "exportUsers": "Usuarios (Excel)",
     "exportActivity": "Toda la actividad (Excel)",
-    "exportOrders": "Pedidos (Excel)"
+    "exportOrders": "Pedidos (Excel)",
+    "badges": {
+      "title": "Solicitudes de insignia",
+      "empty": "No hay solicitudes pendientes.",
+      "approve": "Verificar ahora",
+      "reject": "Rechazar",
+      "rejectConfirm": "¿Rechazar esta solicitud?",
+      "autoOn": "se verifica automáticamente el {date}"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "Fundador",
+      "customer": "Comprador / Cliente",
+      "job_seeker": "Buscador de empleo",
+      "freelancer": "Freelancer",
+      "seller": "Vendedor",
+      "creator": "Creador",
+      "brand": "Marca",
+      "developer": "Desarrollador"
+    }
   }
 }

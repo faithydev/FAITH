@@ -8,6 +8,7 @@
  *   pnpm showcase
  */
 import 'reflect-metadata';
+import { compSampleAccounts } from './identity/badges';
 import { NestFactory } from '@nestjs/core';
 import { drainOutbox } from '@faith/automation';
 import { createPrismaClient } from '@faith/database';
@@ -358,6 +359,7 @@ async function main() {
 
   const gmv = await db.order.aggregate({ where: { id: { in: paidOrders } }, _sum: { totalMinor: true } });
   await app.close();
+  await compSampleAccounts(db);
   await db.$disconnect();
   const total = Number(gmv._sum.totalMinor ?? 0n) / 100;
   console.log(`

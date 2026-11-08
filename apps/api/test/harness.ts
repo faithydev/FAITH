@@ -40,7 +40,7 @@ export class TestApp {
   }
 
   /** Registers through the real API, confirms the email, and returns a logged-in agent. */
-  async signUp(personas: string[] = [], opts: { displayName?: string } = {}) {
+  async signUp(personas: string[] = [], opts: { displayName?: string; free?: boolean } = {}) {
     const email = `${this.unique('user')}@test.faith`;
     const password = 'correct-horse-battery';
     const agent = request.agent(this.app.getHttpServer());
@@ -48,11 +48,24 @@ export class TestApp {
     const token = await this.lastEmailToken(email);
     await agent.post('/v1/auth/verify-email').send({ token }).expect(200);
     if (personas.length) await agent.post('/v1/onboarding').send({ personas, answers: {} }).expect(200);
+    // Roles beyond browsing and buying work only with Pro, so people who take one get Pro here.
+    if (personas.some((p) => p !== 'discover') && !opts.free) {
+      const id = ((await agent.get('/v1/me').expect(200)).body as { id: string }).id;
+      await this.givePro(id);
+    }
     const me = (await agent.get('/v1/me').expect(200)).body as { id: string; roles: string[]; workspaces: string[] };
     return { agent, email, password, id: me.id, me };
   }
 
-  async lastEmailToken(to: string) {
+  async givePro(userId: string) {
+    const plan = await this.db.subscriptionPlan.findUniqueOrThrow({ where: { key: 'pro' } });
+    const now = new Date();
+    await this.db.subscription.create({
+      data: { userId, planId: plan.id, status: 'ACTIVE', interval: 'MONTHLY', priceMinor: 0n, currency: plan.currency, provider: 'test', currentPeriodStart: now, currentPeriodEnd: new Date(now.getTime() + 30 * 86_400_000) },
+    });
+  }
+
+    async lastEmailToken(to: string) {
     const mail = await this.db.emailOutbox.findFirstOrThrow({ where: { to }, orderBy: { createdAt: 'desc' } });
     return new URL(/https?:\S+/.exec(mail.text)![0]).searchParams.get('token')!;
   }

@@ -1035,7 +1035,8 @@
         "staff_subscription": "انضم مشترك Pro جديد",
         "staff_product_published": "نُشر منتج جديد: {title}",
         "staff_job_application": "طلب جديد لوظيفة {title}",
-        "staff_app_installed": "تم تثبيت تطبيق"
+        "staff_app_installed": "تم تثبيت تطبيق",
+        "badge_verified": "شارة FAITH Verified الخاصة بك فعّالة"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "شهريًا",
         "YEARLY": "سنويًا"
-      }
+      },
+      "chooseBadge": "اختر دورك",
+      "chooseBadgeBody": "اختر الدور الوحيد الذي يمثلك حقًا. يفتحه Pro، وتظهر شارة FAITH Verified في ملفك خلال 24 ساعة.",
+      "chooseBadgeFirst": "اختر دورك للمتابعة."
     },
     "ai": {
       "title": "مساعد الذكاء الاصطناعي",
@@ -1252,7 +1256,17 @@
       "viewsHint": "المشاهدات: {views}",
       "repeat": "عملاء متكررون",
       "topProducts": "أفضل المنتجات",
-      "advancedPitch": "يضيف Pro تحليلات وتقارير أعمق."
+      "advancedPitch": "يضيف Pro تحليلات وتقارير أعمق.",
+      "storeImages": "الشعار والغلاف",
+      "logo": "الشعار",
+      "banner": "الغلاف",
+      "uploadImage": "رفع صورة",
+      "imagesTitle": "الصور والمعاينات",
+      "imagesHint": "PNG أو JPG أو WebP أو GIF. تظهر صورة الغلاف في البطاقات، وتظهر البقية كمعاينات في صفحة المنتج.",
+      "uploadImages": "إضافة صور",
+      "makeCover": "اجعلها الغلاف",
+      "cover": "الغلاف",
+      "noImages": "لا توجد صور بعد."
     },
     "growth": {
       "body": "مواضع مدفوعة وشركاء. الإعلانات مميزة دائمًا ولا تغيّر الترتيب العضوي.",
@@ -1481,6 +1495,20 @@
       "events": "الأحداث",
       "noWebhooks": "لا توجد Webhooks بعد.",
       "deleteWebhook": "حذف هذا Webhook؟"
+    },
+    "badge": {
+      "title": "شارة FAITH Verified",
+      "verified": "يحمل ملفك شارة FAITH Verified الرسمية.",
+      "pending": "ستظهر شارتك في ملفك قبل {date}.",
+      "none": "يحصل أعضاء Pro على شارة FAITH Verified الرسمية خلال 24 ساعة.",
+      "rejected": "رُفض طلب الشارة. تواصل مع الدعم إن كان ذلك خطأ.",
+      "revoked": "تعود شارتك عند تفعيل Pro مجددًا.",
+      "getPro": "احصل على Pro"
+    },
+    "proGate": {
+      "title": "{role} ميزة في Pro",
+      "body": "الحسابات المجانية تتيح التصفح والشراء. يفتح Pro كل أدوات FAITH ويضيف شارة FAITH Verified الرسمية إلى ملفك خلال 24 ساعة.",
+      "cta": "اطّلع على Pro"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "قيد الانتظار",
     "exportUsers": "المستخدمون (Excel)",
     "exportActivity": "كل النشاط (Excel)",
-    "exportOrders": "الطلبات (Excel)"
+    "exportOrders": "الطلبات (Excel)",
+    "badges": {
+      "title": "طلبات الشارات",
+      "empty": "لا توجد طلبات معلّقة.",
+      "approve": "وثّق الآن",
+      "reject": "رفض",
+      "rejectConfirm": "رفض طلب هذه الشارة؟",
+      "autoOn": "يُوثَّق تلقائيًا في {date}"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "المؤسس",
+      "customer": "مشترٍ / عميل",
+      "job_seeker": "باحث عن عمل",
+      "freelancer": "مستقل",
+      "seller": "بائع",
+      "creator": "صانع محتوى",
+      "brand": "علامة تجارية",
+      "developer": "مطوّر"
+    }
   }
 }

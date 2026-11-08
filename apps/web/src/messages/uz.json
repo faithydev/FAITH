@@ -1030,12 +1030,13 @@
         "app_installed": "Kimdir ilovangizni oʻrnatdi",
         "automation_custom": "Avtomatlashtirishingiz ishladi",
         "staff_user_registered": "Yangi akkaunt: {name} ({email}), {method} orqali",
-        "staff_order_paid": "{number} buyurtma to'landi: {amount}",
+        "staff_order_paid": "{number} buyurtma toʻlandi: {amount}",
         "staff_order_refunded": "{number} buyurtma qaytarildi: {amount}",
-        "staff_subscription": "Yangi Pro obunachi qo'shildi",
+        "staff_subscription": "Yangi Pro obunachi qoʻshildi",
         "staff_product_published": "Yangi mahsulot chiqdi: {title}",
         "staff_job_application": "{title} uchun yangi ariza",
-        "staff_app_installed": "Ilova o'rnatildi"
+        "staff_app_installed": "Ilova oʻrnatildi",
+        "badge_verified": "FAITH Verified galochkangiz faollashdi"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "Oylik",
         "YEARLY": "Yillik"
-      }
+      },
+      "chooseBadge": "Rolingizni tanlang",
+      "chooseBadgeBody": "Aynan oʼzingizga mos bitta rolni tanlang. Pro uni ochadi va 24 soat ichida profilingizda FAITH Verified galochkasi paydo boʼladi.",
+      "chooseBadgeFirst": "Davom etish uchun rolingizni tanlang."
     },
     "ai": {
       "title": "AI assistent",
@@ -1252,7 +1256,17 @@
       "viewsHint": "Koʻrishlar: {views}",
       "repeat": "Takroriy mijozlar",
       "topProducts": "Eng yaxshi mahsulotlar",
-      "advancedPitch": "Pro kengaytirilgan tahlil va hisobotlarni qoʻshadi."
+      "advancedPitch": "Pro kengaytirilgan tahlil va hisobotlarni qoʻshadi.",
+      "storeImages": "Logo va banner",
+      "logo": "Logo",
+      "banner": "Banner",
+      "uploadImage": "Rasm yuklash",
+      "imagesTitle": "Rasmlar va previewlar",
+      "imagesHint": "PNG, JPG, WebP yoki GIF. Muqova kartochkalarda koʼrinadi, qolganlari mahsulot sahifasida preview boʼladi.",
+      "uploadImages": "Rasm qoʼshish",
+      "makeCover": "Muqova qilish",
+      "cover": "Muqova",
+      "noImages": "Hali rasm yoʼq."
     },
     "growth": {
       "body": "Pullik joylashuv va affiliatlar. Reklama har doim belgilanadi va organik reytingni oʻzgartirmaydi.",
@@ -1481,6 +1495,20 @@
       "events": "Voqealar",
       "noWebhooks": "Hali webhooklar yoʻq.",
       "deleteWebhook": "Bu webhookni oʻchirasizmi?"
+    },
+    "badge": {
+      "title": "FAITH Verified galochkasi",
+      "verified": "Profilingizda rasmiy FAITH Verified galochkasi bor.",
+      "pending": "Galochka {date} gacha profilingizda paydo boʼladi.",
+      "none": "Pro aʼzolari 24 soat ichida rasmiy FAITH Verified galochkasini oladi.",
+      "rejected": "Galochka soʼrovingiz rad etildi. Xato boʼlsa, yordamga yozing.",
+      "revoked": "Pro qayta faollashsa, galochka qaytadi.",
+      "getPro": "Pro olish"
+    },
+    "proGate": {
+      "title": "{role}: Pro imkoniyati",
+      "body": "Bepul akkauntda faqat koʼrish va xarid qilish mumkin. Pro FAITHʼdagi barcha vositalarni ochadi va 24 soat ichida profilingizga rasmiy FAITH Verified galochkasini qoʼyadi.",
+      "cta": "Proʼni koʼrish"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "Kutilmoqda",
     "exportUsers": "Foydalanuvchilar (Excel)",
     "exportActivity": "Barcha faoliyat (Excel)",
-    "exportOrders": "Buyurtmalar (Excel)"
+    "exportOrders": "Buyurtmalar (Excel)",
+    "badges": {
+      "title": "Galochka soʼrovlari",
+      "empty": "Kutilayotgan soʼrov yoʼq.",
+      "approve": "Hozir tasdiqlash",
+      "reject": "Rad etish",
+      "rejectConfirm": "Bu galochka soʼrovi rad etilsinmi?",
+      "autoOn": "{date} da avtomatik tasdiqlanadi"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "Asoschi",
+      "customer": "Xaridor / Mijoz",
+      "job_seeker": "Ish izlovchi",
+      "freelancer": "Frilanser",
+      "seller": "Sotuvchi",
+      "creator": "Ijodkor",
+      "brand": "Brend",
+      "developer": "Dasturchi"
+    }
   }
 }

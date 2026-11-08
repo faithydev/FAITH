@@ -48,7 +48,7 @@ if (process.argv.includes('--unused')) report('In en.json but never used', unuse
 
 const placeholders = (v) => [...v.matchAll(/\{(\w+)/g)].map((m) => m[1]).sort().join(',');
 // Brand names, product names, and short strings that are the same word in several languages.
-const allowSame = /^(brand\.name|app\.roles\.admin|admin\.totalUsers|.*\.(FAITH|url|code))$/;
+const allowSame = /^(brand\.name|badges\.verified|app\.roles\.admin|admin\.totalUsers|.*\.(FAITH|url|code))$/;
 
 for (const l of locales.filter((x) => x !== 'en')) {
   let map;

@@ -1,3 +1,4 @@
+import { BADGE_GRANT_HOURS } from '@faith/config';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import type { Payment } from '@faith/database';
 import { EntitlementsService } from '../auth/entitlements.service';
@@ -53,7 +54,7 @@ export class BillingService implements OnModuleInit {
   }
 
   /** Prices are admin-configured. With no price set, upgrades stay closed rather than free. */
-  async upgrade(userId: string, interval: 'MONTHLY' | 'YEARLY', key: string) {
+  async upgrade(userId: string, interval: 'MONTHLY' | 'YEARLY', key: string, badgeKind: string) {
     const plan = await this.prisma.db.subscriptionPlan.findUnique({ where: { key: 'pro' } });
     if (!plan || !plan.active) throw notFound('PLAN_NOT_FOUND');
     const price = interval === 'MONTHLY' ? plan.monthlyMinor : plan.yearlyMinor;
@@ -66,7 +67,7 @@ export class BillingService implements OnModuleInit {
     if (prior) return this.payments.get(prior.id, userId);
 
     const sub = await this.prisma.db.subscription.create({
-      data: { userId, planId: plan.id, interval, priceMinor: price, currency: plan.currency, provider: this.payments.active().name },
+      data: { userId, planId: plan.id, interval, priceMinor: price, currency: plan.currency, provider: this.payments.active().name, badgeKind },
     });
     return this.payments.start({
       purpose: 'SUBSCRIPTION', payerId: userId, amountMinor: price, currency: plan.currency, idempotencyKey,
@@ -88,7 +89,28 @@ export class BillingService implements OnModuleInit {
       credit: [{ account: Accounts.subscriptions(payment.currency), amountMinor: payment.amountMinor }],
     });
     const plan = await tx.subscriptionPlan.findUniqueOrThrow({ where: { id: sub.planId } });
+    if (sub.badgeKind) await this.requestBadge(tx, sub.userId, sub.badgeKind);
     await this.events.emit(tx, 'subscription.activated', { subscriptionId: sub.id, userId: sub.userId, planKey: plan.key });
+  }
+
+  /**
+   * Unlocks the role the subscriber chose and starts the clock on its verified badge. A badge
+   * already verified for the same role stays verified; a founder badge is never replaced.
+   */
+  private async requestBadge(tx: Tx, userId: string, kind: string) {
+    const role = await tx.role.findUnique({ where: { key: kind } });
+    if (role) {
+      await tx.userRole.upsert({ where: { userId_roleId: { userId, roleId: role.id } }, update: {}, create: { userId, roleId: role.id } });
+    }
+    const current = await tx.verifiedBadge.findUnique({ where: { userId } });
+    if (current?.kind === 'founder') return;
+    if (current?.status === 'VERIFIED' && current.kind === kind) return;
+    const grantAt = new Date(Date.now() + BADGE_GRANT_HOURS * 3_600_000);
+    await tx.verifiedBadge.upsert({
+      where: { userId },
+      update: { kind, status: 'PENDING', requestedAt: new Date(), grantAt, verifiedAt: null, decidedById: null, note: null },
+      create: { userId, kind, grantAt },
+    });
   }
 
   /** Access continues to the end of the paid period, then the worker expires it. */

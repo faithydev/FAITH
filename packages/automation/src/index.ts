@@ -293,6 +293,28 @@ export async function expireSubscriptions(db: PrismaClient): Promise<number> {
   return count;
 }
 
+/**
+ * Verified badges. A pending badge is granted once its 24-hour window passes while the person
+ * still has Pro; any role badge goes away when Pro ends. Founder badges are never touched.
+ */
+export async function settleBadges(db: PrismaClient): Promise<{ granted: number; revoked: number }> {
+  const now = new Date();
+  const activePro = { some: { status: 'ACTIVE' as const, currentPeriodEnd: { gt: now } } };
+  const due = await db.verifiedBadge.findMany({
+    where: { status: 'PENDING', grantAt: { lte: now }, kind: { not: 'founder' }, user: { subscriptions: activePro } },
+    select: { userId: true, kind: true },
+  });
+  if (due.length) {
+    await db.verifiedBadge.updateMany({ where: { userId: { in: due.map((b) => b.userId) }, status: 'PENDING' }, data: { status: 'VERIFIED', verifiedAt: now } });
+    await db.notification.createMany({ data: due.map((b) => ({ userId: b.userId, kind: 'badge.verified', params: { badge: b.kind }, href: '/app/settings' })) });
+  }
+  const { count: revoked } = await db.verifiedBadge.updateMany({
+    where: { status: { in: ['PENDING', 'VERIFIED'] }, kind: { not: 'founder' }, user: { subscriptions: { none: { status: 'ACTIVE', currentPeriodEnd: { gt: now } } } } },
+    data: { status: 'REVOKED' },
+  });
+  return { granted: due.length, revoked };
+}
+
 /** Removes sessions and single-use tokens that can never be used again. */
 export async function purgeExpired(db: PrismaClient): Promise<void> {
   const cutoff = new Date(Date.now() - 7 * 86_400_000);

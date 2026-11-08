@@ -6,7 +6,7 @@
  * job visibility. Without Redis the same ticks run on a timer. Either way the source of truth
  * is the Postgres outbox, so nothing is lost if Redis is absent or restarts.
  */
-import { deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired } from '@faith/automation';
+import { deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired, settleBadges } from '@faith/automation';
 import { createPrismaClient } from '@faith/database';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
@@ -31,7 +31,8 @@ async function fastTick() {
 async function slowTick() {
   const expired = await expireSubscriptions(db);
   await purgeExpired(db);
-  if (expired) log.info({ expired }, 'subscriptions expired');
+  const badges = await settleBadges(db);
+  if (expired || badges.granted || badges.revoked) log.info({ expired, badges }, 'slow tick');
 }
 
 async function withBullMq(url: string) {

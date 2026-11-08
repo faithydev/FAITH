@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { VerifiedBadge } from '@/components/ui/verified-badge';
 import type { Me } from '@/lib/types';
 import {
   BarChart3, Bell, BookOpen, Bot, Briefcase, Code2, CreditCard, FileCheck2, FolderKanban, Heart, KeyRound, Layers, Library,
@@ -90,14 +91,14 @@ function Topbar({ me, cartLabel, notificationsLabel, drawer }: { me: Me; cartLab
 }
 
 /** The signed-in person at the foot of the sidebar, as in the dashboard reference. */
-function ProfileChip({ me, planLabel }: { me: Me; planLabel: string }) {
+function ProfileChip({ me, planLabel, badgeLabel }: { me: Me; planLabel: string; badgeLabel?: string }) {
   const name = me.profile?.displayName ?? me.email;
   const initials = name.split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
   return (
     <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-[color-mix(in_srgb,var(--text)_3%,transparent)] p-2.5">
       <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-neon text-[0.72rem] font-semibold text-black shadow-[0_0_18px_-4px_var(--neon)]">{initials}</span>
       <span className="min-w-0">
-        <span className="block truncate text-[0.8125rem] font-medium">{name}</span>
+        <span className="flex items-center gap-1 text-[0.8125rem] font-medium"><span className="truncate">{name}</span>{me.badge?.status === 'VERIFIED' && badgeLabel && <VerifiedBadge kind={me.badge.kind} label={badgeLabel} size={16} />}</span>
         <span className="block truncate font-mono text-[0.66rem] tracking-wide text-subtle uppercase">{planLabel}</span>
       </span>
     </div>
@@ -143,7 +144,7 @@ export async function AppShell({ me, children }: { me: Me; children: ReactNode }
           <Bot size={15} strokeWidth={1.6} />{t('nav.upgrade')}
         </Link>
       )}
-      <ProfileChip me={me} planLabel={t(`app.plans.${me.plan.key}`)} />
+      <ProfileChip me={me} planLabel={t(`app.plans.${me.plan.key}`)} badgeLabel={me.badge ? `${t('badges.verified')} · ${t(`badges.kinds.${me.badge.kind}`)}` : undefined} />
     </div>
   );
   return (
@@ -166,7 +167,7 @@ export async function AdminShell({ me, children }: { me: Me; children: ReactNode
         </ul>
       </nav>
       <Link href="/app" className="px-2.5 py-1 text-[0.8125rem] text-muted hover:text-ink">{t('admin.exit')}</Link>
-      <ProfileChip me={me} planLabel={t('admin.console')} />
+      <ProfileChip me={me} planLabel={t('admin.console')} badgeLabel={me.badge ? `${t('badges.verified')} · ${t(`badges.kinds.${me.badge.kind}`)}` : undefined} />
     </div>
   );
   return (

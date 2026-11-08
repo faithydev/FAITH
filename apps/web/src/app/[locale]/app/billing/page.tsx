@@ -1,4 +1,6 @@
+import { ProCheckout } from '@/components/billing/pro-checkout';
 import { ActionButton } from '@/components/ui/client';
+import { BADGE_KINDS } from '@faith/config';
 import { Badge, Card, PageHeader, SectionTitle, SimulatedNotice, StatusBadge } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
@@ -44,10 +46,14 @@ export default async function BillingPage() {
               {pro.features.filter((f) => !f.featureKey.startsWith('limit.')).map((f) => <li key={f.featureKey}>{t(`app.features.${f.featureKey.replace('.', '_')}`)}</li>)}
             </ul>
             {pro.monthlyMinor || pro.yearlyMinor ? (
-              <div className="flex flex-wrap gap-2">
-                {pro.monthlyMinor && <ActionButton endpoint="/billing/upgrade" body={{ interval: 'MONTHLY' }} idempotent followPayment variant="primary" size="md" label={t('app.billing.monthly', { price: m(pro.monthlyMinor, pro.currency) })} />}
-                {pro.yearlyMinor && <ActionButton endpoint="/billing/upgrade" body={{ interval: 'YEARLY' }} idempotent followPayment size="md" label={t('app.billing.yearly', { price: m(pro.yearlyMinor, pro.currency) })} />}
-              </div>
+              <ProCheckout
+                title={t('app.billing.chooseBadge')} body={t('app.billing.chooseBadgeBody')} chooseFirst={t('app.billing.chooseBadgeFirst')}
+                kinds={BADGE_KINDS.map((k) => ({ kind: k, label: t(`badges.kinds.${k}`) }))}
+                offers={[
+                  ...(pro.monthlyMinor ? [{ interval: 'MONTHLY' as const, primary: true, label: t('app.billing.monthly', { price: m(pro.monthlyMinor, pro.currency) }) }] : []),
+                  ...(pro.yearlyMinor ? [{ interval: 'YEARLY' as const, label: t('app.billing.yearly', { price: m(pro.yearlyMinor, pro.currency) }) }] : []),
+                ]}
+              />
             ) : <p className="text-sm text-muted">{t('app.billing.priceNotSet')}</p>}
             {simulated && <div className="mt-4"><SimulatedNotice>{t('app.billing.simulated')}</SimulatedNotice></div>}
           </Card>

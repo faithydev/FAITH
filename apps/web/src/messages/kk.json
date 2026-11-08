@@ -1035,7 +1035,8 @@
         "staff_subscription": "Жаңа Pro жазылушы қосылды",
         "staff_product_published": "Жаңа өнім жарияланды: {title}",
         "staff_job_application": "{title} үшін жаңа өтініш",
-        "staff_app_installed": "Қолданба орнатылды"
+        "staff_app_installed": "Қолданба орнатылды",
+        "badge_verified": "FAITH Verified белгіңіз белсенді"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "Ай сайын",
         "YEARLY": "Жыл сайын"
-      }
+      },
+      "chooseBadge": "Рөліңізді таңдаңыз",
+      "chooseBadgeBody": "Шын мәнінде өзіңізге тиесілі бір рөлді таңдаңыз. Pro оны ашады, ал FAITH Verified белгісі 24 сағат ішінде профиліңізде пайда болады.",
+      "chooseBadgeFirst": "Жалғастыру үшін рөлді таңдаңыз."
     },
     "ai": {
       "title": "AI ассистент",
@@ -1252,7 +1256,17 @@
       "viewsHint": "Қаралымдар: {views}",
       "repeat": "Тұрақты клиенттер",
       "topProducts": "Үздік тауарлар",
-      "advancedPitch": "Pro кеңейтілген аналитика мен есептерді қосады."
+      "advancedPitch": "Pro кеңейтілген аналитика мен есептерді қосады.",
+      "storeImages": "Логотип және баннер",
+      "logo": "Логотип",
+      "banner": "Баннер",
+      "uploadImage": "Сурет жүктеу",
+      "imagesTitle": "Суреттер мен алдын ала қарау",
+      "imagesHint": "PNG, JPG, WebP немесе GIF. Мұқаба карточкаларда көрінеді, қалғандары тауар бетінде алдын ала қарау болады.",
+      "uploadImages": "Сурет қосу",
+      "makeCover": "Мұқаба ету",
+      "cover": "Мұқаба",
+      "noImages": "Әзірге сурет жоқ."
     },
     "growth": {
       "body": "Ақылы орналастыру және серіктестер. Жарнама әрдайым белгіленеді және органикалық рейтингті өзгертпейді.",
@@ -1481,6 +1495,20 @@
       "events": "Оқиғалар",
       "noWebhooks": "Вебхуктар әлі жоқ.",
       "deleteWebhook": "Бұл вебхук жойылсын ба?"
+    },
+    "badge": {
+      "title": "FAITH Verified белгісі",
+      "verified": "Профиліңізде ресми FAITH Verified белгісі бар.",
+      "pending": "Белгі профиліңізде {date} дейін пайда болады.",
+      "none": "Pro мүшелері 24 сағат ішінде ресми FAITH Verified белгісін алады.",
+      "rejected": "Белгі сұрауыңыз қабылданбады. Қате болса, қолдау қызметіне жазыңыз.",
+      "revoked": "Pro қайта белсенді болғанда белгі қайтады.",
+      "getPro": "Pro алу"
+    },
+    "proGate": {
+      "title": "{role}: Pro мүмкіндігі",
+      "body": "Тегін аккаунтта тек қарап, сатып алуға болады. Pro FAITH-тегі барлық құралдарды ашып, 24 сағат ішінде профиліңізге ресми FAITH Verified белгісін қосады.",
+      "cta": "Pro-ны көру"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "Күтілуде",
     "exportUsers": "Пайдаланушылар (Excel)",
     "exportActivity": "Барлық әрекет (Excel)",
-    "exportOrders": "Тапсырыстар (Excel)"
+    "exportOrders": "Тапсырыстар (Excel)",
+    "badges": {
+      "title": "Белгі сұраулары",
+      "empty": "Күтудегі сұрау жоқ.",
+      "approve": "Қазір растау",
+      "reject": "Қабылдамау",
+      "rejectConfirm": "Бұл сұрау қабылданбасын ба?",
+      "autoOn": "{date} автоматты түрде расталады"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "Негізін қалаушы",
+      "customer": "Сатып алушы / Клиент",
+      "job_seeker": "Жұмыс іздеуші",
+      "freelancer": "Фрилансер",
+      "seller": "Сатушы",
+      "creator": "Автор",
+      "brand": "Бренд",
+      "developer": "Әзірлеуші"
+    }
   }
 }

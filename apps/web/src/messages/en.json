@@ -1035,7 +1035,8 @@
         "staff_subscription": "A new Pro subscriber joined",
         "staff_product_published": "New product published: {title}",
         "staff_job_application": "New application for {title}",
-        "staff_app_installed": "An app was installed"
+        "staff_app_installed": "An app was installed",
+        "badge_verified": "Your FAITH Verified badge is live"
       }
     },
     "settings": {
@@ -1088,7 +1089,10 @@
       "intervals": {
         "MONTHLY": "Monthly",
         "YEARLY": "Yearly"
-      }
+      },
+      "chooseBadge": "Choose your role",
+      "chooseBadgeBody": "Pick the one role that is truly yours. Pro unlocks it, and its FAITH Verified badge appears on your profile within 24 hours.",
+      "chooseBadgeFirst": "Choose your role to continue."
     },
     "ai": {
       "title": "AI assistant",
@@ -1252,7 +1256,17 @@
       "viewsHint": "Views: {views}",
       "repeat": "Repeat customers",
       "topProducts": "Top products",
-      "advancedPitch": "Pro adds advanced analytics and reports."
+      "advancedPitch": "Pro adds advanced analytics and reports.",
+      "storeImages": "Logo and banner",
+      "logo": "Logo",
+      "banner": "Banner",
+      "uploadImage": "Upload image",
+      "imagesTitle": "Images and previews",
+      "imagesHint": "PNG, JPG, WebP or GIF. The cover image is shown on cards; the rest appear as previews on the product page.",
+      "uploadImages": "Add images",
+      "makeCover": "Make cover",
+      "cover": "Cover",
+      "noImages": "No images yet."
     },
     "growth": {
       "body": "Paid placement and affiliates. Sponsored items are always labelled and never change organic ranking.",
@@ -1481,6 +1495,20 @@
       "events": "Events",
       "noWebhooks": "No webhooks yet.",
       "deleteWebhook": "Delete this webhook?"
+    },
+    "badge": {
+      "title": "FAITH Verified badge",
+      "verified": "Your profile carries the official FAITH Verified badge.",
+      "pending": "Your badge appears on your profile by {date}.",
+      "none": "Pro members get an official FAITH Verified badge within 24 hours.",
+      "rejected": "Your badge request was declined. Contact support if this is a mistake.",
+      "revoked": "Your badge returns when Pro is active again.",
+      "getPro": "Get Pro"
+    },
+    "proGate": {
+      "title": "{role} is a Pro feature",
+      "body": "Free accounts can browse and buy. Pro unlocks every tool on FAITH and adds an official FAITH Verified badge to your profile within 24 hours.",
+      "cta": "See Pro"
     }
   },
   "admin": {
@@ -1608,6 +1636,27 @@
     "pending": "Pending",
     "exportUsers": "Users (Excel)",
     "exportActivity": "All activity (Excel)",
-    "exportOrders": "Orders (Excel)"
+    "exportOrders": "Orders (Excel)",
+    "badges": {
+      "title": "Verified badge requests",
+      "empty": "No badge requests waiting.",
+      "approve": "Verify now",
+      "reject": "Decline",
+      "rejectConfirm": "Decline this badge request?",
+      "autoOn": "verifies automatically {date}"
+    }
+  },
+  "badges": {
+    "verified": "FAITH Verified",
+    "kinds": {
+      "founder": "Founder",
+      "customer": "Buyer / Customer",
+      "job_seeker": "Job Seeker",
+      "freelancer": "Freelancer",
+      "seller": "Seller",
+      "creator": "Creator",
+      "brand": "Brand",
+      "developer": "Developer"
+    }
   }
 }
