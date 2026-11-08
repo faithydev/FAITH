@@ -124,11 +124,18 @@ function cover(slug, type) {
 }
 
 const all = process.argv.includes('--all');
-const products = await db.product.findMany({ where: all ? {} : { coverKey: null }, select: { id: true, slug: true, type: true } });
+const products = await db.product.findMany({ where: all ? {} : { coverKey: null }, select: { id: true, slug: true, type: true, store: { select: { ownerId: true } } } });
 mkdirSync(join(storageDir, 'public', 'covers'), { recursive: true });
 for (const p of products) {
   const key = `public/covers/${p.slug}.webp`;
-  await sharp(Buffer.from(cover(p.slug, p.type))).webp({ quality: 86 }).toFile(join(storageDir, key));
+  const file = join(storageDir, key);
+  const info = await sharp(Buffer.from(cover(p.slug, p.type))).webp({ quality: 86 }).toFile(file);
+  // The public file route serves only keys it has a record of.
+  await db.upload.upsert({
+    where: { storageKey: key },
+    update: { sizeBytes: info.size },
+    create: { ownerId: p.store.ownerId, storageKey: key, filename: `${p.slug}.webp`, mime: 'image/webp', sizeBytes: info.size, purpose: 'cover' },
+  });
   await db.product.update({ where: { id: p.id }, data: { coverKey: key } });
 }
 console.log(`[faith] drew ${products.length} covers into ${join(storageDir, 'public', 'covers')}`);
