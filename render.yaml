@@ -1,6 +1,6 @@
-# FAITH public demo: the API (with its worker loop) on Render's free plan, data in Neon.
+# FAITH public demo: the API (with its worker loop) and its Postgres, both on Render's free plan.
 # Payments run through the labelled simulator and email is recorded, not sent (PUBLIC_DEMO).
-# In the Render dashboard you set one value yourself: DATABASE_URL (from Neon).
+# The database is Render's free Postgres, wired in automatically; nothing has to be pasted.
 services:
   - type: web
     name: faith-api
@@ -23,8 +23,11 @@ services:
         value: "2"
       - key: API_PORT
         value: "10000"
+      # Render creates the database below and hands its address to the API itself.
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: faith-db
+          property: connectionString
       # The web app on Vercel. The API's own address comes from Render (RENDER_EXTERNAL_URL).
       - key: WEB_ORIGIN
         value: https://faith-platform-green.vercel.app
@@ -46,3 +49,10 @@ services:
         value: local
       # Optional social sign-in (GOOGLE_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY):
       # add them later under the service's Environment tab; each button turns on once its values are set.
+
+databases:
+  - name: faith-db
+    plan: free
+    region: frankfurt
+    databaseName: faith
+    user: faith
