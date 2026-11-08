@@ -44,16 +44,5 @@ services:
         value: dev
       - key: STORAGE_DRIVER
         value: local
-      # Optional social sign-in. Each button turns on only when its values are all set.
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
-      - key: APPLE_CLIENT_ID
-        sync: false
-      - key: APPLE_TEAM_ID
-        sync: false
-      - key: APPLE_KEY_ID
-        sync: false
-      - key: APPLE_PRIVATE_KEY
-        sync: false
+      # Optional social sign-in (GOOGLE_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY):
+      # add them later under the service's Environment tab; each button turns on once its values are set.
