@@ -481,7 +481,9 @@
     "agree": "Hisob yaratib, <terms>Foydalanish shartlari</terms> va <privacy>Maxfiylik siyosati</privacy>ga rozilik bildirasiz.",
     "loginBody": "Qaytganingizdan xursandmiz. FAITH ichidagi hamma narsa uchun bitta hisob.",
     "demoReadyTitle": "Akkauntingiz tayyor",
-    "demoReadyBody": "Bu ochiq demo, shuning uchun email yuborilmaydi: darhol kirishingiz mumkin. Bu yerdagi toʻlovlar simulyatsiya."
+    "demoReadyBody": "Bu ochiq demo, shuning uchun email yuborilmaydi: darhol kirishingiz mumkin. Bu yerdagi toʻlovlar simulyatsiya.",
+    "googleOff": "Google orqali kirish hali ulanmagan.",
+    "continueApple": "Apple orqali davom etish"
   },
   "market": {
     "title": "Marketpleys",
@@ -1026,7 +1028,14 @@
         "job_application": "{title} uchun yangi ariza",
         "subscription_activated": "Pro tarifingiz faollashdi",
         "app_installed": "Kimdir ilovangizni oʻrnatdi",
-        "automation_custom": "Avtomatlashtirishingiz ishladi"
+        "automation_custom": "Avtomatlashtirishingiz ishladi",
+        "staff_user_registered": "Yangi akkaunt: {name} ({email}), {method} orqali",
+        "staff_order_paid": "{number} buyurtma to'landi: {amount}",
+        "staff_order_refunded": "{number} buyurtma qaytarildi: {amount}",
+        "staff_subscription": "Yangi Pro obunachi qo'shildi",
+        "staff_product_published": "Yangi mahsulot chiqdi: {title}",
+        "staff_job_application": "{title} uchun yangi ariza",
+        "staff_app_installed": "Ilova o'rnatildi"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "Xavfsizlik voqealari",
     "events": "Voqealar navbati",
     "processed": "Bajarilgan",
-    "pending": "Kutilmoqda"
+    "pending": "Kutilmoqda",
+    "exportUsers": "Foydalanuvchilar (Excel)",
+    "exportActivity": "Barcha faoliyat (Excel)",
+    "exportOrders": "Buyurtmalar (Excel)"
   }
 }

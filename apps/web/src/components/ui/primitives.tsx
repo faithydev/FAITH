@@ -1,6 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import type { ComponentProps, ReactNode } from 'react';
-import { ArrowRight, ChevronRight, Inbox, TriangleAlert } from 'lucide-react';
+import { ArrowRight, ChevronRight, FileSpreadsheet, Inbox, TriangleAlert } from 'lucide-react';
 
 export const cx = (...v: (string | false | null | undefined)[]) => v.filter(Boolean).join(' ');
 
@@ -23,6 +23,11 @@ export function Button({ variant, size, className, arrow, children, ...p }: Comp
 
 export function LinkButton({ variant, size, className, arrow, children, ...p }: ComponentProps<typeof Link> & { variant?: Variant; size?: Size; arrow?: boolean }) {
   return <Link {...p} className={buttonClass(variant, size, className)}>{children}{arrow && <Arrow />}</Link>;
+}
+
+/** A spreadsheet download from the API (a plain link: it must not get a locale prefix). */
+export function ExportLink({ file, children }: { file: string; children: ReactNode }) {
+  return <a href={`/api/v1/admin/export/${file}`} download className={buttonClass('secondary', 'sm')}><FileSpreadsheet aria-hidden className="size-4" />{children}</a>;
 }
 
 type Tone = 'neutral' | 'positive' | 'warning' | 'negative' | 'accent';

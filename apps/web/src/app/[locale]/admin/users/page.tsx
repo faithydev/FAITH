@@ -1,5 +1,5 @@
 import { ActionButton, FormDialog } from '@/components/ui/client';
-import { Badge, Button, DataTable, fieldClass, PageHeader, Pagination, SectionTitle, StatusBadge } from '@/components/ui/primitives';
+import { Badge, Button, DataTable, fieldClass, ExportLink, PageHeader, Pagination, SectionTitle, StatusBadge } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import type { Paged } from '@/lib/types';
@@ -20,7 +20,7 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
   const canRoles = me.permissions.includes('admin.roles.write');
   return (
     <>
-      <PageHeader title={t('admin.nav.users')} />
+      <PageHeader title={t('admin.nav.users')} actions={<ExportLink file="users.csv">{t('admin.exportUsers')}</ExportLink>} />
       {verifications.length > 0 && (
         <section className="mb-8">
           <SectionTitle title={t('admin.verifications')} />

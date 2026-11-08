@@ -481,7 +481,9 @@
     "agree": "By creating an account, you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
     "loginBody": "Welcome back. One account for everything on FAITH.",
     "demoReadyTitle": "Your account is ready",
-    "demoReadyBody": "This is a public demo, so no email is sent: you can sign in straight away. Payments here are simulated."
+    "demoReadyBody": "This is a public demo, so no email is sent: you can sign in straight away. Payments here are simulated.",
+    "googleOff": "Google sign-in is not connected yet.",
+    "continueApple": "Continue with Apple"
   },
   "market": {
     "title": "Marketplace",
@@ -1026,7 +1028,14 @@
         "job_application": "New application for {title}",
         "subscription_activated": "Your Pro plan is active",
         "app_installed": "Someone installed your app",
-        "automation_custom": "Your automation ran"
+        "automation_custom": "Your automation ran",
+        "staff_user_registered": "New account: {name} ({email}) via {method}",
+        "staff_order_paid": "Order {number} paid: {amount}",
+        "staff_order_refunded": "Refund on order {number}: {amount}",
+        "staff_subscription": "A new Pro subscriber joined",
+        "staff_product_published": "New product published: {title}",
+        "staff_job_application": "New application for {title}",
+        "staff_app_installed": "An app was installed"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "Security events",
     "events": "Event outbox",
     "processed": "Processed",
-    "pending": "Pending"
+    "pending": "Pending",
+    "exportUsers": "Users (Excel)",
+    "exportActivity": "All activity (Excel)",
+    "exportOrders": "Orders (Excel)"
   }
 }

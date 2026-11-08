@@ -8,7 +8,7 @@ export async function generateMetadata() {
 }
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const [t, { next }, providers] = await Promise.all([getTranslations(), searchParams, tryPublicApi<{ google: boolean }>('/auth/providers', 60)]);
+  const [t, { next }, providers] = await Promise.all([getTranslations(), searchParams, tryPublicApi<{ google: boolean; apple: boolean }>('/auth/providers', 60)]);
   return (
     <>
       <h1 className="font-display text-[1.7rem] leading-tight font-semibold tracking-tight">{t('auth.loginTitle')}</h1>

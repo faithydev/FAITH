@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AdminController, LabController } from './admin/admin.controller';
+import { ExportController } from './admin/export.controller';
 import { AdminService } from './admin/admin.service';
 import { AiService } from './ai/ai.service';
 import { AuthController } from './auth/auth.controller';
@@ -91,7 +92,7 @@ export class CommunicationModule {}
 
 @Module({
   imports: [CommerceModule, RewardsModule, DeveloperModule],
-  controllers: [AdminController, LabController],
+  controllers: [AdminController, LabController, ExportController],
   providers: [AdminService],
 })
 export class AdminModule {}

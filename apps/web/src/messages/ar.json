@@ -481,7 +481,9 @@
     "agree": "بإنشاء حساب، فإنك توافق على <terms>شروط الخدمة</terms> و<privacy>سياسة الخصوصية</privacy>.",
     "loginBody": "مرحبًا بعودتك. حساب واحد لكل شيء في FAITH.",
     "demoReadyTitle": "حسابك جاهز",
-    "demoReadyBody": "هذا عرض تجريبي عام، لذلك لا تُرسل رسائل بريد: يمكنك تسجيل الدخول فورًا. المدفوعات هنا محاكاة."
+    "demoReadyBody": "هذا عرض تجريبي عام، لذلك لا تُرسل رسائل بريد: يمكنك تسجيل الدخول فورًا. المدفوعات هنا محاكاة.",
+    "googleOff": "تسجيل الدخول عبر Google غير متصل بعد.",
+    "continueApple": "المتابعة باستخدام Apple"
   },
   "market": {
     "title": "السوق",
@@ -1026,7 +1028,14 @@
         "job_application": "طلب جديد لوظيفة {title}",
         "subscription_activated": "خطة Pro الخاصة بك نشطة",
         "app_installed": "ثبّت أحدهم تطبيقك",
-        "automation_custom": "تم تشغيل الأتمتة الخاصة بك"
+        "automation_custom": "تم تشغيل الأتمتة الخاصة بك",
+        "staff_user_registered": "حساب جديد: {name} ({email}) عبر {method}",
+        "staff_order_paid": "تم دفع الطلب {number}: {amount}",
+        "staff_order_refunded": "استرداد للطلب {number}: {amount}",
+        "staff_subscription": "انضم مشترك Pro جديد",
+        "staff_product_published": "نُشر منتج جديد: {title}",
+        "staff_job_application": "طلب جديد لوظيفة {title}",
+        "staff_app_installed": "تم تثبيت تطبيق"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "أحداث الأمان",
     "events": "طابور الأحداث",
     "processed": "تمت المعالجة",
-    "pending": "قيد الانتظار"
+    "pending": "قيد الانتظار",
+    "exportUsers": "المستخدمون (Excel)",
+    "exportActivity": "كل النشاط (Excel)",
+    "exportOrders": "الطلبات (Excel)"
   }
 }

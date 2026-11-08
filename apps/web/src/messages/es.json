@@ -481,7 +481,9 @@
     "agree": "Al crear una cuenta, aceptas los <terms>Términos del servicio</terms> y la <privacy>Política de privacidad</privacy>.",
     "loginBody": "Hola de nuevo. Una cuenta para todo en FAITH.",
     "demoReadyTitle": "Tu cuenta está lista",
-    "demoReadyBody": "Es una demo pública, así que no se envía ningún correo: puedes iniciar sesión ya. Aquí los pagos son simulados."
+    "demoReadyBody": "Es una demo pública, así que no se envía ningún correo: puedes iniciar sesión ya. Aquí los pagos son simulados.",
+    "googleOff": "El acceso con Google aún no está conectado.",
+    "continueApple": "Continuar con Apple"
   },
   "market": {
     "title": "Marketplace",
@@ -1026,7 +1028,14 @@
         "job_application": "Nueva solicitud para {title}",
         "subscription_activated": "Tu plan Pro está activo",
         "app_installed": "Alguien instaló tu aplicación",
-        "automation_custom": "Tu automatización se ha ejecutado"
+        "automation_custom": "Tu automatización se ha ejecutado",
+        "staff_user_registered": "Nueva cuenta: {name} ({email}) vía {method}",
+        "staff_order_paid": "Pedido {number} pagado: {amount}",
+        "staff_order_refunded": "Reembolso del pedido {number}: {amount}",
+        "staff_subscription": "Se unió un nuevo suscriptor Pro",
+        "staff_product_published": "Nuevo producto publicado: {title}",
+        "staff_job_application": "Nueva solicitud para {title}",
+        "staff_app_installed": "Se instaló una aplicación"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "Eventos de seguridad",
     "events": "Cola de eventos",
     "processed": "Procesado",
-    "pending": "Pendiente"
+    "pending": "Pendiente",
+    "exportUsers": "Usuarios (Excel)",
+    "exportActivity": "Toda la actividad (Excel)",
+    "exportOrders": "Pedidos (Excel)"
   }
 }

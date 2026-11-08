@@ -77,10 +77,13 @@ const providerClass = 'flex h-11 items-center justify-center gap-2 rounded-xl bo
 
 /**
  * Social sign-in. A provider is a live link only when it is configured on the server; until
- * then its button is visibly disabled and the line below says so. Apple has no adapter yet.
+ * then its button is visibly disabled and the line below says so.
  */
-function Providers({ google }: { google: boolean }) {
+type OAuth = { google: boolean; apple?: boolean };
+
+function Providers({ google, apple = false }: OAuth) {
   const t = useTranslations();
+  const note = google && apple ? null : !google && !apple ? t('auth.providersOff') : google ? t('auth.appleOff') : t('auth.googleOff');
   return (
     <div className="mt-6">
       <div className="mb-4 flex items-center gap-3 text-[0.68rem] font-medium tracking-[0.14em] text-white/40 uppercase [:lang(ar)_&]:tracking-normal [:lang(zh)_&]:tracking-normal">
@@ -90,14 +93,16 @@ function Providers({ google }: { google: boolean }) {
         {google
           ? <a href="/api/v1/auth/oauth/google/start" aria-label={t('auth.continueGoogle')} className={providerClass}><GoogleIcon /></a>
           : <button type="button" disabled aria-label={`Google: ${t('auth.providerOff')}`} className={providerClass}><GoogleIcon /></button>}
-        <button type="button" disabled aria-label={`Apple: ${t('auth.providerOff')}`} className={providerClass}><AppleIcon /></button>
+        {apple
+          ? <a href="/api/v1/auth/oauth/apple/start" aria-label={t('auth.continueApple')} className={providerClass}><AppleIcon /></a>
+          : <button type="button" disabled aria-label={`Apple: ${t('auth.providerOff')}`} className={providerClass}><AppleIcon /></button>}
       </div>
-      <p className="mt-3 text-center text-xs text-white/40">{google ? t('auth.appleOff') : t('auth.providersOff')}</p>
+      {note && <p className="mt-3 text-center text-xs text-white/40">{note}</p>}
     </div>
   );
 }
 
-export function LoginForm({ next, oauth }: { next?: string; oauth: { google: boolean } }) {
+export function LoginForm({ next, oauth }: { next?: string; oauth: OAuth }) {
   const t = useTranslations();
   const router = useRouter();
   const errorMessage = useErrorMessage();
@@ -134,7 +139,7 @@ export function LoginForm({ next, oauth }: { next?: string; oauth: { google: boo
         <p className="text-end text-[0.8125rem]"><Link href="/forgot-password" className="text-white/55 transition-colors hover:text-neon">{t('auth.forgotLink')}</Link></p>
         <Submit busy={busy}>{t('auth.loginCta')}</Submit>
       </form>
-      <Providers google={oauth.google} />
+      <Providers {...oauth} />
     </>
   );
 }
@@ -162,7 +167,7 @@ function DevMailbox({ email }: { email: string }) {
 }
 
 /** `demo`: a public demonstration, where accounts are ready at once because no email is sent. */
-export function RegisterForm({ oauth, demo = false }: { oauth: { google: boolean }; demo?: boolean }) {
+export function RegisterForm({ oauth, demo = false }: { oauth: OAuth; demo?: boolean }) {
   const t = useTranslations();
   const locale = useLocale();
   const errorMessage = useErrorMessage();
@@ -219,7 +224,7 @@ export function RegisterForm({ oauth, demo = false }: { oauth: { google: boolean
         <PasswordField label={t('auth.password')} name="password" autoComplete="new-password" required minLength={10} hint={t('auth.passwordHint')} />
         <Submit busy={busy}>{t('auth.registerCta')}</Submit>
       </form>
-      <Providers google={oauth.google} />
+      <Providers {...oauth} />
       <p className="mt-6 text-center text-xs leading-relaxed text-white/45">
         {t.rich('auth.agree', {
           terms: (c) => <Link href="/terms" className="text-white/75 underline-offset-4 hover:text-neon hover:underline">{c}</Link>,

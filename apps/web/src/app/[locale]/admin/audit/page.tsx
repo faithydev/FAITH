@@ -1,4 +1,4 @@
-import { Badge, DataTable, PageHeader, SectionTitle } from '@/components/ui/primitives';
+import { Badge, DataTable, ExportLink, PageHeader, SectionTitle } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 
@@ -11,7 +11,7 @@ export default async function AdminAudit() {
   const [logs, security, outbox] = await Promise.all([api<Log[]>('/admin/audit?pageSize=50'), api<Security[]>('/admin/security-events'), api<Outbox[]>('/admin/outbox')]);
   return (
     <>
-      <PageHeader title={t('admin.nav.audit')} description={t('admin.auditBody')} />
+      <PageHeader title={t('admin.nav.audit')} description={t('admin.auditBody')} actions={<ExportLink file="activity.csv">{t('admin.exportActivity')}</ExportLink>} />
       <DataTable
         caption={t('admin.nav.audit')} rows={logs} rowKey={(l) => l.id}
         columns={[

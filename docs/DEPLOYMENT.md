@@ -52,3 +52,27 @@ on purpose (simulated payments, development mailbox) and is not a production tem
 4. A security review and penetration test.
 5. Backups, point-in-time recovery, monitoring, alerting and an incident runbook.
 6. The final Pro price and App Marketplace commission, decided by the business.
+
+## Social sign-in
+
+Both providers return to the web address, so the session cookie belongs to the site itself.
+
+**Google.** In Google Cloud Console, create an OAuth client of type *Web application*. Add the
+authorized redirect URI `<WEB_ORIGIN>/api/v1/auth/oauth/google/callback`, then set
+`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on the API service.
+
+**Apple.** Needs a paid Apple Developer membership. Create an App ID with *Sign in with Apple*, a
+Services ID (this is `APPLE_CLIENT_ID`) with the domain of `WEB_ORIGIN` and the return URL
+`<WEB_ORIGIN>/api/v1/auth/oauth/apple/callback`, and a key with *Sign in with Apple* enabled
+(`APPLE_KEY_ID`, and its `.p8` contents as `APPLE_PRIVATE_KEY`). `APPLE_TEAM_ID` is shown in the
+membership page. The API verifies every Apple id_token against Apple's published keys.
+
+Until all values of a provider are set, its button stays visibly disabled.
+
+## Owner notifications and exports
+
+Every admin and super admin is notified in the app about new accounts (and how they signed up),
+paid and refunded orders, new Pro subscribers, published products, job applications and app
+installs. The admin console offers spreadsheet downloads (CSV, opens in Excel): users
+(`/admin/users`), all activity (`/admin/audit`) and orders (`/admin/finance`). Each download is
+recorded in the audit log.

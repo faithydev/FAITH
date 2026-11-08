@@ -47,6 +47,10 @@ const schema = z.object({
   AI_MODEL: z.string().default('claude-opus-5-5'),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  APPLE_CLIENT_ID: z.string().optional(),
+  APPLE_TEAM_ID: z.string().optional(),
+  APPLE_KEY_ID: z.string().optional(),
+  APPLE_PRIVATE_KEY: z.string().optional(),
 });
 
 export type Env = z.infer<typeof schema>;

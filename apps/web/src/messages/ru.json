@@ -481,7 +481,9 @@
     "agree": "Создавая аккаунт, вы принимаете <terms>Условия использования</terms> и <privacy>Политику конфиденциальности</privacy>.",
     "loginBody": "С возвращением. Один аккаунт для всего в FAITH.",
     "demoReadyTitle": "Аккаунт готов",
-    "demoReadyBody": "Это публичная демоверсия, письма не отправляются: можно войти сразу. Платежи здесь имитируются."
+    "demoReadyBody": "Это публичная демоверсия, письма не отправляются: можно войти сразу. Платежи здесь имитируются.",
+    "googleOff": "Вход через Google пока не подключён.",
+    "continueApple": "Продолжить с Apple"
   },
   "market": {
     "title": "Маркетплейс",
@@ -1026,7 +1028,14 @@
         "job_application": "Новый отклик: {title}",
         "subscription_activated": "Тариф Pro активен",
         "app_installed": "Кто-то установил ваше приложение",
-        "automation_custom": "Ваша автоматизация сработала"
+        "automation_custom": "Ваша автоматизация сработала",
+        "staff_user_registered": "Новый аккаунт: {name} ({email}), через {method}",
+        "staff_order_paid": "Заказ {number} оплачен: {amount}",
+        "staff_order_refunded": "Возврат по заказу {number}: {amount}",
+        "staff_subscription": "Новый подписчик Pro",
+        "staff_product_published": "Опубликован новый товар: {title}",
+        "staff_job_application": "Новый отклик на {title}",
+        "staff_app_installed": "Установлено приложение"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "События безопасности",
     "events": "Очередь событий",
     "processed": "Обработано",
-    "pending": "В ожидании"
+    "pending": "В ожидании",
+    "exportUsers": "Пользователи (Excel)",
+    "exportActivity": "Вся активность (Excel)",
+    "exportOrders": "Заказы (Excel)"
   }
 }

@@ -481,7 +481,9 @@
     "agree": "创建账户即表示您同意<terms>服务条款</terms>和<privacy>隐私政策</privacy>。",
     "loginBody": "欢迎回来。一个账户，畅享 FAITH 的一切。",
     "demoReadyTitle": "您的账户已就绪",
-    "demoReadyBody": "这是公开演示，不会发送邮件：您可以立即登录。此处的付款均为模拟。"
+    "demoReadyBody": "这是公开演示，不会发送邮件：您可以立即登录。此处的付款均为模拟。",
+    "googleOff": "Google 登录尚未接通。",
+    "continueApple": "通过 Apple 继续"
   },
   "market": {
     "title": "市场",
@@ -1026,7 +1028,14 @@
         "job_application": "{title} 有新申请",
         "subscription_activated": "您的 Pro 套餐已生效",
         "app_installed": "有人安装了您的应用",
-        "automation_custom": "您的自动化已运行"
+        "automation_custom": "您的自动化已运行",
+        "staff_user_registered": "新账户：{name}（{email}），方式：{method}",
+        "staff_order_paid": "订单 {number} 已付款：{amount}",
+        "staff_order_refunded": "订单 {number} 退款：{amount}",
+        "staff_subscription": "新增一位 Pro 订阅用户",
+        "staff_product_published": "新商品上架：{title}",
+        "staff_job_application": "{title} 收到新申请",
+        "staff_app_installed": "有应用被安装"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "安全事件",
     "events": "事件队列",
     "processed": "已处理",
-    "pending": "待处理"
+    "pending": "待处理",
+    "exportUsers": "用户 (Excel)",
+    "exportActivity": "全部动态 (Excel)",
+    "exportOrders": "订单 (Excel)"
   }
 }

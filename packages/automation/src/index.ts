@@ -11,7 +11,7 @@ import type { OutboxEvent, Prisma, PrismaClient } from '@faith/database';
 
 export type Condition = { field: string; op: 'eq' | 'neq' | 'gte' | 'lte' | 'contains'; value: string | number };
 export type Action =
-  | { type: 'notify'; target: 'actor' | 'owner' | 'recipient'; kind: string }
+  | { type: 'notify'; target: 'actor' | 'owner' | 'recipient' | 'staff'; kind: string }
   | { type: 'grant_community'; communityId?: string; byPlan?: boolean };
 
 const MAX_EVENT_ATTEMPTS = 5;
@@ -22,6 +22,7 @@ type Payload = Record<string, unknown>;
 
 /** Who each event concerns. User-owned rules only fire for events about their owner. */
 const PARTIES: Record<string, (p: Payload) => { actor?: string; owners: string[]; recipient?: string }> = {
+  'user.registered': (p) => ({ actor: p.userId as string, owners: [], recipient: p.userId as string }),
   'order.paid': (p) => ({ actor: p.buyerId as string, owners: ((p.sellers ?? []) as { ownerId: string }[]).map((s) => s.ownerId), recipient: p.buyerId as string }),
   'order.refunded': (p) => ({ actor: p.buyerId as string, owners: [], recipient: p.buyerId as string }),
   'subscription.activated': (p) => ({ actor: p.userId as string, owners: [p.userId as string], recipient: p.userId as string }),
@@ -55,12 +56,14 @@ async function runAction(db: PrismaClient, action: Action, event: OutboxEvent): 
   const parties = PARTIES[event.type]?.(payload) ?? { owners: [] };
 
   if (action.type === 'notify') {
-    const targets = action.target === 'owner' ? parties.owners
+    const targets = action.target === 'staff' ? await platformOwners(db)
+      : action.target === 'owner' ? parties.owners
       : action.target === 'actor' ? [parties.actor].filter(Boolean) as string[]
       : [parties.recipient].filter(Boolean) as string[];
+    const href = action.target === 'staff' ? staffHref(event.type) : notificationHref(event.type, payload);
     if (targets.length) {
       await db.notification.createMany({
-        data: targets.map((userId) => ({ userId, kind: action.kind, params: payload as Prisma.InputJsonValue, href: notificationHref(event.type, payload) })),
+        data: targets.map((userId) => ({ userId, kind: action.kind, params: payload as Prisma.InputJsonValue, href })),
       });
     }
     return `notified ${targets.length}`;
@@ -82,6 +85,26 @@ async function runAction(db: PrismaClient, action: Action, event: OutboxEvent): 
     return `granted ${communities.length} communities`;
   }
   throw new Error(`unknown action ${(action as { type: string }).type}`);
+}
+
+/** The people who run the platform: every active admin and super admin. */
+async function platformOwners(db: PrismaClient): Promise<string[]> {
+  const rows = await db.user.findMany({
+    where: { status: 'ACTIVE', roles: { some: { role: { key: { in: ['admin', 'super_admin'] } } } } },
+    select: { id: true },
+  });
+  return rows.map((r) => r.id);
+}
+
+/** Where a staff notification leads inside the admin console. */
+function staffHref(type: string): string {
+  switch (type) {
+    case 'user.registered': return '/admin/users';
+    case 'order.paid': case 'order.refunded': return '/admin/finance';
+    case 'product.published': return '/admin/marketplace';
+    case 'app.installed': return '/admin/apps';
+    default: return '/admin/audit';
+  }
 }
 
 function notificationHref(type: string, p: Payload): string | null {
@@ -286,5 +309,13 @@ export const SYSTEM_RULES: { key: string; name: string; trigger: string; actions
   { key: 'notify-creator-reward', name: 'Reward approved: notify creator', trigger: 'reward.approved', actions: [{ type: 'notify', target: 'recipient', kind: 'reward.approved' }] },
   { key: 'notify-employer-application', name: 'Application submitted: notify employer', trigger: 'job.application.submitted', actions: [{ type: 'notify', target: 'recipient', kind: 'job.application' }] },
   { key: 'grant-plan-communities', name: 'Subscription active: grant community access', trigger: 'subscription.activated', actions: [{ type: 'grant_community', byPlan: true }, { type: 'notify', target: 'recipient', kind: 'subscription.activated' }] },
+  // The platform owners hear about everything people do, as it happens.
+  { key: 'staff-user-registered', name: 'New account: notify platform owners', trigger: 'user.registered', actions: [{ type: 'notify', target: 'staff', kind: 'staff.user_registered' }] },
+  { key: 'staff-order-paid', name: 'New order: notify platform owners', trigger: 'order.paid', actions: [{ type: 'notify', target: 'staff', kind: 'staff.order_paid' }] },
+  { key: 'staff-order-refunded', name: 'Refund: notify platform owners', trigger: 'order.refunded', actions: [{ type: 'notify', target: 'staff', kind: 'staff.order_refunded' }] },
+  { key: 'staff-subscription', name: 'New Pro subscriber: notify platform owners', trigger: 'subscription.activated', actions: [{ type: 'notify', target: 'staff', kind: 'staff.subscription' }] },
+  { key: 'staff-product-published', name: 'Product published: notify platform owners', trigger: 'product.published', actions: [{ type: 'notify', target: 'staff', kind: 'staff.product_published' }] },
+  { key: 'staff-job-application', name: 'Job application: notify platform owners', trigger: 'job.application.submitted', actions: [{ type: 'notify', target: 'staff', kind: 'staff.job_application' }] },
+  { key: 'staff-app-installed', name: 'App installed: notify platform owners', trigger: 'app.installed', actions: [{ type: 'notify', target: 'staff', kind: 'staff.app_installed' }] },
   { key: 'notify-developer-install', name: 'App installed: notify developer', trigger: 'app.installed', actions: [{ type: 'notify', target: 'recipient', kind: 'app.installed' }] },
 ];

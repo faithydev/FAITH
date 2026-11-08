@@ -8,6 +8,7 @@ import type { deleteAccountBody, loginBody, registerBody } from '@faith/validato
 import { EmailService } from '../core/adapters';
 import { decrypt, encrypt, randomToken, sha256, slugify } from '../core/crypto';
 import { env } from '../core/env';
+import { appleConfigured } from './apple';
 import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
 import { AuditService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
@@ -80,7 +81,13 @@ export class AuthService {
         roles: { create: { roleId: customer.id } },
       },
     });
+    await this.announce(user.id, body.displayName, user.email, 'email');
     if (!env.PUBLIC_DEMO) await this.sendVerification(user);
+  }
+
+  /** Tells the platform owners about a new account (drained into notifications by the worker). */
+  private announce(userId: string, name: string, email: string, method: string) {
+    return this.prisma.db.outboxEvent.create({ data: { type: 'user.registered', payload: { userId, name, email, method } } });
   }
 
   private async freeUsername(displayName: string) {
@@ -283,7 +290,7 @@ export class AuthService {
   // --- OAuth ---------------------------------------------------------------
 
   oauthProviders() {
-    return { google: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) };
+    return { google: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), apple: appleConfigured() };
   }
 
   /** Signs in by a provider-verified email, linking to an existing account if there is one. */
@@ -309,6 +316,7 @@ export class AuthService {
           },
         });
         userId = created.id;
+        await this.announce(created.id, input.name, email, input.provider);
       }
       await this.prisma.db.account.create({ data: { userId, provider: input.provider, providerAccountId: input.subject } });
     }

@@ -11,7 +11,7 @@ export default async function NotificationsPage() {
   const message = (n: NotificationRow) => {
     const key = `app.notifications.kinds.${n.kind.replace('.', '_')}`;
     const amount = n.params.amountMinor && n.params.currency ? m(n.params.amountMinor, n.params.currency) : n.params.totalMinor && n.params.currency ? m(n.params.totalMinor, n.params.currency) : '';
-    return t.has(key) ? t(key, { title: n.params.title ?? '', number: n.params.number ?? '', amount }) : n.kind;
+    return t.has(key) ? t(key, { title: n.params.title ?? '', number: n.params.number ?? '', amount, name: n.params.name ?? '', email: n.params.email ?? '', method: n.params.method ?? '' }) : n.kind;
   };
   return (
     <>

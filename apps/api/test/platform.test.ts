@@ -1,4 +1,7 @@
-import { deliverWebhooks, drainOutbox, expireSubscriptions } from '@faith/automation';
+import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions } from '@faith/automation';
+
+/** Drains every pending event; one call handles a batch, and sign-ups add events of their own. */
+const drainAll = async (db: Parameters<typeof drainOutbox>[0]) => { while ((await drainOutbox(db, { batch: 200 })).processed > 0); };
 import { FaithClient, verifyWebhook } from '@faith/sdk';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { normalizeContentUrl } from '../src/rewards/verification';
@@ -397,7 +400,7 @@ describe('developer platform', () => {
     const { variantId } = await createStoreWithProduct(t, seller);
     const hook = (await seller.agent.post('/v1/developer/webhooks').send({ url: 'http://localhost:4999/hook', events: ['order.paid'] }).expect(201)).body;
     const { number } = await buy(t, buyer, variantId);
-    await drainOutbox(t.db);
+    await drainAll(t.db);
 
     const received: { body: string; headers: Record<string, string> }[] = [];
     const encryptionKey = process.env.APP_ENCRYPTION_KEY!;
@@ -436,7 +439,7 @@ describe('developer platform', () => {
     const { variantId } = await createStoreWithProduct(t, seller);
     const hook = (await seller.agent.post('/v1/developer/webhooks').send({ url: 'http://169.254.169.254/latest/meta-data', events: ['order.paid'] }).expect(201)).body;
     await buy(t, buyer, variantId);
-    await drainOutbox(t.db);
+    await drainAll(t.db);
     let called = false;
     await deliverWebhooks(t.db, { encryptionKey: process.env.APP_ENCRYPTION_KEY!, fetchImpl: (async () => { called = true; return new Response(); }) as unknown as typeof fetch });
     expect(called).toBe(false);
@@ -461,8 +464,8 @@ describe('automation', () => {
     });
     const { variantId } = await createStoreWithProduct(t, seller);
     await buy(t, buyer, variantId);
-    await drainOutbox(t.db);
-    await drainOutbox(t.db);
+    await drainAll(t.db);
+    await drainAll(t.db);
     const notes = (await seller.agent.get('/v1/notifications').expect(200)).body;
     expect(notes.filter((n: { kind: string }) => n.kind === 'order.sold')).toHaveLength(1);
     const runs = await t.db.automationRun.findMany({ where: { rule: { key: 'notify-seller-on-order' } } });
@@ -479,7 +482,7 @@ describe('automation', () => {
     }).expect(201)).body;
     const { variantId } = await createStoreWithProduct(t, seller);
     await buy(t, buyer, variantId);
-    await drainOutbox(t.db);
+    await drainAll(t.db);
     const run = await t.db.automationRun.findFirstOrThrow({ where: { ruleId: rule.id } });
     expect(run.status).toBe('SKIPPED');
   });
@@ -495,7 +498,7 @@ describe('automation', () => {
     const u = await t.signUp();
     const pay = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up') }).expect(201)).body;
     await u.agent.post(`/v1/payments/${pay.paymentId}/simulate`).send({ outcome: 'success' }).expect(200);
-    await drainOutbox(t.db);
+    await drainAll(t.db);
     expect((await u.agent.get(`/v1/communities/${c.slug}`).expect(200)).body.canRead).toBe(true);
   });
 
@@ -545,6 +548,27 @@ describe('ai', () => {
 });
 
 describe('administration', () => {
+  it('tells the platform owners about every sign-up and exports it for Excel', async () => {
+    const rule = SYSTEM_RULES.find((r) => r.key === 'staff-user-registered')!;
+    await t.db.automationRule.upsert({ where: { key: rule.key }, update: {}, create: { key: rule.key, name: rule.name, trigger: rule.trigger, actions: rule.actions } });
+    const root = await staff('super_admin');
+    const newcomer = await t.signUp([], { displayName: 'Newcomer Person' });
+    await drainAll(t.db);
+    const note = await t.db.notification.findFirst({ where: { userId: root.id, kind: 'staff.user_registered', params: { path: ['email'], equals: newcomer.email } } });
+    expect(note).toMatchObject({ href: '/admin/users', params: { name: 'Newcomer Person', method: 'email' } });
+
+    const users = await root.agent.get('/v1/admin/export/users.csv').buffer(true).parse((res, done) => { const parts: Buffer[] = []; res.on('data', (c: Buffer) => parts.push(c)); res.on('end', () => done(null, Buffer.concat(parts))); }).expect(200);
+    expect(users.headers['content-type']).toMatch(/^text\/csv/);
+    expect(users.headers['content-disposition']).toMatch(/attachment; filename="faith-users-/);
+    const text = (users.body as Buffer).toString('utf8');
+    expect(text.startsWith('﻿registered,name,email')).toBe(true);
+    expect(text).toContain(newcomer.email);
+    expect((await root.agent.get('/v1/admin/export/activity.csv').expect(200)).text).toContain('user.registered');
+    await newcomer.agent.get('/v1/admin/export/users.csv').expect(403);
+    await newcomer.agent.get('/v1/admin/export/activity.csv').expect(403);
+    await t.http.get('/v1/admin/export/orders.csv').expect(401);
+  });
+
   it('rejects ordinary users on every admin area, whatever they send', async () => {
     const u = await t.signUp(['sell', 'brand']);
     for (const path of ['overview', 'users', 'finance/payouts', 'settings', 'flags', 'audit', 'experiments', 'finance/transactions']) {

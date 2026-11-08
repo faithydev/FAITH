@@ -481,7 +481,9 @@
     "agree": "Аккаунт жасау арқылы сіз <terms>Қызмет көрсету шарттарымен</terms> және <privacy>Құпиялылық саясатымен</privacy> келісесіз.",
     "loginBody": "Қайта қош келдіңіз. FAITH-тағы бәріне бір аккаунт.",
     "demoReadyTitle": "Аккаунтыңыз дайын",
-    "demoReadyBody": "Бұл ашық демо, сондықтан хат жіберілмейді: бірден кіре аласыз. Мұндағы төлемдер имитация."
+    "demoReadyBody": "Бұл ашық демо, сондықтан хат жіберілмейді: бірден кіре аласыз. Мұндағы төлемдер имитация.",
+    "googleOff": "Google арқылы кіру әлі қосылмаған.",
+    "continueApple": "Apple арқылы жалғастыру"
   },
   "market": {
     "title": "Маркетплейс",
@@ -1026,7 +1028,14 @@
         "job_application": "{title} үшін жаңа өтініш",
         "subscription_activated": "Pro тарифіңіз белсенді",
         "app_installed": "Біреу қолданбаңызды орнатты",
-        "automation_custom": "Автоматтандыруыңыз іске қосылды"
+        "automation_custom": "Автоматтандыруыңыз іске қосылды",
+        "staff_user_registered": "Жаңа аккаунт: {name} ({email}), {method} арқылы",
+        "staff_order_paid": "{number} тапсырысы төленді: {amount}",
+        "staff_order_refunded": "{number} тапсырысы бойынша қайтарым: {amount}",
+        "staff_subscription": "Жаңа Pro жазылушы қосылды",
+        "staff_product_published": "Жаңа өнім жарияланды: {title}",
+        "staff_job_application": "{title} үшін жаңа өтініш",
+        "staff_app_installed": "Қолданба орнатылды"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "Қауіпсіздік оқиғалары",
     "events": "Оқиғалар кезегі",
     "processed": "Өңделді",
-    "pending": "Күтілуде"
+    "pending": "Күтілуде",
+    "exportUsers": "Пайдаланушылар (Excel)",
+    "exportActivity": "Барлық әрекет (Excel)",
+    "exportOrders": "Тапсырыстар (Excel)"
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   changePasswordBody, deleteAccountBody, forgotBody, loginBody, registerBody, resetBody, tokenBody, totpBody,
@@ -12,12 +12,16 @@ import { logger } from '../core/logger';
 import { PrismaService } from '../core/prisma.service';
 import { RateLimit } from '../core/rate-limit';
 import { ZBody } from '../core/zod';
+import { appleAuthorizeUrl, appleIdentity } from './apple';
 import { AuthService, SessionMeta } from './auth.service';
 import { Auth, AuthContext, Public, SESSION_COOKIE } from './context';
 
 const cookieBase: CookieOptions = { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/' };
 const meta = (req: Request): SessionMeta => ({ userAgent: req.headers['user-agent'], ip: req.ip });
 const OAUTH_STATE = 'faith_oauth_state';
+const APPLE_STATE = 'faith_apple_state';
+/** Providers return through the web origin, so their cookies are first-party to the site. */
+const callback = (provider: string) => `${env.WEB_ORIGIN}/api/v1/auth/oauth/${provider}/callback`;
 
 @ApiTags('auth')
 @Controller('auth')
@@ -127,7 +131,7 @@ export class AuthController {
     const state = randomToken(16);
     res.cookie(OAUTH_STATE, state, { ...cookieBase, maxAge: 600_000 });
     const q = new URLSearchParams({
-      client_id: env.GOOGLE_CLIENT_ID!, redirect_uri: `${env.API_ORIGIN}/v1/auth/oauth/google/callback`,
+      client_id: env.GOOGLE_CLIENT_ID!, redirect_uri: callback('google'),
       response_type: 'code', scope: 'openid email profile', state,
     });
     res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${q}`);
@@ -146,7 +150,7 @@ export class AuthController {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code, client_id: env.GOOGLE_CLIENT_ID!, client_secret: env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: `${env.API_ORIGIN}/v1/auth/oauth/google/callback`, grant_type: 'authorization_code',
+        redirect_uri: callback('google'), grant_type: 'authorization_code',
       }),
     });
     if (!tokens.ok) {
@@ -165,6 +169,42 @@ export class AuthController {
     );
     this.setSession(res, session);
     res.redirect(`${env.WEB_ORIGIN}/app`);
+  }
+
+  /** Start of Sign in with Apple. Only reachable when all four Apple values are configured. */
+  @Public() @Get('oauth/apple/start')
+  apple(@Res() res: Response) {
+    if (!this.auth.oauthProviders().apple) throw notFound();
+    const state = randomToken(16);
+    // Apple comes back with a cross-site POST, so this one cookie must be SameSite=None.
+    res.cookie(APPLE_STATE, state, { httpOnly: true, secure: true, sameSite: 'none', path: '/', maxAge: 600_000 });
+    res.redirect(appleAuthorizeUrl(callback('apple'), state));
+  }
+
+  @Public() @Post('oauth/apple/callback') @HttpCode(303)
+  async appleCallback(@Body() body: { code?: string; state?: string; user?: string }, @Req() req: Request, @Res() res: Response) {
+    if (!this.auth.oauthProviders().apple) throw notFound();
+    const expected = (req.cookies as Record<string, string>)[APPLE_STATE];
+    if (!body.code || !body.state || body.state !== expected) throw badRequest('INVALID_OAUTH_STATE');
+    res.clearCookie(APPLE_STATE, { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
+    let identity;
+    try {
+      identity = await appleIdentity(body.code, callback('apple'));
+    } catch (err) {
+      logger.warn({ err: (err as Error).message }, 'apple sign-in failed');
+      throw badRequest('OAUTH_FAILED');
+    }
+    if (!identity.email || !identity.emailVerified) throw badRequest('OAUTH_EMAIL_UNVERIFIED');
+    // Apple sends the name only on the very first sign-in.
+    let name = identity.email.split('@')[0]!;
+    try {
+      const u = body.user ? (JSON.parse(body.user) as { name?: { firstName?: string; lastName?: string } }) : undefined;
+      const full = [u?.name?.firstName, u?.name?.lastName].filter(Boolean).join(' ');
+      if (full) name = full;
+    } catch { /* keep the email-based name */ }
+    const session = await this.auth.oauthSignIn({ provider: 'apple', subject: identity.sub, email: identity.email, name }, meta(req));
+    this.setSession(res, session);
+    res.redirect(303, `${env.WEB_ORIGIN}/app`);
   }
 
   /** Development mailbox, so the verification flow works with no email provider at all. */

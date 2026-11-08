@@ -2,7 +2,7 @@ import { Link } from '@/i18n/navigation';
 import { getMe } from '@/lib/api';
 import { Menu } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import { FaithLockup, FaithLogo } from '../ui/logo';
+import { FaithLockup, FaithLogo, FaithWordmark } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
 import { MobileNavigation, NavLinks, NavScrollFrame } from './mobile-nav';
 import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
@@ -70,7 +70,10 @@ export async function Footer() {
           </nav>
         ))}
       </div>
-      <p aria-hidden className="pointer-events-none relative -mb-[0.18em] select-none text-center font-display text-[clamp(4rem,19vw,17rem)] leading-none font-semibold tracking-[-0.06em] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--text)_16%,transparent),transparent_80%)] bg-clip-text text-transparent">FAITH</p>
+      {/* The official wordmark, large and fading into the page; the artwork itself is untouched. */}
+      <div aria-hidden className="pointer-events-none relative flex justify-center px-4 pt-6 opacity-[0.2] select-none [mask-image:linear-gradient(180deg,#000_25%,transparent_100%)]">
+        <FaithWordmark height={161} className="h-auto w-[min(90vw,60rem)]" />
+      </div>
       <div className="relative">
         <p className="mx-auto max-w-[92rem] px-4 py-5 font-mono text-[0.7rem] tracking-wide text-subtle sm:px-6 lg:px-8">{t('brand.tagline')}</p>
       </div>

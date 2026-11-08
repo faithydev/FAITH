@@ -110,6 +110,8 @@ export class OriginGuard implements CanActivate {
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return true;
     const origin = req.headers.origin;
     if (!origin || origin === env.WEB_ORIGIN || origin === env.API_ORIGIN) return true;
+    // Apple returns the user with a form POST from its own origin; the callback checks its state.
+    if (origin === 'https://appleid.apple.com' && req.path.endsWith('/auth/oauth/apple/callback')) return true;
     throw forbidden('BAD_ORIGIN');
   }
 }

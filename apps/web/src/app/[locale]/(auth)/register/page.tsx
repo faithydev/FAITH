@@ -8,7 +8,7 @@ export async function generateMetadata() {
 }
 
 export default async function RegisterPage() {
-  const [t, providers, meta] = await Promise.all([getTranslations(), tryPublicApi<{ google: boolean }>('/auth/providers', 60), getMeta()]);
+  const [t, providers, meta] = await Promise.all([getTranslations(), tryPublicApi<{ google: boolean; apple: boolean }>('/auth/providers', 60), getMeta()]);
   return (
     <>
       <h1 className="font-display text-[1.7rem] leading-tight font-semibold tracking-tight">{t('auth.registerTitle')}</h1>

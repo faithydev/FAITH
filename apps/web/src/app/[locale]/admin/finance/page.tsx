@@ -1,5 +1,5 @@
 import { ActionButton } from '@/components/ui/client';
-import { Badge, DataTable, EmptyState, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
+import { Badge, DataTable, EmptyState, ExportLink, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import type { Paged } from '@/lib/types';
@@ -16,7 +16,7 @@ export default async function AdminFinance() {
   const canWrite = me.permissions.includes('admin.finance.write');
   return (
     <>
-      <PageHeader title={t('admin.nav.finance')} description={t('admin.financeBody')} />
+      <PageHeader title={t('admin.nav.finance')} description={t('admin.financeBody')} actions={<ExportLink file="orders.csv">{t('admin.exportOrders')}</ExportLink>} />
       <section className="mb-8">
         <SectionTitle title={t('admin.reconciliation')} />
         <DataTable

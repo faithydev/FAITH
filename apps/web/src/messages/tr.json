@@ -481,7 +481,9 @@
     "agree": "Hesap oluşturarak <terms>Hizmet Şartları</terms> ve <privacy>Gizlilik Politikası</privacy> metinlerini kabul etmiş olursunuz.",
     "loginBody": "Tekrar hoş geldiniz. FAITH’teki her şey için tek hesap.",
     "demoReadyTitle": "Hesabınız hazır",
-    "demoReadyBody": "Bu herkese açık bir demo, e-posta gönderilmez: hemen giriş yapabilirsiniz. Buradaki ödemeler simülasyondur."
+    "demoReadyBody": "Bu herkese açık bir demo, e-posta gönderilmez: hemen giriş yapabilirsiniz. Buradaki ödemeler simülasyondur.",
+    "googleOff": "Google ile giriş henüz bağlı değil.",
+    "continueApple": "Apple ile devam et"
   },
   "market": {
     "title": "Pazar yeri",
@@ -1026,7 +1028,14 @@
         "job_application": "{title} için yeni başvuru",
         "subscription_activated": "Pro planınız aktif",
         "app_installed": "Biri uygulamanızı yükledi",
-        "automation_custom": "Otomasyonunuz çalıştı"
+        "automation_custom": "Otomasyonunuz çalıştı",
+        "staff_user_registered": "Yeni hesap: {name} ({email}), {method} ile",
+        "staff_order_paid": "{number} numaralı sipariş ödendi: {amount}",
+        "staff_order_refunded": "{number} numaralı siparişte iade: {amount}",
+        "staff_subscription": "Yeni bir Pro abonesi katıldı",
+        "staff_product_published": "Yeni ürün yayınlandı: {title}",
+        "staff_job_application": "{title} için yeni başvuru",
+        "staff_app_installed": "Bir uygulama yüklendi"
       }
     },
     "settings": {
@@ -1596,6 +1605,9 @@
     "securityEvents": "Güvenlik olayları",
     "events": "Olay kuyruğu",
     "processed": "İşlendi",
-    "pending": "Bekliyor"
+    "pending": "Bekliyor",
+    "exportUsers": "Kullanıcılar (Excel)",
+    "exportActivity": "Tüm etkinlik (Excel)",
+    "exportOrders": "Siparişler (Excel)"
   }
 }
