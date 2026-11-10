@@ -251,7 +251,8 @@
       "billing": "Billing",
       "settings": "Settings"
     },
-    "toggleMotion": "Animations"
+    "toggleMotion": "Animations",
+    "leaderboard": "Leaderboard"
   },
   "footer": {
     "platform": "Platform",
@@ -1288,7 +1289,18 @@
         "PROMOTED_LISTING": "Promoted listing",
         "CREATOR_DISCOVERY": "Creator discovery",
         "SPONSORED_COLLECTION": "Sponsored collection"
-      }
+      },
+      "checkoutLinks": "Checkout links",
+      "newCheckoutLink": "New checkout link",
+      "checkoutLinkBody": "A link that opens one plan ready to buy. Put it in your bio, a post or a chat.",
+      "checkoutLinkLabel": "Name",
+      "checkoutLinkLabelHint": "Only you see it, for example: Instagram bio.",
+      "checkoutLinkPlan": "Product and plan",
+      "noCheckoutLinks": "No checkout links yet. Create one and share it anywhere.",
+      "checkoutLinksNeedProduct": "Publish a product first, then create a checkout link for it.",
+      "checkoutLinkClicks": "{clicks, plural, one {# visit} other {# visits}}",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied"
     },
     "creator": {
       "title": "Creator Studio",
@@ -1644,6 +1656,20 @@
       "reject": "Decline",
       "rejectConfirm": "Decline this badge request?",
       "autoOn": "verifies automatically {date}"
+    },
+    "removal": {
+      "title": "Remove other accounts",
+      "body": "Removes every account except yours and the ones you list. Their personal data is erased, their stores, products, jobs and other listings come down, and their sign-in stops working. Order and payment records stay, without a name. This cannot be undone.",
+      "keepLabel": "Emails to keep",
+      "keepHint": "One per line, or separated by commas. Your own account always stays.",
+      "preview": "Preview",
+      "willKeep": "{count} accounts stay",
+      "willRemove": "{count} accounts will be removed for good",
+      "missing": "No account found for: {emails}. Fix the list first.",
+      "typeToConfirm": "Type REMOVE to confirm",
+      "run": "Remove them",
+      "done": "{count} accounts removed",
+      "nothing": "There is nothing to remove."
     }
   },
   "badges": {
@@ -1658,5 +1684,28 @@
       "brand": "Brand",
       "developer": "Developer"
     }
+  },
+  "leaderboard": {
+    "eyebrow": "Top stores",
+    "title": "Leaderboard",
+    "body": "The stores people buy from most on FAITH, ranked by paid orders. No paid placements, no made-up numbers.",
+    "period": "Period",
+    "periods": {
+      "week": "This week",
+      "month": "30 days",
+      "all": "All time"
+    },
+    "emptyTitle": "The board is open",
+    "emptyBody": "No store has made a sale in this period yet. Open yours and take first place.",
+    "emptyCta": "Start selling",
+    "sales": "sales",
+    "note": "Ranked by paid orders, so stores selling in different currencies compare fairly. Refunded orders do not count."
+  },
+  "buyLink": {
+    "buy": "Buy now",
+    "signInToBuy": "Sign in to buy",
+    "newHere": "New to FAITH?",
+    "secure": "Checkout and delivery are handled by FAITH.",
+    "details": "See full product details"
   }
 }

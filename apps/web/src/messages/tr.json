@@ -251,7 +251,8 @@
       "billing": "Faturalandırma",
       "settings": "Ayarlar"
     },
-    "toggleMotion": "Animasyonlar"
+    "toggleMotion": "Animasyonlar",
+    "leaderboard": "Sıralama"
   },
   "footer": {
     "platform": "Platform",
@@ -1288,7 +1289,18 @@
         "PROMOTED_LISTING": "Öne çıkan ilan",
         "CREATOR_DISCOVERY": "Üretici keşfi",
         "SPONSORED_COLLECTION": "Sponsorlu koleksiyon"
-      }
+      },
+      "checkoutLinks": "Ödeme bağlantıları",
+      "newCheckoutLink": "Yeni ödeme bağlantısı",
+      "checkoutLinkBody": "Tek bir planı satın almaya hazır açan bağlantı. Biyografinize, gönderinize ya da sohbete koyun.",
+      "checkoutLinkLabel": "Ad",
+      "checkoutLinkLabelHint": "Yalnızca siz görürsünüz, örneğin: Instagram biyografisi.",
+      "checkoutLinkPlan": "Ürün ve plan",
+      "noCheckoutLinks": "Henüz ödeme bağlantısı yok. Bir tane oluşturup dilediğiniz yerde paylaşın.",
+      "checkoutLinksNeedProduct": "Önce bir ürün yayınlayın, sonra onun için ödeme bağlantısı oluşturun.",
+      "checkoutLinkClicks": "{clicks, plural, one {# ziyaret} other {# ziyaret}}",
+      "copyLink": "Bağlantıyı kopyala",
+      "linkCopied": "Bağlantı kopyalandı"
     },
     "creator": {
       "title": "İçerik Stüdyosu",
@@ -1644,6 +1656,20 @@
       "reject": "Reddet",
       "rejectConfirm": "Bu rozet talebi reddedilsin mi?",
       "autoOn": "{date} tarihinde otomatik doğrulanır"
+    },
+    "removal": {
+      "title": "Diğer hesapları kaldır",
+      "body": "Sizinki ve listeledikleriniz dışındaki tüm hesapları kaldırır. Kişisel verileri silinir, mağazaları, ürünleri, ilanları yayından kalkar ve girişleri durur. Sipariş ve ödeme kayıtları isimsiz olarak kalır. Bu işlem geri alınamaz.",
+      "keepLabel": "Kalacak e-postalar",
+      "keepHint": "Her satıra bir tane ya da virgülle ayırın. Kendi hesabınız her zaman kalır.",
+      "preview": "Önizleme",
+      "willKeep": "{count} hesap kalacak",
+      "willRemove": "{count} hesap kalıcı olarak kaldırılacak",
+      "missing": "Şu adres için hesap bulunamadı: {emails}. Önce listeyi düzeltin.",
+      "typeToConfirm": "Onaylamak için REMOVE yazın",
+      "run": "Kaldır",
+      "done": "{count} hesap kaldırıldı",
+      "nothing": "Kaldırılacak hesap yok."
     }
   },
   "badges": {
@@ -1658,5 +1684,28 @@
       "brand": "Marka",
       "developer": "Geliştirici"
     }
+  },
+  "leaderboard": {
+    "eyebrow": "En iyi mağazalar",
+    "title": "Sıralama",
+    "body": "FAITH'te en çok alışveriş yapılan mağazalar, ödenmiş sipariş sayısına göre. Ücretli yer yok, uydurma rakam yok.",
+    "period": "Dönem",
+    "periods": {
+      "week": "Bu hafta",
+      "month": "30 gün",
+      "all": "Tüm zamanlar"
+    },
+    "emptyTitle": "Sıralama açık",
+    "emptyBody": "Bu dönemde henüz hiçbir mağaza satış yapmadı. Kendi mağazanızı açın ve ilk sırayı alın.",
+    "emptyCta": "Satışa başla",
+    "sales": "satış",
+    "note": "Ödenmiş sipariş sayısına göre sıralanır; böylece farklı para birimleriyle satan mağazalar adil karşılaştırılır. İade edilen siparişler sayılmaz."
+  },
+  "buyLink": {
+    "buy": "Şimdi satın al",
+    "signInToBuy": "Satın almak için giriş yapın",
+    "newHere": "FAITH'te yeni misiniz?",
+    "secure": "Ödeme ve teslimatı FAITH yürütür.",
+    "details": "Ürünün tüm ayrıntıları"
   }
 }

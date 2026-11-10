@@ -802,3 +802,42 @@ describe('rate limiting and health', () => {
     }
   });
 });
+
+// Last on purpose: it removes every account the earlier tests created.
+describe('account removal', () => {
+  it('lets only a super admin remove all other accounts, keeping the listed ones', async () => {
+    const seller = await t.signUp(['sell']);
+    const { product } = await createStoreWithProduct(t, seller);
+    const keeper = await t.signUp([], { displayName: 'Keeper Person' });
+    const admin = await staff('admin');
+    const root = await staff('super_admin');
+
+    // An ordinary admin may not, and a typo in the list stops everything.
+    await admin.agent.post('/v1/admin/users/removal').send({ keepEmails: [keeper.email], confirm: 'REMOVE' }).expect(403);
+    await root.agent.post('/v1/admin/users/removal').send({ keepEmails: [keeper.email] }).expect(422);
+    const typo = await root.agent.post('/v1/admin/users/removal').send({ keepEmails: [keeper.email, 'nobody@nowhere.test'], confirm: 'REMOVE' }).expect(400);
+    expect(typo.body.error.code).toBe('KEEP_EMAIL_NOT_FOUND');
+    expect((await t.db.user.findUniqueOrThrow({ where: { id: seller.id } })).status).toBe('ACTIVE');
+
+    const preview = (await root.agent.post('/v1/admin/users/removal/preview').send({ keepEmails: [keeper.email] }).expect(200)).body;
+    expect(preview.keep.map((k: { email: string }) => k.email).sort()).toEqual([keeper.email, root.email].sort());
+    expect(preview.remove).toBeGreaterThan(1);
+
+    const done = (await root.agent.post('/v1/admin/users/removal').send({ keepEmails: [keeper.email], confirm: 'REMOVE' }).expect(200)).body;
+    expect(done.removed).toBe(preview.remove);
+
+    // The removed seller is anonymous, signed out, and no longer on sale; money records remain.
+    const gone = await t.db.user.findUniqueOrThrow({ where: { id: seller.id }, include: { profile: true } });
+    expect(gone).toMatchObject({ status: 'DELETED', passwordHash: null });
+    expect(gone.email).toMatch(/@deleted\.faith\.invalid$/);
+    expect(gone.profile?.displayName).toBe('Deleted user');
+    await seller.agent.get('/v1/me').expect(401);
+    await t.http.get(`/v1/marketplace/products/${product.slug}`).expect(404);
+    expect(await t.db.ledgerEntry.count()).toBeGreaterThan(0);
+
+    // The kept people are untouched, and the list no longer shows removed accounts.
+    await keeper.agent.get('/v1/me').expect(200);
+    const list = (await root.agent.get('/v1/admin/users?pageSize=50').expect(200)).body;
+    expect(list.total).toBe(2);
+  });
+});

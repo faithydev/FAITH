@@ -6,7 +6,7 @@ import type {
 } from '@faith/validators';
 import type { z } from 'zod';
 import { EntitlementsService } from '../auth/entitlements.service';
-import { uniqueSlug } from '../core/crypto';
+import { randomToken, uniqueSlug } from '../core/crypto';
 import { badRequest, conflict, forbidden, notFound } from '../core/errors';
 import { EventsService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
@@ -85,6 +85,37 @@ export class SellerService {
     }
     const { orgId: _ignored, ...data } = body;
     return this.prisma.db.store.update({ where: { id: storeId }, data });
+  }
+
+  // --- Checkout links -------------------------------------------------------
+
+  async checkoutLinks(storeId: string, userId: string) {
+    await this.ownedStore(storeId, userId);
+    return this.prisma.db.checkoutLink.findMany({
+      where: { storeId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true, code: true, label: true, clicks: true, active: true, createdAt: true,
+        variant: { select: { id: true, name: true, priceMinor: true, product: { select: { title: true, slug: true, currency: true, status: true } } } },
+      },
+    });
+  }
+
+  /** A link sells one plan of one of the store's own products. */
+  async createCheckoutLink(storeId: string, userId: string, variantId: string, label: string) {
+    await this.ownedStore(storeId, userId);
+    const variant = await this.prisma.db.productVariant.findFirst({ where: { id: variantId, active: true, product: { storeId } }, select: { id: true } });
+    if (!variant) throw notFound('VARIANT_NOT_FOUND');
+    if ((await this.prisma.db.checkoutLink.count({ where: { storeId } })) >= 200) throw conflict('LINK_LIMIT_REACHED');
+    const code = randomToken(8).replace(/[^A-Za-z0-9]/g, '').slice(0, 10).toLowerCase() || randomToken(12).toLowerCase();
+    return this.prisma.db.checkoutLink.create({ data: { storeId, variantId, label, code }, select: { id: true, code: true, label: true } });
+  }
+
+  async setCheckoutLinkActive(storeId: string, userId: string, linkId: string, active: boolean) {
+    await this.ownedStore(storeId, userId);
+    const { count } = await this.prisma.db.checkoutLink.updateMany({ where: { id: linkId, storeId }, data: { active } });
+    if (count === 0) throw notFound();
+    return { status: 'ok' };
   }
 
   async setStoreImage(storeId: string, userId: string, slot: 'logo' | 'banner', uploadId: string | null) {

@@ -251,7 +251,8 @@
       "billing": "Facturación",
       "settings": "Ajustes"
     },
-    "toggleMotion": "Animaciones"
+    "toggleMotion": "Animaciones",
+    "leaderboard": "Clasificación"
   },
   "footer": {
     "platform": "Plataforma",
@@ -1288,7 +1289,18 @@
         "PROMOTED_LISTING": "Producto promocionado",
         "CREATOR_DISCOVERY": "Descubrimiento de creadores",
         "SPONSORED_COLLECTION": "Colección patrocinada"
-      }
+      },
+      "checkoutLinks": "Enlaces de pago",
+      "newCheckoutLink": "Nuevo enlace de pago",
+      "checkoutLinkBody": "Un enlace que abre un plan listo para comprar. Ponlo en tu bio, en una publicación o en un chat.",
+      "checkoutLinkLabel": "Nombre",
+      "checkoutLinkLabelHint": "Solo lo ves tú, por ejemplo: bio de Instagram.",
+      "checkoutLinkPlan": "Producto y plan",
+      "noCheckoutLinks": "Aún no hay enlaces de pago. Crea uno y compártelo donde quieras.",
+      "checkoutLinksNeedProduct": "Publica primero un producto y luego crea su enlace de pago.",
+      "checkoutLinkClicks": "{clicks, plural, one {# visita} other {# visitas}}",
+      "copyLink": "Copiar enlace",
+      "linkCopied": "Enlace copiado"
     },
     "creator": {
       "title": "Estudio de creador",
@@ -1644,6 +1656,20 @@
       "reject": "Rechazar",
       "rejectConfirm": "¿Rechazar esta solicitud?",
       "autoOn": "se verifica automáticamente el {date}"
+    },
+    "removal": {
+      "title": "Eliminar las demás cuentas",
+      "body": "Elimina todas las cuentas salvo la tuya y las que indiques. Se borran sus datos personales, se retiran sus tiendas, productos, empleos y demás publicaciones, y dejan de poder entrar. Los registros de pedidos y pagos se conservan sin nombre. No se puede deshacer.",
+      "keepLabel": "Correos que se conservan",
+      "keepHint": "Uno por línea o separados por comas. Tu propia cuenta siempre se conserva.",
+      "preview": "Vista previa",
+      "willKeep": "Se conservan {count} cuentas",
+      "willRemove": "Se eliminarán {count} cuentas para siempre",
+      "missing": "No hay ninguna cuenta para: {emails}. Corrige la lista primero.",
+      "typeToConfirm": "Escribe REMOVE para confirmar",
+      "run": "Eliminarlas",
+      "done": "{count} cuentas eliminadas",
+      "nothing": "No hay nada que eliminar."
     }
   },
   "badges": {
@@ -1658,5 +1684,28 @@
       "brand": "Marca",
       "developer": "Desarrollador"
     }
+  },
+  "leaderboard": {
+    "eyebrow": "Mejores tiendas",
+    "title": "Clasificación",
+    "body": "Las tiendas donde más se compra en FAITH, ordenadas por pedidos pagados. Sin puestos de pago ni cifras inventadas.",
+    "period": "Periodo",
+    "periods": {
+      "week": "Esta semana",
+      "month": "30 días",
+      "all": "Todo el tiempo"
+    },
+    "emptyTitle": "La clasificación está abierta",
+    "emptyBody": "Ninguna tienda ha vendido todavía en este periodo. Abre la tuya y llévate el primer puesto.",
+    "emptyCta": "Empezar a vender",
+    "sales": "ventas",
+    "note": "Se ordena por pedidos pagados, para comparar con justicia tiendas que venden en monedas distintas. Los pedidos reembolsados no cuentan."
+  },
+  "buyLink": {
+    "buy": "Comprar ahora",
+    "signInToBuy": "Inicia sesión para comprar",
+    "newHere": "¿Nuevo en FAITH?",
+    "secure": "FAITH gestiona el pago y la entrega.",
+    "details": "Ver todos los detalles del producto"
   }
 }

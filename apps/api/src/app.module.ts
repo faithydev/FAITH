@@ -3,6 +3,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AdminController, LabController } from './admin/admin.controller';
 import { ExportController } from './admin/export.controller';
 import { AdminService } from './admin/admin.service';
+import { RemovalService } from './admin/removal.service';
 import { AiService } from './ai/ai.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
@@ -94,7 +95,7 @@ export class CommunicationModule {}
 @Module({
   imports: [CommerceModule, RewardsModule, DeveloperModule],
   controllers: [AdminController, LabController, ExportController],
-  providers: [AdminService],
+  providers: [AdminService, RemovalService],
 })
 export class AdminModule {}
 

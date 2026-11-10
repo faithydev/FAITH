@@ -123,6 +123,64 @@ export class CatalogService {
     return { ...rest, badge: owner.badge?.status === 'VERIFIED' ? owner.badge.kind : null, productCount: stats._count, salesCount: stats._sum.salesCount ?? 0, ratingCount: stats._sum.ratingCount ?? 0, ratingSum: stats._sum.ratingSum ?? 0 };
   }
 
+  /** What a checkout link sells. Only live links for published products of active stores open. */
+  async checkoutLink(code: string) {
+    const link = await this.prisma.db.checkoutLink.findUnique({
+      where: { code },
+      select: {
+        id: true, code: true, label: true, active: true,
+        variant: {
+          select: {
+            id: true, name: true, priceMinor: true, compareAtMinor: true, active: true,
+            product: { select: { slug: true, title: true, summary: true, type: true, currency: true, coverKey: true, status: true } },
+          },
+        },
+        store: { select: { slug: true, name: true, logoKey: true, status: true, owner: { select: { badge: { select: { kind: true, status: true } } } } } },
+      },
+    });
+    if (!link || !link.active || !link.variant.active || link.variant.product.status !== 'PUBLISHED' || link.store.status !== 'ACTIVE') throw notFound('LINK_NOT_FOUND');
+    await this.prisma.db.checkoutLink.update({ where: { id: link.id }, data: { clicks: { increment: 1 } } });
+    const { owner, status: _s, ...store } = link.store;
+    const { status: _p, ...product } = link.variant.product;
+    return {
+      code: link.code, label: link.label,
+      variant: { id: link.variant.id, name: link.variant.name, priceMinor: link.variant.priceMinor, compareAtMinor: link.variant.compareAtMinor },
+      product, store: { ...store, badge: owner.badge?.status === 'VERIFIED' ? owner.badge.kind : null },
+    };
+  }
+
+  /**
+   * The public leaderboard: stores ranked by paid orders in the period, never by money, so
+   * stores selling in different currencies compare fairly. Refunded orders do not count.
+   */
+  async leaderboard(period: 'week' | 'month' | 'all') {
+    const days = period === 'week' ? 7 : period === 'month' ? 30 : null;
+    const since = days ? new Date(Date.now() - days * 86_400_000) : undefined;
+    const rows = await this.prisma.db.sellerOrder.groupBy({
+      by: ['storeId'],
+      where: { status: { in: ['PAID', 'PARTIALLY_REFUNDED'] }, store: { status: 'ACTIVE' }, ...(since ? { order: { paidAt: { gte: since } } } : {}) },
+      _count: { _all: true },
+      orderBy: { _count: { storeId: 'desc' } },
+      take: 25,
+    });
+    if (rows.length === 0) return [];
+    const stores = await this.prisma.db.store.findMany({
+      where: { id: { in: rows.map((r) => r.storeId) } },
+      select: {
+        id: true, slug: true, name: true, tagline: true, logoKey: true, country: true,
+        owner: { select: { badge: { select: { kind: true, status: true } } } },
+        _count: { select: { products: { where: { status: 'PUBLISHED' } } } },
+      },
+    });
+    const byId = new Map(stores.map((s) => [s.id, s]));
+    return rows.flatMap((r, i) => {
+      const s = byId.get(r.storeId);
+      if (!s) return [];
+      const { owner, _count, id: _id, ...store } = s;
+      return [{ rank: i + 1, ...store, badge: owner.badge?.status === 'VERIFIED' ? owner.badge.kind : null, products: _count.products, sales: r._count._all }];
+    });
+  }
+
   /** Paid placements, each marked so the interface always labels it as advertising. */
   async sponsored(placement: 'MARKETPLACE_TOP' | 'PROMOTED_LISTING' | 'CREATOR_DISCOVERY' | 'SPONSORED_COLLECTION') {
     const now = new Date();

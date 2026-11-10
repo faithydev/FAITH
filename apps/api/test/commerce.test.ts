@@ -290,6 +290,43 @@ describe('isolation', () => {
   });
 });
 
+describe('selling tools', () => {
+  it('opens a checkout link for a published plan, counts visits and stops when switched off', async () => {
+    const seller = await t.signUp(['sell']);
+    const rival = await t.signUp(['sell']);
+    const { store, product, variantId } = await createStoreWithProduct(t, seller);
+    const other = await createStoreWithProduct(t, rival);
+
+    // A link can only sell the store's own plans.
+    await seller.agent.post(`/v1/seller/stores/${store.id}/links`).send({ variantId: other.variantId, label: 'Not mine' }).expect(404);
+    await rival.agent.post(`/v1/seller/stores/${store.id}/links`).send({ variantId, label: 'Hijack' }).expect(404);
+    const link = (await seller.agent.post(`/v1/seller/stores/${store.id}/links`).send({ variantId, label: 'Instagram bio' }).expect(201)).body;
+
+    const open = (await t.http.get(`/v1/marketplace/links/${link.code}`).expect(200)).body;
+    expect(open).toMatchObject({ label: 'Instagram bio', variant: { id: variantId }, product: { slug: product.slug }, store: { slug: store.slug } });
+    await t.http.get(`/v1/marketplace/links/${link.code}`).expect(200);
+    const listed = (await seller.agent.get(`/v1/seller/stores/${store.id}/links`).expect(200)).body;
+    expect(listed[0]).toMatchObject({ code: link.code, clicks: 2, active: true });
+
+    await seller.agent.patch(`/v1/seller/stores/${store.id}/links/${link.id}`).send({ active: false }).expect(200);
+    await t.http.get(`/v1/marketplace/links/${link.code}`).expect(404);
+    await t.http.get('/v1/marketplace/links/nope').expect(404);
+  });
+
+  it('ranks stores on the leaderboard by paid orders only', async () => {
+    const seller = await t.signUp(['sell']);
+    const buyer = await t.signUp(['discover']);
+    const { store, variantId } = await createStoreWithProduct(t, seller);
+    const before = (await t.http.get('/v1/marketplace/leaderboard?period=week').expect(200)).body as { slug: string }[];
+    expect(before.find((r) => r.slug === store.slug)).toBeUndefined();
+    await buy(t, buyer, variantId);
+    const after = (await t.http.get('/v1/marketplace/leaderboard?period=week').expect(200)).body as { slug: string; sales: number; rank: number }[];
+    expect(after.find((r) => r.slug === store.slug)).toMatchObject({ sales: 1 });
+    expect(after.map((r) => r.rank)).toEqual(after.map((_, i) => i + 1));
+    await t.http.get('/v1/marketplace/leaderboard?period=decade').expect(422);
+  });
+});
+
 describe('billing', () => {
   it('moves from Free to Pro through the simulator and gates a feature', async () => {
     const u = await t.signUp(['sell'], { free: true });

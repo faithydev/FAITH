@@ -251,7 +251,8 @@
       "billing": "账单",
       "settings": "设置"
     },
-    "toggleMotion": "动画"
+    "toggleMotion": "动画",
+    "leaderboard": "排行榜"
   },
   "footer": {
     "platform": "平台",
@@ -1288,7 +1289,18 @@
         "PROMOTED_LISTING": "推广商品",
         "CREATOR_DISCOVERY": "创作者发现",
         "SPONSORED_COLLECTION": "赞助合集"
-      }
+      },
+      "checkoutLinks": "付款链接",
+      "newCheckoutLink": "新建付款链接",
+      "checkoutLinkBody": "打开后即可直接购买某个方案的链接。放进你的简介、帖子或聊天中。",
+      "checkoutLinkLabel": "名称",
+      "checkoutLinkLabelHint": "仅你自己可见，例如：Instagram 简介。",
+      "checkoutLinkPlan": "商品和方案",
+      "noCheckoutLinks": "还没有付款链接。创建一个并分享到任何地方。",
+      "checkoutLinksNeedProduct": "请先发布商品，再为它创建付款链接。",
+      "checkoutLinkClicks": "{clicks, plural, other {# 次访问}}",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制"
     },
     "creator": {
       "title": "创作者工作室",
@@ -1644,6 +1656,20 @@
       "reject": "拒绝",
       "rejectConfirm": "拒绝此徽章申请？",
       "autoOn": "将于 {date} 自动认证"
+    },
+    "removal": {
+      "title": "移除其他账户",
+      "body": "将移除除你和所列账户之外的所有账户。他们的个人数据会被清除，店铺、商品、职位等发布内容会下架，登录将失效。订单和付款记录会以匿名方式保留。此操作无法撤销。",
+      "keepLabel": "要保留的邮箱",
+      "keepHint": "每行一个，或用逗号分隔。你自己的账户始终保留。",
+      "preview": "预览",
+      "willKeep": "将保留 {count} 个账户",
+      "willRemove": "将永久移除 {count} 个账户",
+      "missing": "找不到这些邮箱对应的账户：{emails}。请先修正列表。",
+      "typeToConfirm": "输入 REMOVE 以确认",
+      "run": "移除",
+      "done": "已移除 {count} 个账户",
+      "nothing": "没有需要移除的账户。"
     }
   },
   "badges": {
@@ -1658,5 +1684,28 @@
       "brand": "品牌",
       "developer": "开发者"
     }
+  },
+  "leaderboard": {
+    "eyebrow": "热门店铺",
+    "title": "排行榜",
+    "body": "FAITH 上成交最多的店铺，按已付款订单数排名。没有付费位置，也没有虚构数字。",
+    "period": "时间范围",
+    "periods": {
+      "week": "本周",
+      "month": "30 天",
+      "all": "全部时间"
+    },
+    "emptyTitle": "榜单已开放",
+    "emptyBody": "这段时间还没有店铺成交。开设你的店铺，拿下第一名。",
+    "emptyCta": "开始销售",
+    "sales": "笔成交",
+    "note": "按已付款订单数排名，因此使用不同货币的店铺可以公平比较。已退款订单不计入。"
+  },
+  "buyLink": {
+    "buy": "立即购买",
+    "signInToBuy": "登录后购买",
+    "newHere": "第一次使用 FAITH？",
+    "secure": "付款和交付由 FAITH 处理。",
+    "details": "查看完整商品详情"
   }
 }

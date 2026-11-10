@@ -1,3 +1,4 @@
+import { RemoveOthers } from '@/components/admin/remove-others';
 import { ActionButton, FormDialog } from '@/components/ui/client';
 import { Badge, Button, DataTable, fieldClass, ExportLink, PageHeader, Pagination, SectionTitle, StatusBadge } from '@/components/ui/primitives';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
@@ -98,6 +99,19 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
         ]}
       />
       <Pagination page={users.page} pages={users.pages} hrefFor={(p) => `/admin/users?${new URLSearchParams({ ...(q ? { q } : {}), page: String(p) })}`} labels={{ previous: t('common.previous'), next: t('common.next'), page: t('common.pagination') }} />
+      {me.roles.includes('super_admin') && (
+        <section className="mt-10">
+          <SectionTitle title={t('admin.removal.title')} />
+          <RemoveOthers
+            defaultKeep=""
+            labels={{
+              body: t('admin.removal.body'), keepLabel: t('admin.removal.keepLabel'), keepHint: t('admin.removal.keepHint'), preview: t('admin.removal.preview'),
+              willKeep: t.raw('admin.removal.willKeep') as string, willRemove: t.raw('admin.removal.willRemove') as string, missing: t.raw('admin.removal.missing') as string,
+              typeToConfirm: t('admin.removal.typeToConfirm'), run: t('admin.removal.run'), done: t.raw('admin.removal.done') as string, nothing: t('admin.removal.nothing'),
+            }}
+          />
+        </section>
+      )}
     </>
   );
 }

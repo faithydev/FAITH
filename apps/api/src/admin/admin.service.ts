@@ -61,9 +61,11 @@ export class AdminService {
   // --- Users ---------------------------------------------------------------
 
   async users(q: string | undefined, page: { page: number; pageSize: number }) {
-    const where: Prisma.UserWhereInput = q
-      ? { OR: [{ email: { contains: q, mode: 'insensitive' } }, { profile: { displayName: { contains: q, mode: 'insensitive' } } }] }
-      : {};
+    // Removed accounts stay in the database only as anonymous rows for the ledger.
+    const where: Prisma.UserWhereInput = {
+      status: { not: 'DELETED' },
+      ...(q ? { OR: [{ email: { contains: q, mode: 'insensitive' } }, { profile: { displayName: { contains: q, mode: 'insensitive' } } }] } : {}),
+    };
     const [items, total] = await Promise.all([
       this.prisma.db.user.findMany({
         where, orderBy: { createdAt: 'desc' }, skip: (page.page - 1) * page.pageSize, take: page.pageSize,

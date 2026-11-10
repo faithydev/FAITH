@@ -12,6 +12,7 @@ import { PayoutsService } from '../finance/payouts.service';
 import { RewardsService } from '../rewards/rewards.service';
 import { BadgesService } from '../identity/badges';
 import { AdminService } from './admin.service';
+import { RemovalService } from './removal.service';
 
 const userQuery = pageQuery.extend({ q: z.string().trim().max(120).optional() });
 const reverseBody = z.object({ reason: z.string().trim().min(3).max(1000), confirm: z.literal(true) });
@@ -19,6 +20,8 @@ const statusBody = z.object({ status: z.enum(['ACTIVE', 'SUSPENDED']) });
 const contentStatus = z.object({ status: z.enum(['VISIBLE', 'HIDDEN', 'REMOVED']) });
 const reviewStatus = z.object({ status: z.enum(['VISIBLE', 'HIDDEN']) });
 const ticketStatus = z.object({ status: z.enum(['OPEN', 'PENDING', 'CLOSED']) });
+const keepBody = z.object({ keepEmails: z.array(z.string().trim().email()).max(100) });
+const removeBody = keepBody.extend({ confirm: z.literal('REMOVE') });
 const badgeDecision = z.object({ approve: z.boolean(), note: z.string().trim().max(500).optional() });
 const badgeQuery = z.object({ status: z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'REVOKED']).optional() });
 
@@ -33,7 +36,20 @@ export class AdminController {
     private readonly rewards: RewardsService,
     private readonly dev: DeveloperService,
     private readonly badges: BadgesService,
+    private readonly removal: RemovalService,
   ) {}
+
+  /** Counts what removing every other account would do. Super admins only. */
+  @Post('users/removal/preview') @HttpCode(200) @RequirePermission('admin.users.write')
+  removalPreview(@Auth() a: AuthContext, @ZBody(keepBody) b: z.infer<typeof keepBody>) {
+    return this.removal.preview(a, b.keepEmails);
+  }
+
+  /** Removes every account except the caller and the listed emails. Cannot be undone. */
+  @Post('users/removal') @HttpCode(200) @RequirePermission('admin.users.write')
+  removalRun(@Auth() a: AuthContext, @ZBody(removeBody) b: z.infer<typeof removeBody>) {
+    return this.removal.removeOthers(a, b.keepEmails);
+  }
 
   @Get('badges') @RequirePermission('admin.users.read')
   badgeList(@ZQuery(badgeQuery) q: z.infer<typeof badgeQuery>) {

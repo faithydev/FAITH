@@ -76,3 +76,19 @@ paid and refunded orders, new Pro subscribers, published products, job applicati
 installs. The admin console offers spreadsheet downloads (CSV, opens in Excel): users
 (`/admin/users`), all activity (`/admin/audit`) and orders (`/admin/finance`). Each download is
 recorded in the audit log.
+
+## Sample data and removing accounts
+
+Sample data is opt-in. The start script fills the demo world only when `SEED_DEMO=true`; without
+it, only reference data (roles, plans, categories, built-in automations) is kept in place, so a
+platform with real members never gets sample accounts poured back in on a restart.
+
+A super admin can remove every account except their own and a list of emails from
+**Admin → Users → Remove other accounts**. It shows a preview first and needs a typed confirmation.
+Removed accounts lose their personal data, sign-in, roles and public listings; order and ledger
+records stay, pointing at an anonymous row, because the ledger is append-only.
+
+## Selling tools
+
+- **Checkout links** (`/buy/<code>`): a seller's shareable link to one plan, with visit counts.
+- **Leaderboard** (`/leaderboard`): stores ranked by paid orders (week, 30 days, all time).

@@ -20,6 +20,8 @@ const versionBody = z.object({ version: z.string().trim().min(1).max(30), change
 const activeBody = z.object({ active: z.boolean() });
 const sponsoredQuery = z.object({ placement: z.enum(['MARKETPLACE_TOP', 'PROMOTED_LISTING', 'CREATOR_DISCOVERY', 'SPONSORED_COLLECTION']).default('MARKETPLACE_TOP') });
 
+const linkBody = z.object({ variantId: z.string().min(1), label: z.string().trim().min(1).max(80) });
+const leaderboardQuery = z.object({ period: z.enum(['week', 'month', 'all']).default('month') });
 const imageBody = z.object({ uploadId: z.string().min(1).nullable() });
 const coverBody = z.object({ assetId: z.string().min(1) });
 
@@ -41,6 +43,17 @@ export class MarketplaceController {
   @Public() @Get('products/:slug')
   product(@Param('slug') slug: string, @OptionalAuth() a?: AuthContext) {
     return this.catalog.detail(slug, a?.user.id);
+  }
+
+  /** Opens a seller's checkout link: the plan it sells, ready to buy. Counts the visit. */
+  @Public() @Get('links/:code')
+  checkoutLink(@Param('code') code: string) {
+    return this.catalog.checkoutLink(code);
+  }
+
+  @Public() @Get('leaderboard')
+  leaderboard(@ZQuery(leaderboardQuery) q: z.infer<typeof leaderboardQuery>) {
+    return this.catalog.leaderboard(q.period);
   }
 
   @Public() @Get('stores/:slug')
@@ -223,6 +236,21 @@ export class SellerController {
   @Post('products/:id/revenue-shares') @RequirePermission('product.manage')
   share(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(revenueShareBody) b: z.infer<typeof revenueShareBody>) {
     return this.seller.addRevenueShare(id, a.user.id, b);
+  }
+
+  @Get('stores/:id/links')
+  links(@Auth() a: AuthContext, @Param('id') id: string) {
+    return this.seller.checkoutLinks(id, a.user.id);
+  }
+
+  @Post('stores/:id/links') @RequirePermission('store.manage')
+  link(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(linkBody) b: z.infer<typeof linkBody>) {
+    return this.seller.createCheckoutLink(id, a.user.id, b.variantId, b.label);
+  }
+
+  @Patch('stores/:id/links/:linkId') @RequirePermission('store.manage')
+  linkActive(@Auth() a: AuthContext, @Param('id') id: string, @Param('linkId') linkId: string, @ZBody(activeBody) b: z.infer<typeof activeBody>) {
+    return this.seller.setCheckoutLinkActive(id, a.user.id, linkId, b.active);
   }
 
   @Get('stores/:id/discounts')

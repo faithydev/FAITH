@@ -251,7 +251,8 @@
       "billing": "Hisob-kitob",
       "settings": "Sozlamalar"
     },
-    "toggleMotion": "Animatsiyalar"
+    "toggleMotion": "Animatsiyalar",
+    "leaderboard": "Reyting"
   },
   "footer": {
     "platform": "Platforma",
@@ -1288,7 +1289,18 @@
         "PROMOTED_LISTING": "Reklama eʼloni",
         "CREATOR_DISCOVERY": "Ijodkorlar qidiruvi",
         "SPONSORED_COLLECTION": "Reklama toʻplami"
-      }
+      },
+      "checkoutLinks": "Toʻlov havolalari",
+      "newCheckoutLink": "Yangi toʻlov havolasi",
+      "checkoutLinkBody": "Bitta tarifni darhol sotib olishga ochadigan havola. Uni bio, post yoki chatga qoʻying.",
+      "checkoutLinkLabel": "Nomi",
+      "checkoutLinkLabelHint": "Faqat siz koʻrasiz, masalan: Instagram bio.",
+      "checkoutLinkPlan": "Mahsulot va tarif",
+      "noCheckoutLinks": "Hali toʻlov havolasi yoʻq. Yarating va istalgan joyda ulashing.",
+      "checkoutLinksNeedProduct": "Avval mahsulot chiqaring, keyin unga toʻlov havolasi yarating.",
+      "checkoutLinkClicks": "{clicks, plural, one {# ta tashrif} other {# ta tashrif}}",
+      "copyLink": "Havoladan nusxa olish",
+      "linkCopied": "Havola nusxalandi"
     },
     "creator": {
       "title": "Ijodkor studiyasi",
@@ -1644,6 +1656,20 @@
       "reject": "Rad etish",
       "rejectConfirm": "Bu galochka soʼrovi rad etilsinmi?",
       "autoOn": "{date} da avtomatik tasdiqlanadi"
+    },
+    "removal": {
+      "title": "Boshqa akkauntlarni olib tashlash",
+      "body": "Sizniki va roʻyxatdagilardan tashqari barcha akkauntlar olib tashlanadi. Shaxsiy maʼlumotlari oʻchiriladi, doʻkon, mahsulot, vakansiya va boshqa eʼlonlari yopiladi, kirish toʻxtaydi. Buyurtma va toʻlov yozuvlari ismsiz saqlanadi. Buni ortga qaytarib boʻlmaydi.",
+      "keepLabel": "Qoladigan emaillar",
+      "keepHint": "Har biri alohida qatorda yoki vergul bilan. Oʻz akkauntingiz doim qoladi.",
+      "preview": "Oldindan koʻrish",
+      "willKeep": "{count} ta akkaunt qoladi",
+      "willRemove": "{count} ta akkaunt butunlay olib tashlanadi",
+      "missing": "Bu email boʻyicha akkaunt topilmadi: {emails}. Avval roʻyxatni toʻgʻrilang.",
+      "typeToConfirm": "Tasdiqlash uchun REMOVE deb yozing",
+      "run": "Olib tashlash",
+      "done": "{count} ta akkaunt olib tashlandi",
+      "nothing": "Olib tashlanadigan akkaunt yoʻq."
     }
   },
   "badges": {
@@ -1658,5 +1684,28 @@
       "brand": "Brend",
       "developer": "Dasturchi"
     }
+  },
+  "leaderboard": {
+    "eyebrow": "Eng yaxshi doʻkonlar",
+    "title": "Reyting",
+    "body": "FAITHʼda eng koʻp xarid qilinadigan doʻkonlar, toʻlangan buyurtmalar soni boʻyicha. Pullik joy ham, oʻylab topilgan raqam ham yoʻq.",
+    "period": "Davr",
+    "periods": {
+      "week": "Shu hafta",
+      "month": "30 kun",
+      "all": "Barcha vaqt"
+    },
+    "emptyTitle": "Reyting ochiq",
+    "emptyBody": "Bu davrda hali hech bir doʻkon sotuv qilmadi. Oʻz doʻkoningizni oching va birinchi oʻrinni oling.",
+    "emptyCta": "Sotishni boshlash",
+    "sales": "sotuv",
+    "note": "Toʻlangan buyurtmalar soni boʻyicha tartiblanadi, shuning uchun turli valyutada sotadigan doʻkonlar teng taqqoslanadi. Qaytarilgan buyurtmalar hisoblanmaydi."
+  },
+  "buyLink": {
+    "buy": "Hozir sotib olish",
+    "signInToBuy": "Sotib olish uchun kiring",
+    "newHere": "FAITHʼda yangimisiz?",
+    "secure": "Toʻlov va yetkazib berishni FAITH bajaradi.",
+    "details": "Mahsulot haqida toʻliq maʼlumot"
   }
 }
