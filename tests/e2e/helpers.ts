@@ -40,3 +40,14 @@ export async function onboard(page: Page, personas: string[]) {
 }
 
 export const api = (request: APIRequestContext) => request;
+
+/** Buys Pro through the simulator, choosing the role whose badge the profile will carry. */
+export async function goPro(page: Page, role: string) {
+  await page.goto(url('/app/billing'));
+  await page.getByTestId(`pick-${role}`).click();
+  await page.getByRole('button', { name: /a month/ }).click();
+  await page.waitForURL(/checkout\/simulator/);
+  await page.getByTestId('simulate-success').click();
+  await page.getByTestId('payment-continue').click();
+  await page.waitForURL(/\/app\/billing/);
+}

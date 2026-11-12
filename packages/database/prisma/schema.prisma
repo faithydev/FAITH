@@ -2332,3 +2332,15 @@ model CheckoutLink {
 
   @@index([storeId])
 }
+
+/// Official exchange rates, as soum per one unit scaled by a million. Used only to show prices
+/// in a person's own currency; charging and the ledger stay in the base currencies.
+model ExchangeRate {
+  currency        String   @id
+  uzsPerUnitMicro BigInt
+  /// Where the rate came from, for example "cbu.uz".
+  source          String
+  /// The day the source says the rate is for.
+  asOf            DateTime
+  fetchedAt       DateTime @default(now())
+}

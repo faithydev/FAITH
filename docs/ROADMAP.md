@@ -1,5 +1,8 @@
 # Roadmap
 
+> The full, current roadmap (in Uzbek, for the platform owner) is [ROADMAP.md](../ROADMAP.md) at the
+> repository root. This page keeps the short engineering list.
+
 Ordered by what unblocks real use. Nothing here is promised by a date.
 
 ## 1. Real money
@@ -10,8 +13,8 @@ Ordered by what unblocks real use. Nothing here is promised by a date.
 
 ## 2. Live integrations
 
-- Test S3 storage, SMTP and Google login against real services.
-- Apple sign-in (the button exists and is disabled until this is done).
+- Move uploads to S3-compatible storage (Render's free disk is wiped on every deploy) and turn on SMTP. Google login is live.
+- Apple sign-in: implemented; waits for Apple Developer credentials.
 - Official platform connections for creator metrics where the platform allows them
   (account authorisation flows), replacing manual entry for those metrics.
 - Run the BullMQ path against Redis under load.
@@ -33,5 +36,6 @@ Ordered by what unblocks real use. Nothing here is promised by a date.
 
 ## 5. Business decisions the code waits for
 
-- The final Pro price.
+- The Pro yearly price (monthly is $11.99).
 - The App Marketplace commission rate.
+- Payment partners in Uzbekistan and for international cards.

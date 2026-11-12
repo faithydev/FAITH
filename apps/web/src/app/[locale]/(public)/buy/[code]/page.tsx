@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { BuyNow } from '@/components/commerce/buy-link';
 import { Cover } from '@/components/ui/cover';
 import { LinkButton } from '@/components/ui/primitives';
@@ -53,6 +54,7 @@ export default async function BuyLinkPage({ params }: { params: Promise<{ code: 
             <span className="text-end">
               {v.compareAtMinor && <span className="block text-xs text-subtle line-through">{money(v.compareAtMinor, p.currency, locale)}</span>}
               <span className="font-display text-3xl font-semibold tabular-nums">{money(v.priceMinor, p.currency, locale)}</span>
+              <Approx minor={v.priceMinor} currency={p.currency} className="text-sm" />
             </span>
           </div>
           <div className="mt-5">

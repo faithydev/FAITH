@@ -3,14 +3,16 @@ import { Badge, Card, LinkButton, PageHeader, SectionTitle } from '@/components/
 import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { TwoFactorPanel } from '@/components/settings/two-factor';
 import { api } from '@/lib/api';
+import { localeTag } from '@/lib/format';
 import { pageContext } from '@/lib/page';
 import { PERSONA_ROLE, PERSONAS, supportedCurrencies } from './personas';
 
 type SessionRow = { id: string; userAgent: string | null; ipAddress: string | null; lastSeenAt: string; current: boolean };
 
 export default async function SettingsPage() {
-  const { t, me, d } = await pageContext();
+  const { t, me, d, locale } = await pageContext();
   const sessions = await api<SessionRow[]>('/auth/sessions');
+  const currencyNames = new Intl.DisplayNames([localeTag(locale)], { type: 'currency' });
   const missing = PERSONAS.filter((p) => !me.roles.includes(PERSONA_ROLE[p]));
   return (
     <>
@@ -64,7 +66,7 @@ export default async function SettingsPage() {
             <SectionTitle title={t('app.settings.preferences')} />
             <AutoForm
               endpoint="/me/preferences" method="PATCH" submitLabel={t('common.save')} success={t('common.saved')}
-              fields={[{ name: 'currency', label: t('app.settings.currency'), type: 'select', required: true, defaultValue: me.currency, options: supportedCurrencies().map((c) => ({ value: c, label: c })) }]}
+              fields={[{ name: 'currency', label: t('app.settings.currency'), type: 'select', required: true, defaultValue: me.currency, options: supportedCurrencies().map((c) => ({ value: c, label: `${c} · ${currencyNames.of(c) ?? c}` })) }]}
             />
           </Card>
           <Card className="p-5">

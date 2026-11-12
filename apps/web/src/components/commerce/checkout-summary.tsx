@@ -1,5 +1,6 @@
 'use client';
 
+import { Approx, ChargeNote } from '@/components/money/currency';
 import { toast, useErrorMessage } from '@/components/ui/client';
 import { Button, Card, fieldClass } from '@/components/ui/primitives';
 import { useRouter } from '@/i18n/navigation';
@@ -41,8 +42,9 @@ export function CheckoutSummary({ totals }: { totals: { currency: string; subtot
     <Card className="p-5 lg:sticky lg:top-20">
       <h2 className="font-semibold">{t('cart.summary')}</h2>
       {totals.map((x) => (
-        <dl key={x.currency} className="mt-3 flex justify-between text-sm"><dt className="text-muted">{t('cart.subtotal')}</dt><dd data-testid="cart-subtotal" className="font-semibold tabular-nums">{money(x.subtotalMinor, x.currency, locale)}</dd></dl>
+        <dl key={x.currency} className="mt-3 flex justify-between text-sm"><dt className="text-muted">{t('cart.subtotal')}</dt><dd className="text-end"><span data-testid="cart-subtotal" className="font-semibold tabular-nums">{money(x.subtotalMinor, x.currency, locale)}</span><Approx minor={x.subtotalMinor} currency={x.currency} /></dd></dl>
       ))}
+      <ChargeNote currencies={totals.map((x) => x.currency)} />
       <div className="mt-4">
         <label htmlFor="discount" className={fieldClass.label}>{t('cart.discountCode')}</label>
         <input id="discount" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={32} className={fieldClass.input} />

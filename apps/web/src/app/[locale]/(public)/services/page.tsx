@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { Cover } from '@/components/ui/cover';
 import { Button, EmptyState, fieldClass } from '@/components/ui/primitives';
 import { Link } from '@/i18n/navigation';
@@ -31,7 +32,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
                 <p className="text-xs text-subtle">{s.freelancer.profile?.displayName}</p>
                 <h2 className="mt-1 font-sans font-semibold">{s.title}</h2>
                 <p className="mt-1 line-clamp-2 text-sm text-muted">{s.summary}</p>
-                {s.packages[0] && <p className="mt-auto pt-3 text-sm">{t('services.from', { price: money(s.packages[0].priceMinor, s.currency, locale) })}</p>}
+                {s.packages[0] && <p className="mt-auto pt-3 text-sm">{t('services.from', { price: money(s.packages[0].priceMinor, s.currency, locale) })}<Approx minor={s.packages[0].priceMinor} currency={s.currency} /></p>}
               </div>
             </Link>
           ))}

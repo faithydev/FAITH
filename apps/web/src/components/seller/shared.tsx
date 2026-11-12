@@ -43,7 +43,7 @@ export async function CreateStore() {
           fields={[
             { name: 'name', label: t('app.seller.storeName'), required: true },
             { name: 'tagline', label: t('app.seller.tagline') },
-            { name: 'currency', label: t('app.seller.currency'), type: 'select', required: true, defaultValue: 'USD', options: ['USD', 'EUR', 'UZS'].map((c) => ({ value: c, label: c })) },
+            { name: 'currency', label: t('app.seller.currency'), hint: t('currency.priceIn'), type: 'select', required: true, defaultValue: 'UZS', options: ['UZS', 'USD'].map((c) => ({ value: c, label: c })) },
           ]}
         />
       </Card>

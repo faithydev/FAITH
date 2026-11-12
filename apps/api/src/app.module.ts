@@ -27,6 +27,7 @@ import { DeveloperService } from './developer/developer.service';
 import { ApiKeyGuard, PublicApiController } from './developer/public-api';
 import { LedgerService } from './finance/ledger.service';
 import { PayoutsService } from './finance/payouts.service';
+import { RatesController } from './finance/rates.controller';
 import { HealthController } from './health.controller';
 import { IdentityController } from './identity/identity.controller';
 import { BadgesService } from './identity/badges';
@@ -104,7 +105,7 @@ export class AdminModule {}
     CoreModule, CommerceModule, RewardsModule, WorkModule, CreatorModule, DeveloperModule, AiModule,
     CommunicationModule, AdminModule,
   ],
-  controllers: [HealthController, AuthController, IdentityController, PaymentsController, BillingController],
+  controllers: [HealthController, RatesController, AuthController, IdentityController, PaymentsController, BillingController],
   providers: [
     AuthService, BillingService,
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

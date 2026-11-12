@@ -1707,5 +1707,21 @@
     "newHere": "¿Nuevo en FAITH?",
     "secure": "FAITH gestiona el pago y la entrega.",
     "details": "Ver todos los detalles del producto"
+  },
+  "currency": {
+    "choose": "Moneda",
+    "search": "Buscar moneda",
+    "chargeNote": "El pago se cobra en {charged}. Los importes en {display} son orientativos, al tipo oficial del Banco Central de Uzbekistán; tu banco puede aplicar otro tipo.",
+    "rateDate": "Tipo del {date}.",
+    "regions": {
+      "base": "Monedas principales",
+      "centralAsia": "Asia Central",
+      "westAsia": "Asia Occidental y el Cáucaso",
+      "southAsia": "Asia Meridional",
+      "eastAsia": "Asia Oriental y Sudoriental",
+      "europe": "Europa",
+      "other": "Otras"
+    },
+    "priceIn": "Los precios se fijan en soms o dólares estadounidenses. Cada comprador los ve en su propia moneda."
   }
 }

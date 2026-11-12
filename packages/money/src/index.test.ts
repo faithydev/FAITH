@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   allocate, commissionFor, commissionReversal, discountFor, divRoundHalfUp, formatMoney,
-  rewardFor, toMajorString, toMinor,
+  rewardFor, toMajorString, toMinor, convertMinor, isBaseCurrency, isSupportedCurrency, parseRateMicro,
 } from './index';
 
 describe('commissionFor', () => {
@@ -134,5 +134,49 @@ describe('conversions', () => {
     expect(formatMoney(10_000n, 'USD', 'en-US')).toBe('$100.00');
     expect(formatMoney('12500000', 'UZS', 'en-US')).toContain('125,000');
     expect(formatMoney('12500000', 'UZS', 'en-US')).not.toContain('.00');
+  });
+});
+
+describe('exchange rates', () => {
+  // Central Bank of Uzbekistan style: soum per unit, some quoted per 10 units.
+  const rates = new Map<string, bigint>([
+    ['USD', parseRateMicro('11964.27', '1')],
+    ['EUR', parseRateMicro('13323.41', '1')],
+    ['JPY', parseRateMicro('75.19', '1')],
+    ['IDR', parseRateMicro('6.59', '10')],
+    ['KWD', parseRateMicro('39012.45', '1')],
+  ]);
+
+  it('parses feed rates exactly, including a nominal', () => {
+    expect(parseRateMicro('11964.27', '1')).toBe(11_964_270_000n);
+    expect(parseRateMicro('6.59', '10')).toBe(659_000n);
+    expect(() => parseRateMicro('abc', '1')).toThrow();
+    expect(() => parseRateMicro('1.5', '0')).toThrow();
+    expect(() => parseRateMicro('0', '1')).toThrow();
+  });
+
+  it('converts between currencies through the soum, respecting each exponent', () => {
+    // $49.00 in soum (tiyin), then back.
+    expect(convertMinor(4900n, 'USD', 'UZS', rates)).toBe(58_624_923n);
+    expect(convertMinor(58_624_923n, 'UZS', 'USD', rates)).toBe(4900n);
+    // $100 in yen has no minor unit; in dinar it has three.
+    expect(convertMinor(10_000n, 'USD', 'JPY', rates)).toBe(15_912n);
+    expect(convertMinor(10_000n, 'USD', 'KWD', rates)).toBe(30_668n);
+    // A cross rate that touches neither base currency.
+    expect(convertMinor(10_000n, 'EUR', 'IDR', rates)).toBe(202_176_176n);
+    expect(convertMinor(500n, 'USD', 'USD', rates)).toBe(500n);
+  });
+
+  it('gives nothing rather than a guess when a rate is missing', () => {
+    expect(convertMinor(100n, 'USD', 'THB', rates)).toBeNull();
+    expect(convertMinor(100n, 'THB', 'UZS', rates)).toBeNull();
+  });
+
+  it('knows the base currencies and the supported list', () => {
+    expect(isBaseCurrency('UZS')).toBe(true);
+    expect(isBaseCurrency('EUR')).toBe(false);
+    expect(isSupportedCurrency('KZT')).toBe(true);
+    expect(isSupportedCurrency('XXX')).toBe(false);
+    expect(formatMoney(15_912n, 'JPY', 'en-US')).toBe('¥15,912');
   });
 });

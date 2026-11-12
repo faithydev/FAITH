@@ -105,7 +105,7 @@ export function CampaignForm({ orgs }: { orgs: { id: string; name: string }[] })
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="currency" className={fieldClass.label}>{t('app.seller.currency')}</label>
-            <select id="currency" name="currency" defaultValue="USD" className={fieldClass.input}>{['USD', 'EUR', 'UZS'].map((c) => <option key={c}>{c}</option>)}</select>
+            <select id="currency" name="currency" defaultValue="USD" className={fieldClass.input}>{['UZS', 'USD'].map((c) => <option key={c}>{c}</option>)}</select>
           </div>
           <Text name="budget" label={t('app.brand.budget')} inputMode="decimal" placeholder="1000.00" />
         </div>

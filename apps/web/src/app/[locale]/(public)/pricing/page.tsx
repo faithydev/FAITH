@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { Card, LinkButton } from '@/components/ui/primitives';
 import { tryPublicApi } from '@/lib/api';
 import { money, percent } from '@/lib/format';
@@ -36,6 +37,7 @@ export default async function PricingPage() {
           <p className="mt-1 text-sm text-muted">{t('pricing.proBody')}</p>
           <p className="mt-5 font-display text-4xl font-semibold">{pro?.monthlyMinor ? money(pro.monthlyMinor, pro.currency, locale) : t('pricing.tbd')}</p>
           {pro?.monthlyMinor && <p className="text-sm text-muted">{t('pricing.perMonth')}</p>}
+          {pro?.monthlyMinor && <Approx minor={pro.monthlyMinor} currency={pro.currency} className="mt-1 text-sm" />}
           <ul className="mt-5 mb-6 grid gap-2 text-sm">
             {FEATURES.map((f) => <li key={f} className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-accent" />{t(`app.features.${f.replace('.', '_')}`)}</li>)}
           </ul>

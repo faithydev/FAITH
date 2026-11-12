@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { Cover } from '@/components/ui/cover';
 import { Badge, EmptyState } from '@/components/ui/primitives';
 import { Link } from '@/i18n/navigation';
@@ -29,7 +30,7 @@ export default async function CoursesPage() {
                 <p className="mt-1 line-clamp-2 text-sm text-muted">{c.summary}</p>
                 <div className="mt-auto flex items-center justify-between pt-3 text-sm">
                   <Badge>{t(`courses.levels.${c.level}`)}</Badge>
-                  <span className="font-semibold tabular-nums">{c.product ? money(c.product.priceFromMinor, c.product.currency, locale) : t('courses.free')}</span>
+                  <span className="text-end font-semibold tabular-nums">{c.product ? money(c.product.priceFromMinor, c.product.currency, locale) : t('courses.free')}{c.product && <Approx minor={c.product.priceFromMinor} currency={c.product.currency} />}</span>
                 </div>
               </div>
             </Link>

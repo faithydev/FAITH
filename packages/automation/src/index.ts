@@ -8,6 +8,7 @@
 import { createHmac } from 'node:crypto';
 import { createDecipheriv, createHash } from 'node:crypto';
 import type { OutboxEvent, Prisma, PrismaClient } from '@faith/database';
+import { isSupportedCurrency, parseRateMicro } from '@faith/money';
 
 export type Condition = { field: string; op: 'eq' | 'neq' | 'gte' | 'lte' | 'contains'; value: string | number };
 export type Action =
@@ -313,6 +314,46 @@ export async function settleBadges(db: PrismaClient): Promise<{ granted: number;
     data: { status: 'REVOKED' },
   });
   return { granted: due.length, revoked };
+}
+
+/** The Central Bank of Uzbekistan's daily rates: official, public, and quoted in soum. */
+export const RATES_URL = 'https://cbu.uz/uz/arkhiv-kursov-valyut/json/';
+type FeedRow = { Ccy?: unknown; Rate?: unknown; Nominal?: unknown; Date?: unknown };
+
+/**
+ * Refreshes exchange rates from the official feed. Only currencies the platform supports are
+ * kept, and a row that does not parse is skipped, never estimated. On any failure the rates
+ * already stored stay as they are, so a bad day at the source cannot blank out prices.
+ */
+export async function refreshRates(db: PrismaClient, opts: { fetchImpl?: typeof fetch; url?: string } = {}): Promise<{ updated: number; asOf: string | null }> {
+  const res = await (opts.fetchImpl ?? fetch)(opts.url ?? RATES_URL, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(15_000) });
+  if (!res.ok) throw new Error(`rates feed answered ${res.status}`);
+  const rows = (await res.json()) as FeedRow[];
+  if (!Array.isArray(rows)) throw new Error('rates feed is not a list');
+  let updated = 0;
+  let asOf: Date | null = null;
+  for (const row of rows) {
+    const code = typeof row.Ccy === 'string' ? row.Ccy.toUpperCase() : '';
+    if (!isSupportedCurrency(code) || code === 'UZS') continue;
+    let micro: bigint;
+    try {
+      micro = parseRateMicro(String(row.Rate), String(row.Nominal));
+    } catch {
+      continue;
+    }
+    // The feed writes dates as DD.MM.YYYY.
+    const d = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(row.Date ?? ''));
+    const day = d ? new Date(Date.UTC(Number(d[3]), Number(d[2]) - 1, Number(d[1]))) : new Date();
+    await db.exchangeRate.upsert({
+      where: { currency: code },
+      update: { uzsPerUnitMicro: micro, source: 'cbu.uz', asOf: day, fetchedAt: new Date() },
+      create: { currency: code, uzsPerUnitMicro: micro, source: 'cbu.uz', asOf: day },
+    });
+    updated += 1;
+    if (!asOf || day > asOf) asOf = day;
+  }
+  if (updated === 0) throw new Error('rates feed had no usable rows');
+  return { updated, asOf: asOf ? asOf.toISOString().slice(0, 10) : null };
 }
 
 /** Removes sessions and single-use tokens that can never be used again. */

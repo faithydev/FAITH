@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { FormDialog } from '@/components/ui/client';
 import { Badge, Breadcrumbs, Card, LinkButton, SectionTitle, SimulatedNotice } from '@/components/ui/primitives';
 import { getMe, publicApi } from '@/lib/api';
@@ -32,6 +33,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <Card key={p.id} className="flex flex-col p-5">
               <p className="font-semibold">{p.name}</p>
               <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{money(p.priceMinor, s.currency, locale)}</p>
+              <Approx minor={p.priceMinor} currency={s.currency} />
               <p className="mt-2 text-sm text-muted">{p.description}</p>
               <p className="mt-2 text-xs text-subtle">{t('services.delivery', { days: p.deliveryDays, revisions: p.revisions })}</p>
               <div className="mt-auto pt-4">

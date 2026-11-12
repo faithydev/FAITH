@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { AmbientBackground, RouteTransition } from '../motion/fx';
 import { FaithLogo } from '../ui/logo';
+import { CurrencySwitcher } from '../money/currency';
 import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu, WorkspaceSwitcher } from './controls';
 import { SidebarDrawer, SidebarLink } from './sidebar';
 
@@ -79,6 +80,7 @@ function Topbar({ me, cartLabel, notificationsLabel, drawer }: { me: Me; cartLab
       {drawer}
       <div className="ms-auto flex items-center gap-1">
         <CommandPalette />
+        <CurrencySwitcher persist />
         <LocaleSwitcher persist />
         <MotionToggle className="hidden sm:grid" />
         <ThemeToggle className="hidden sm:grid" />

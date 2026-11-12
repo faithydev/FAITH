@@ -1707,5 +1707,21 @@
     "newHere": "FAITH'te yeni misiniz?",
     "secure": "Ödeme ve teslimatı FAITH yürütür.",
     "details": "Ürünün tüm ayrıntıları"
+  },
+  "currency": {
+    "choose": "Para birimi",
+    "search": "Para birimi ara",
+    "chargeNote": "Ödeme {charged} olarak alınır. {display} tutarları Özbekistan Merkez Bankası resmi kuruna göre bilgi amaçlıdır; bankanız farklı bir kur uygulayabilir.",
+    "rateDate": "{date} tarihli kur.",
+    "regions": {
+      "base": "Ana para birimleri",
+      "centralAsia": "Orta Asya",
+      "westAsia": "Batı Asya ve Kafkasya",
+      "southAsia": "Güney Asya",
+      "eastAsia": "Doğu ve Güneydoğu Asya",
+      "europe": "Avrupa",
+      "other": "Diğer"
+    },
+    "priceIn": "Fiyatlar som veya ABD doları olarak belirlenir. Her alıcı onları kendi para biriminde görür."
   }
 }

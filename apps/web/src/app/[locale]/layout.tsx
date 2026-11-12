@@ -8,6 +8,8 @@ import { Toaster } from '@/components/ui/client';
 import { routing } from '@/i18n/routing';
 import { RTL_LOCALES, Locale } from '@faith/config';
 import type { Metadata, Viewport } from 'next';
+import { CurrencyProvider } from '@/components/money/currency';
+import { getDisplayCurrency, getRates } from '@/lib/currency';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -39,7 +41,7 @@ const themeScript = `(function(){try{var s=localStorage.getItem('faith-theme');d
 /** Same moment: motion follows the system's reduce-motion setting unless the visitor chose otherwise. */
 const motionScript = `(function(){var m='auto';try{var v=localStorage.getItem('faith-motion');if(v==='on'||v==='off')m=v}catch(e){}var os=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var r=document.documentElement;r.dataset.motion=m;r.dataset.reduced=String(m==='off'||(m==='auto'&&os))})()`;
 
-const CLIENT_NAMESPACES = ['common', 'errors', 'status', 'nav'] as const;
+const CLIENT_NAMESPACES = ['common', 'errors', 'status', 'nav', 'currency'] as const;
 
 export default async function LocaleLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -47,6 +49,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   setRequestLocale(locale);
   const messages = await getMessages();
   const clientMessages = Object.fromEntries(CLIENT_NAMESPACES.map((n) => [n, messages[n]]));
+  const [rates, display] = await Promise.all([getRates(), getDisplayCurrency(locale)]);
   return (
     <html lang={locale} data-theme="dark" dir={RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <head>
@@ -57,7 +60,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <NextIntlClientProvider messages={clientMessages}>
           <Suspense fallback={null}><NavProgress /></Suspense>
           <PointerFx />
-          {children}
+          <CurrencyProvider display={display} rates={rates?.rates ?? {}} asOf={rates?.asOf ?? null}>{children}</CurrencyProvider>
           <Toaster />
         </NextIntlClientProvider>
       </body>

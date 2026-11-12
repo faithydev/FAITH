@@ -6,7 +6,7 @@
  * job visibility. Without Redis the same ticks run on a timer. Either way the source of truth
  * is the Postgres outbox, so nothing is lost if Redis is absent or restarts.
  */
-import { deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired, settleBadges } from '@faith/automation';
+import { deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired, refreshRates, settleBadges } from '@faith/automation';
 import { createPrismaClient } from '@faith/database';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
@@ -28,10 +28,17 @@ async function fastTick() {
   if (events.processed || events.failed || hooks.delivered || hooks.failed) log.info({ events, hooks }, 'tick');
 }
 
+let ratesAt = 0;
+
 async function slowTick() {
   const expired = await expireSubscriptions(db);
   await purgeExpired(db);
   const badges = await settleBadges(db);
+  // Official exchange rates, at most every six hours; a failed fetch keeps the stored rates.
+  if (Date.now() - ratesAt > 6 * 3_600_000) {
+    ratesAt = Date.now();
+    await refreshRates(db).then((r) => log.info(r, 'exchange rates refreshed')).catch((err: unknown) => log.warn({ err: (err as Error).message }, 'exchange rates not refreshed'));
+  }
   if (expired || badges.granted || badges.revoked) log.info({ expired, badges }, 'slow tick');
 }
 

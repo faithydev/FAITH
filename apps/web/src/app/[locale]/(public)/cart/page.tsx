@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { IntlScope } from '@/components/auth/scope';
 import { CheckoutSummary } from '@/components/commerce/checkout-summary';
 import { ActionButton } from '@/components/ui/client';
@@ -29,7 +30,7 @@ export default async function CartPage() {
                   <p className="truncate text-xs text-muted">{i.product.store.name} · {i.variantName}{i.quantity > 1 ? ` × ${i.quantity}` : ''}</p>
                   {!i.available && <p className="text-xs text-negative">{t('cart.unavailable')}</p>}
                 </div>
-                <span className="text-sm font-semibold tabular-nums">{money(BigInt(i.unitPriceMinor) * BigInt(i.quantity), i.product.currency, locale)}</span>
+                <span className="text-end text-sm font-semibold tabular-nums">{money(BigInt(i.unitPriceMinor) * BigInt(i.quantity), i.product.currency, locale)}<Approx minor={(BigInt(i.unitPriceMinor) * BigInt(i.quantity)).toString()} currency={i.product.currency} /></span>
                 <ActionButton endpoint={`/cart/items/${i.id}`} method="DELETE" label={t('common.remove')} variant="ghost" />
               </li>
             ))}

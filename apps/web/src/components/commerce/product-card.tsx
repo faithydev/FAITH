@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { Cover } from '@/components/ui/cover';
 import { Badge } from '@/components/ui/primitives';
 import { Link } from '@/i18n/navigation';
@@ -23,7 +24,7 @@ export async function ProductCardView({ product: p, sponsored }: { product: Prod
         <p className="text-xs text-subtle">{p.store.name}</p>
         <h3 className="mt-1 line-clamp-2 font-sans text-[0.95rem] font-semibold">{p.title}</h3>
         <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-sm">
-          <span className="font-semibold tabular-nums">{money(p.priceFromMinor, p.currency, locale)}</span>
+          <span><span className="font-semibold tabular-nums">{money(p.priceFromMinor, p.currency, locale)}</span><Approx minor={p.priceFromMinor} currency={p.currency} /></span>
           {score && <span className="flex items-center gap-1 text-xs text-muted"><Star size={12} className="fill-current" />{score}</span>}
         </div>
       </div>

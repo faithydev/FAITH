@@ -13,11 +13,36 @@ export type CurrencyDef = {
   displayDigits: number;
 };
 
-const CURRENCIES = new Map<CurrencyCode, CurrencyDef>([
-  ['UZS', { code: 'UZS', exponent: 2, displayDigits: 0 }],
-  ['USD', { code: 'USD', exponent: 2, displayDigits: 2 }],
-  ['EUR', { code: 'EUR', exponent: 2, displayDigits: 2 }],
-]);
+/**
+ * Prices are set, charged and settled in the base currencies only. Every other currency is a
+ * display currency: people see amounts converted into their own money at the official rate.
+ */
+export const BASE_CURRENCIES = ['UZS', 'USD'] as const;
+export type BaseCurrency = (typeof BASE_CURRENCIES)[number];
+export const isBaseCurrency = (code: string): code is BaseCurrency => (BASE_CURRENCIES as readonly string[]).includes(code);
+
+/** ISO-4217 exponents that are not 2, and currencies shown without decimals. */
+const EXPONENT: Record<string, number> = { JPY: 0, KRW: 0, VND: 0, ISK: 0, KWD: 3, BHD: 3, OMR: 3, JOD: 3, IQD: 3 };
+const WHOLE = new Set(['UZS', 'KZT', 'AMD', 'IDR', 'IQD', 'MNT', 'KHR', 'LAK', 'MMK', 'HUF', 'RSD', 'JPY', 'KRW', 'VND', 'ISK']);
+
+/** Display currencies by region, in the order menus show them. All are in the official rate feed. */
+export const CURRENCY_REGIONS: { region: 'base' | 'centralAsia' | 'westAsia' | 'southAsia' | 'eastAsia' | 'europe' | 'other'; codes: string[] }[] = [
+  { region: 'base', codes: ['UZS', 'USD'] },
+  { region: 'centralAsia', codes: ['KZT', 'KGS', 'TJS', 'TMT', 'AFN'] },
+  { region: 'westAsia', codes: ['TRY', 'AZN', 'GEL', 'AMD', 'AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'JOD', 'ILS', 'IQD'] },
+  { region: 'southAsia', codes: ['INR', 'PKR', 'BDT'] },
+  { region: 'eastAsia', codes: ['CNY', 'JPY', 'KRW', 'HKD', 'SGD', 'MYR', 'THB', 'VND', 'IDR', 'PHP', 'MNT', 'KHR', 'LAK', 'MMK', 'BND'] },
+  { region: 'europe', codes: ['EUR', 'GBP', 'CHF', 'PLN', 'CZK', 'SEK', 'NOK', 'DKK', 'HUF', 'RON', 'UAH', 'RUB', 'BYN', 'MDL', 'RSD', 'ISK'] },
+  { region: 'other', codes: ['CAD', 'AUD', 'NZD'] },
+];
+
+const CURRENCIES = new Map<CurrencyCode, CurrencyDef>(
+  CURRENCY_REGIONS.flatMap((r) => r.codes).map((code) => {
+    const exponent = EXPONENT[code] ?? 2;
+    return [code, { code, exponent, displayDigits: WHOLE.has(code) ? 0 : Math.min(exponent, 2) }];
+  }),
+);
+export const isSupportedCurrency = (code: string): boolean => CURRENCIES.has(code);
 
 export function registerCurrency(def: CurrencyDef): void {
   CURRENCIES.set(def.code, def);
@@ -159,4 +184,38 @@ export function formatMoney(minor: bigint | string, currency: CurrencyCode, loca
   });
   // Intl accepts a decimal string, which keeps values beyond 2^53 exact.
   return fmt.format(toMajorString(value, currency) as unknown as number);
+}
+
+// --- Exchange rates -----------------------------------------------------------
+
+/** A rate is "soum per one unit", scaled by a million, so conversion never touches floats. */
+export const RATE_SCALE = 1_000_000n;
+
+/** Parses the feed's decimal strings exactly: rate "6.59" for nominal "10" is 659000 micro-soum. */
+export function parseRateMicro(rate: string, nominal: string): bigint {
+  const m = /^(\d+)(?:\.(\d{1,6}))?$/.exec(rate.trim());
+  const n = /^\d+$/.test(nominal.trim()) ? BigInt(nominal.trim()) : 0n;
+  if (!m || n <= 0n) throw new RangeError(`invalid rate: ${rate} / ${nominal}`);
+  const micro = BigInt(m[1]!) * RATE_SCALE + BigInt((m[2] ?? '').padEnd(6, '0') || '0');
+  if (micro <= 0n) throw new RangeError(`invalid rate: ${rate}`);
+  return micro / n;
+}
+
+/**
+ * Converts minor units of one currency into minor units of another through the soum rates.
+ * `rates` maps a currency to micro-soum per unit; the soum itself is always RATE_SCALE.
+ * Returns null when either rate is unknown, so the caller shows nothing rather than a guess.
+ */
+export function convertMinor(amountMinor: bigint, from: CurrencyCode, to: CurrencyCode, rates: ReadonlyMap<string, bigint> | Record<string, bigint>): bigint | null {
+  if (from === to) return amountMinor;
+  const get = (c: string) => (c === 'UZS' ? RATE_SCALE : rates instanceof Map ? rates.get(c) : (rates as Record<string, bigint>)[c]);
+  const rf = get(from);
+  const rt = get(to);
+  if (!rf || !rt || rf <= 0n || rt <= 0n) return null;
+  const negative = amountMinor < 0n;
+  const abs = negative ? -amountMinor : amountMinor;
+  const num = abs * rf * 10n ** BigInt(currencyDef(to).exponent);
+  const den = rt * 10n ** BigInt(currencyDef(from).exponent);
+  const out = divRoundHalfUp(num, den);
+  return negative ? -out : out;
 }

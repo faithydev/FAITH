@@ -1707,5 +1707,21 @@
     "newHere": "New to FAITH?",
     "secure": "Checkout and delivery are handled by FAITH.",
     "details": "See full product details"
+  },
+  "currency": {
+    "choose": "Currency",
+    "search": "Search currency",
+    "chargeNote": "Payment is taken in {charged}. Amounts in {display} are a guide at the official Central Bank of Uzbekistan rate; your bank may use a different rate.",
+    "rateDate": "Rate of {date}.",
+    "regions": {
+      "base": "Main currencies",
+      "centralAsia": "Central Asia",
+      "westAsia": "West Asia and the Caucasus",
+      "southAsia": "South Asia",
+      "eastAsia": "East and Southeast Asia",
+      "europe": "Europe",
+      "other": "Other"
+    },
+    "priceIn": "Prices are set in soum or US dollars. Buyers everywhere see them in their own currency."
   }
 }

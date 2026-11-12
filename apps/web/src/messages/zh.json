@@ -1707,5 +1707,21 @@
     "newHere": "第一次使用 FAITH？",
     "secure": "付款和交付由 FAITH 处理。",
     "details": "查看完整商品详情"
+  },
+  "currency": {
+    "choose": "货币",
+    "search": "搜索货币",
+    "chargeNote": "付款以 {charged} 收取。{display} 金额按乌兹别克斯坦中央银行官方汇率折算，仅供参考；你的银行可能采用不同汇率。",
+    "rateDate": "{date} 汇率。",
+    "regions": {
+      "base": "主要货币",
+      "centralAsia": "中亚",
+      "westAsia": "西亚和高加索",
+      "southAsia": "南亚",
+      "eastAsia": "东亚和东南亚",
+      "europe": "欧洲",
+      "other": "其他"
+    },
+    "priceIn": "价格以苏姆或美元设定。各地买家都能以自己的货币查看。"
   }
 }

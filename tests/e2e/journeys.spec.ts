@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { join } from 'node:path';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { login, onboard, register, url } from './helpers';
+import { goPro, login, onboard, register, url } from './helpers';
 
 // A minimal valid ZIP, so the upload passes content sniffing on the server.
 function zipFile() {
@@ -11,10 +11,15 @@ function zipFile() {
   return path;
 }
 
-test('a new person registers, picks roles and switches workspace', async ({ page }) => {
+test('a new person registers, picks roles, meets the Pro gate and switches workspace after Pro', async ({ page }) => {
   await register(page);
   await onboard(page, ['sell', 'create']);
   await expect(page).toHaveURL(/\/app/);
+  // Free accounts browse and buy; the creator tools wait for Pro.
+  await page.goto(url('/app/creator'));
+  await expect(page.getByRole('heading', { name: /is a Pro feature/ })).toBeVisible();
+  await goPro(page, 'creator');
+  await page.goto(url('/app'));
   await page.getByTestId('workspace-switcher').click();
   await page.getByRole('menuitem', { name: 'Creator' }).click();
   await page.waitForURL(/\/app\/creator/);
@@ -30,12 +35,16 @@ test('a person can skip onboarding and just explore', async ({ page }) => {
 });
 
 test('seller publishes, buyer pays, refund reverses access', async ({ page, browser }) => {
+  // The longest journey: a Pro purchase, a store, a sale and a refund across two people.
+  test.setTimeout(360_000);
   const title = `E2E Pack ${Date.now()}`;
 
   await register(page, 'Seller Person');
   await onboard(page, ['sell']);
+  await goPro(page, 'seller');
   await page.goto(url('/app/seller'));
   await page.getByLabel('Store name').fill(`E2E Store ${Date.now()}`);
+  await page.getByRole('combobox', { name: 'Currency' }).selectOption('USD');
   await page.getByRole('button', { name: 'Open store' }).click();
   await page.getByRole('link', { name: 'New product' }).first().click();
   await page.getByLabel('Title').fill(title);
@@ -153,6 +162,7 @@ test('a brand runs a campaign and a creator gets paid', async ({ page, browser }
 test('a job seeker applies and a developer submits an app', async ({ page, browser }) => {
   await register(page, 'Journey Seeker');
   await onboard(page, ['job']);
+  await goPro(page, 'job_seeker');
   await page.goto(url('/jobs'));
   await page.getByTestId('job-card').filter({ hasText: 'Brand Designer' }).click();
   await page.getByLabel('Cover letter').fill('I would love to work on your brand.');
@@ -182,18 +192,20 @@ test('Free to Pro through the simulator at the set price', async ({ page }) => {
   await login(page, 'admin@faith.dev');
   await page.goto(url('/admin/settings'));
   await expect(page.getByText(/Now: \$11.99 monthly/)).toBeVisible();
+  // Signed-in people are sent away from the sign-up page, so leave the admin session first.
+  await page.context().clearCookies();
 
   await register(page, 'Upgrading Person');
   await page.getByTestId('onboarding-skip').click();
   await page.waitForURL(/\/app/);
   await page.goto(url('/app/billing'));
   await expect(page.getByTestId('current-plan')).toHaveText('Free');
-  await page.getByRole('button', { name: /a month/ }).click();
-  await page.waitForURL(/checkout\/simulator/);
-  await page.getByTestId('simulate-success').click();
-  await page.getByTestId('payment-continue').click();
-  await page.waitForURL(/\/app\/billing/);
+  // No role, no checkout: the button stays off until one is chosen.
+  await expect(page.getByRole('button', { name: /a month/ })).toBeDisabled();
+  await goPro(page, 'seller');
   await expect(page.getByTestId('current-plan')).toHaveText('Pro');
+  await page.goto(url('/app/settings'));
+  await expect(page.getByTestId('badge-card')).toContainText(/appears on your profile by/);
 });
 
 test('an ordinary person cannot reach administration', async ({ page }) => {

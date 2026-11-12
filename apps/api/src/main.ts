@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { deliverWebhooks, drainOutbox, expireSubscriptions, settleBadges } from '@faith/automation';
+import { deliverWebhooks, drainOutbox, expireSubscriptions, refreshRates, settleBadges } from '@faith/automation';
 import { BadgesService } from './identity/badges';
 import { AppModule } from './app.module';
 import { configureApp, setupOpenApi } from './configure';
@@ -36,6 +36,10 @@ function startWorker(prisma: PrismaService) {
   }, 4000);
   setInterval(() => { expireSubscriptions(prisma.db).catch((err) => logger.error({ err }, 'expiry failed')); }, 3_600_000);
   setInterval(() => { settleBadges(prisma.db).catch((err) => logger.error({ err }, 'badges failed')); }, 300_000);
+  // Official exchange rates: once at start, then every six hours. A failed fetch keeps the old rates.
+  const rates = () => { refreshRates(prisma.db).then((r) => logger.info(r, 'exchange rates refreshed')).catch((err: unknown) => logger.warn({ err: (err as Error).message }, 'exchange rates not refreshed')); };
+  rates();
+  setInterval(rates, 6 * 3_600_000);
   logger.info('worker running inside the API');
 }
 

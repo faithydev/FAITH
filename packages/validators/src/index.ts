@@ -1,5 +1,6 @@
 /** Request contracts shared by the API (enforcement) and the web app (form feedback). */
 import { z } from 'zod';
+import { BASE_CURRENCIES, isSupportedCurrency } from '@faith/money';
 import { API_SCOPES, APP_PERMISSIONS, BADGE_KINDS, LOCALES, PERSONAS, WEBHOOK_EVENTS, WORKSPACES } from '@faith/config';
 
 // --- Primitives -------------------------------------------------------------
@@ -7,7 +8,10 @@ import { API_SCOPES, APP_PERMISSIONS, BADGE_KINDS, LOCALES, PERSONAS, WEBHOOK_EV
 /** Minor units travel as digit strings because JSON numbers lose precision. */
 export const minorAmount = z.string().regex(/^\d{1,18}$/, 'invalid_amount');
 export const positiveMinor = minorAmount.refine((v) => BigInt(v) > 0n, 'invalid_amount');
-export const currency = z.string().regex(/^[A-Z]{3}$/);
+/** Anything priced, charged or paid out is in a base currency: the soum or the dollar. */
+export const currency = z.enum(BASE_CURRENCIES);
+/** The currency a person sees amounts in: any supported one, their own country's included. */
+export const displayCurrency = z.string().regex(/^[A-Z]{3}$/).refine(isSupportedCurrency, 'unsupported_currency');
 export const slug = z.string().min(2).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const shortText = z.string().trim().min(1).max(160);
 export const longText = z.string().trim().min(1).max(20_000);
@@ -56,7 +60,7 @@ export const profileBody = z.object({
 });
 export const preferencesBody = z.object({
   locale: z.enum(LOCALES).optional(),
-  currency: currency.optional(),
+  currency: displayCurrency.optional(),
   activeWorkspace: z.enum(WORKSPACES).optional(),
 });
 export const addRoleBody = z.object({ persona: z.enum(PERSONAS) });

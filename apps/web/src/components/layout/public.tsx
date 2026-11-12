@@ -5,13 +5,15 @@ import { getTranslations } from 'next-intl/server';
 import { FaithLockup, FaithLogo, FaithWordmark } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
 import { MobileNavigation, NavLinks, NavScrollFrame } from './mobile-nav';
+import { CurrencySwitcher } from '../money/currency';
 import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
 
 export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean }) {
   const [t, me] = await Promise.all([getTranslations(), getMe()]);
   const links = [
-    { href: '/marketplace', label: t('nav.marketplace') }, { href: '/rewards', label: t('nav.rewards') }, { href: '/jobs', label: t('nav.jobs') },
-    { href: '/services', label: t('nav.services') }, { href: '/courses', label: t('nav.courses') }, { href: '/apps', label: t('nav.apps') },
+    // Courses and services lead: they are what FAITH is for. Products follow.
+    { href: '/courses', label: t('nav.courses') }, { href: '/services', label: t('nav.services') }, { href: '/marketplace', label: t('nav.marketplace') },
+    { href: '/jobs', label: t('nav.jobs') }, { href: '/rewards', label: t('nav.rewards') }, { href: '/apps', label: t('nav.apps') },
     { href: '/pricing', label: t('nav.pricing') },
   ];
   return (
@@ -21,6 +23,7 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
         <NavLinks links={links} />
         <div className="ms-auto flex items-center gap-1">
           <CommandPalette />
+          <CurrencySwitcher persist={!!me} />
           <LocaleSwitcher persist={!!me} />
           <MotionToggle className="hidden sm:grid" />
           <ThemeToggle className="hidden sm:grid" />
@@ -49,7 +52,7 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
 export async function Footer() {
   const t = await getTranslations();
   const columns = [
-    { title: t('footer.platform'), links: [['/marketplace', t('nav.marketplace')], ['/rewards', t('nav.rewards')], ['/jobs', t('nav.jobs')], ['/services', t('nav.services')], ['/creators', t('nav.creators')], ['/leaderboard', t('nav.leaderboard')]] },
+    { title: t('footer.platform'), links: [['/courses', t('nav.courses')], ['/services', t('nav.services')], ['/marketplace', t('nav.marketplace')], ['/jobs', t('nav.jobs')], ['/rewards', t('nav.rewards')], ['/creators', t('nav.creators')], ['/leaderboard', t('nav.leaderboard')]] },
     { title: t('footer.build'), links: [['/developers', t('nav.developers')], ['/apps', t('nav.apps')], ['/pricing', t('nav.pricing')], ['/explore', t('nav.explore')]] },
     { title: t('footer.company'), links: [['/about', t('nav.about')], ['/help', t('nav.help')], ['/terms', t('nav.terms')], ['/privacy', t('nav.privacy')]] },
   ];

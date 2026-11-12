@@ -1,3 +1,4 @@
+import { Approx } from '@/components/money/currency';
 import { ActionButton } from '@/components/ui/client';
 import { Badge, Breadcrumbs, Card, LinkButton, SectionTitle, cx } from '@/components/ui/primitives';
 import { api, getMe, publicApi } from '@/lib/api';
@@ -35,7 +36,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           <p className="text-sm" data-testid="course-progress">{t('courses.progress', { done, total: lessons.length })}</p>
         ) : c.product ? (
           <>
-            <span className="font-display text-xl font-semibold tabular-nums">{money(c.product.priceFromMinor, c.product.currency, locale)}</span>
+            <span className="font-display text-xl font-semibold tabular-nums">{money(c.product.priceFromMinor, c.product.currency, locale)}<Approx minor={c.product.priceFromMinor} currency={c.product.currency} /></span>
             <LinkButton href={`/marketplace/${c.product.slug}`}>{t('courses.buy')}</LinkButton>
           </>
         ) : me ? (

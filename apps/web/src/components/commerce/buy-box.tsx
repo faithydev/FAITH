@@ -1,5 +1,6 @@
 'use client';
 
+import { Approx } from '@/components/money/currency';
 import { toast, useErrorMessage } from '@/components/ui/client';
 import { Button, LinkButton, cx } from '@/components/ui/primitives';
 import { useRouter } from '@/i18n/navigation';
@@ -64,12 +65,13 @@ export function BuyBox({ product: p, signedIn, loginHref, refCode }: Props) {
               <span className="flex items-center gap-2.5">
                 <input type="radio" name="variant" checked={v.id === variant} onChange={() => setVariant(v.id)} className="accent-[var(--accent)]" />{v.name}
               </span>
-              <span className="font-medium tabular-nums">{money(v.priceMinor, p.currency, locale)}</span>
+              <span className="text-end font-medium tabular-nums">{money(v.priceMinor, p.currency, locale)}<Approx minor={v.priceMinor} currency={p.currency} /></span>
             </label>
           ))}
         </fieldset>
       )}
       {current && <p data-testid="product-price" className="font-display text-3xl font-semibold tabular-nums">{money(current.priceMinor, p.currency, locale)}</p>}
+      {current && <Approx minor={current.priceMinor} currency={p.currency} className="mt-1 text-sm" />}
       <div className="mt-4 flex gap-2">
         {p.ownedEntitlementId ? (
           <LinkButton href="/app/library" size="lg" className="flex-1">{t('market.openLibrary')}</LinkButton>

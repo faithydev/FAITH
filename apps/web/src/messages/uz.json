@@ -1707,5 +1707,21 @@
     "newHere": "FAITHʼda yangimisiz?",
     "secure": "Toʻlov va yetkazib berishni FAITH bajaradi.",
     "details": "Mahsulot haqida toʻliq maʼlumot"
+  },
+  "currency": {
+    "choose": "Valyuta",
+    "search": "Valyutani qidirish",
+    "chargeNote": "Toʻlov {charged} da olinadi. {display} dagi summalar Oʻzbekiston Markaziy banki rasmiy kursi boʻyicha taxminiy; bankingiz boshqa kurs qoʻllashi mumkin.",
+    "rateDate": "{date} kursi.",
+    "regions": {
+      "base": "Asosiy valyutalar",
+      "centralAsia": "Markaziy Osiyo",
+      "westAsia": "Gʻarbiy Osiyo va Kavkaz",
+      "southAsia": "Janubiy Osiyo",
+      "eastAsia": "Sharqiy va Janubi-Sharqiy Osiyo",
+      "europe": "Yevropa",
+      "other": "Boshqa"
+    },
+    "priceIn": "Narxlar soʻm yoki AQSh dollarida belgilanadi. Har bir xaridor ularni oʻz valyutasida koʻradi."
   }
 }

@@ -1,4 +1,4 @@
-import { settleBadges } from '@faith/automation';
+import { refreshRates, settleBadges } from '@faith/automation';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { MockPaymentProvider } from '../src/payments/provider';
 import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
@@ -287,6 +287,48 @@ describe('isolation', () => {
     const { variantId } = await createStoreWithProduct(t, seller);
     const r = await seller.agent.post('/v1/cart/items').send({ variantId, quantity: 1 });
     expect(r.body.error.code).toBe('CANNOT_BUY_OWN_PRODUCT');
+  });
+});
+
+describe('currencies', () => {
+  const feed = [
+    { Ccy: 'USD', Rate: '11964.27', Nominal: '1', Date: '12.11.2026' },
+    { Ccy: 'KZT', Rate: '26.88', Nominal: '1', Date: '12.11.2026' },
+    { Ccy: 'IDR', Rate: '6.59', Nominal: '10', Date: '12.11.2026' },
+    { Ccy: 'XDR', Rate: '16000.00', Nominal: '1', Date: '12.11.2026' },
+    { Ccy: 'EUR', Rate: 'not-a-number', Nominal: '1', Date: '12.11.2026' },
+  ];
+  const fetchImpl = (async () => new Response(JSON.stringify(feed), { status: 200 })) as unknown as typeof fetch;
+
+  it('stores official rates exactly and serves them, skipping what it cannot read', async () => {
+    const result = await refreshRates(t.db, { fetchImpl });
+    expect(result).toEqual({ updated: 3, asOf: '2026-11-12' });
+    const body = (await t.http.get('/v1/rates').expect(200)).body;
+    expect(body).toMatchObject({ base: ['UZS', 'USD'], source: 'cbu.uz', asOf: '2026-11-12' });
+    expect(body.rates).toMatchObject({ UZS: '1000000', USD: '11964270000', KZT: '26880000', IDR: '659000' });
+    // An unsupported unit of account and an unreadable row are left out, never guessed.
+    expect(body.rates.XDR).toBeUndefined();
+    expect(body.rates.EUR).toBeUndefined();
+  });
+
+  it('keeps the stored rates when the source fails', async () => {
+    await refreshRates(t.db, { fetchImpl });
+    const down = (async () => new Response('nope', { status: 503 })) as unknown as typeof fetch;
+    await expect(refreshRates(t.db, { fetchImpl: down })).rejects.toThrow(/503/);
+    const empty = (async () => new Response('[]', { status: 200 })) as unknown as typeof fetch;
+    await expect(refreshRates(t.db, { fetchImpl: empty })).rejects.toThrow(/no usable/);
+    expect((await t.http.get('/v1/rates').expect(200)).body.rates.USD).toBe('11964270000');
+  });
+
+  it('lets people read prices in their own currency but prices things only in soum or dollars', async () => {
+    const u = await t.signUp(['sell']);
+    await u.agent.patch('/v1/me/preferences').send({ currency: 'KZT' }).expect(200);
+    expect((await u.agent.get('/v1/me')).body.currency).toBe('KZT');
+    await u.agent.patch('/v1/me/preferences').send({ currency: 'XXX' }).expect(422);
+    await u.agent.post('/v1/seller/stores').send({ name: t.unique('Euro shop'), currency: 'EUR' }).expect(422);
+    await u.agent.post('/v1/seller/stores').send({ name: t.unique('Soum shop'), currency: 'UZS' }).expect(201);
+    // Only people who run the platform may trigger a refresh by hand.
+    await u.agent.post('/v1/admin/rates/refresh').expect(403);
   });
 });
 
