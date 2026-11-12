@@ -45,8 +45,19 @@ services:
         value: "true"
       - key: EMAIL_DRIVER
         value: dev
+      # Uploads live in Cloudflare R2 (bucket faith-files): the server's own disk is wiped on every deploy.
       - key: STORAGE_DRIVER
-        value: local
+        value: s3
+      - key: S3_REGION
+        value: auto
+      - key: S3_BUCKET
+        value: faith-files
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
       # Optional social sign-in (GOOGLE_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY):
       # add them later under the service's Environment tab; each button turns on once its values are set.
 

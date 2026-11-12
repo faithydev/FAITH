@@ -155,7 +155,7 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 | To'lovlar | **Simulyator** | "SIMULYATSIYA: haqiqiy pul harakatlanmaydi" deb ochiq yozilgan. Payme, Click, Stripe adapterlari bor, lekin ulanmagan |
 | Sotuvchilarga pul o'tkazish | **Simulyatsiya** | So'rov va tasdiqlash oqimi bor, real o'tkazma yo'q |
 | Email | **Yuborilmaydi** | Jonli demo'da xatlar faqat bazaga yoziladi |
-| Fayllar | **Vaqtinchalik disk** | Render bepul serverida yuklangan rasm va fayllar qayta deploy'da o'chadi (9-bo'limga qarang) |
+| Fayllar | **Doimiy (Cloudflare R2)** | 2026-yil 13-noyabrdan `faith-files` papkasida saqlanadi |
 | Google kirish | **Haqiqiy** | Jonli ishlaydi |
 | Apple kirish | O'chiq | Apple Developer a'zoligi kerak |
 | Valyuta kurslari | **Haqiqiy** | Markaziy bank, cbu.uz |
@@ -254,9 +254,10 @@ DESIGN_SYSTEM, THREE_JS, TESTING, DEPLOYMENT, SECURITY.
 
 | Qism | Qayerda | Holat |
 |---|---|---|
-| Sayt | Vercel — `https://faith-platform-green.vercel.app` | Ishlaydi. Hozircha GitHub'ga ulanmagan, qo'lda deploy qilinadi |
+| Sayt | Vercel — `https://faith-platform-green.vercel.app` | Ishlaydi. GitHub'ga ulangan: har push'da o'zi yangilanadi |
 | API | Render (Frankfurt, bepul) — `faith-api-mpch.onrender.com` | Ishlaydi. GitHub'ga push qilinganda avtomatik yangilanadi |
 | Baza | Render bepul Postgres | **Taxminan 2026-yil 9-dekabrda muddati tugaydi** |
+| Fayllar | Cloudflare R2 — `faith-files` (yopiq papka, 10 GB bepul) | Ishlaydi |
 | Kod | GitHub — `faithydev/FAITH` (ochiq repo) | — |
 
 Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya oladi.
@@ -268,10 +269,10 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya 
 | # | Xavf | Ta'siri | Yechim | Muddat |
 |---|---|---|---|---|
 | 1 | **Baza muddati tugaydi** (~9-dekabr) | Barcha ma'lumot yo'qoladi | Neon'ga (doimiy bepul) yoki pullik Render'ga o'tish | **9-dekabrdan oldin** |
-| 2 | **Yuklangan fayllar qayta deploy'da o'chadi** | Logo, banner, mahsulot rasmlari va fayllari yo'qoladi | S3-mos saqlash: Cloudflare R2 (10 GB bepul) yoki AWS S3; `STORAGE_DRIVER=s3` | **Haqiqiy foydalanuvchilar fayl yuklashidan oldin** |
+| 2 | ~~Yuklangan fayllar qayta deploy'da o'chadi~~ | — | **Hal qilindi:** Cloudflare R2 ulandi (13-noyabr) | ✓ |
 | 3 | Email yuborilmaydi | Parolni tiklash, tasdiqlash xatlari bormaydi | Resend, Postmark yoki SMTP; `EMAIL_DRIVER=smtp` | 0-bosqich |
 | 4 | Neon paroli chatda ochiq qolgan | Bazaga ruxsatsiz kirish xavfi | Neon'da `neondb_owner` parolini almashtirish | Darhol |
-| 5 | Sayt qo'lda deploy qilinadi | Yangilanishlar kechikadi | Vercel'ni GitHub'ga ulash | 0-bosqich |
+| 5 | ~~Sayt qo'lda deploy qilinadi~~ | — | **Hal qilindi:** Vercel GitHub'ga ulangan | ✓ |
 | 6 | Namuna akkauntlar va ma'lumotlar jonli saytda | Haqiqiy foydalanuvchilarni chalg'itadi | Admin → Users → "Boshqa akkauntlarni olib tashlash" | Siz xohlagan payt |
 | 7 | To'lovlar simulyator | Daromad yo'q | 1-bosqich | 1-bosqich |
 | 8 | Huquqiy hujjatlar tekshirilmagan | Huquqiy xavf | Yurist bilan ishlash | Haqiqiy pul qabul qilishdan oldin |
@@ -313,9 +314,9 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya 
 Maqsad: jonli sayt hech narsani yo'qotmasin va o'zini o'zi kuzatsin.
 
 - [ ] Bazani Neon'ga ko'chirish (9-dekabrdan oldin) va Neon parolini almashtirish.
-- [ ] Fayllar uchun doimiy saqlash: Cloudflare R2 yoki S3 (`STORAGE_DRIVER=s3`).
+- [x] Fayllar uchun doimiy saqlash: Cloudflare R2 (`faith-files`).
 - [ ] Haqiqiy email yuborish (Resend yoki SMTP), xat shablonlarini 8 tilda tekshirish.
-- [ ] Vercel'ni GitHub'ga ulash: har push'da avtomatik deploy, PR uchun preview.
+- [x] Vercel'ni GitHub'ga ulash: har push'da avtomatik deploy.
 - [ ] GitHub'da CI majburiy tekshiruvlar bilan.
 - [ ] Monitoring (Sentry), uptime ogohlantirish, kunlik backup va tiklash mashqi.
 - [ ] Namuna akkauntlarni olib tashlash (Admin → Users).
