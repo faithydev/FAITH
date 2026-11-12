@@ -61,10 +61,17 @@ export class UploadsController {
     const key = `public/${Array.isArray(path) ? path.join('/') : path}`;
     const row = await this.prisma.db.upload.findUnique({ where: { storageKey: key } });
     if (!row) throw notFound();
+    // A record whose file is gone (for example one written before storage moved) is a 404, not a 500.
+    let stream: NodeJS.ReadableStream;
+    try {
+      stream = await this.storage.store.open(key);
+    } catch {
+      throw notFound();
+    }
     res.setHeader('Content-Type', row.mime);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'public, max-age=86400');
-    (await this.storage.store.open(key)).pipe(res);
+    stream.pipe(res);
   }
 
   @Public() @Get('files/signed')

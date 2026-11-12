@@ -290,6 +290,19 @@ describe('isolation', () => {
   });
 });
 
+describe('public files', () => {
+  it('serves an uploaded image, and answers 404 (not 500) when its file is gone', async () => {
+    const u = await t.signUp(['sell']);
+    const png = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex');
+    const up = (await u.agent.post('/v1/uploads?purpose=image').attach('file', png, 'dot.png').expect(201)).body;
+    await t.http.get(`/v1/files/${up.storageKey}`).expect(200);
+    // A record that points at a file storage no longer has.
+    await t.db.upload.create({ data: { ownerId: u.id, storageKey: `public/${u.id}/missing.png`, filename: 'missing.png', mime: 'image/png', sizeBytes: 1, purpose: 'image' } });
+    await t.http.get(`/v1/files/public/${u.id}/missing.png`).expect(404);
+    await t.http.get('/v1/files/public/nobody/never.png').expect(404);
+  });
+});
+
 describe('currencies', () => {
   const feed = [
     { Ccy: 'USD', Rate: '11964.27', Nominal: '1', Date: '12.11.2026' },
