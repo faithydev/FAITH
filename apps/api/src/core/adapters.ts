@@ -56,6 +56,9 @@ class S3Store implements ObjectStore {
       endpoint: env.S3_ENDPOINT,
       forcePathStyle: true,
       credentials: { accessKeyId: env.S3_ACCESS_KEY_ID!, secretAccessKey: env.S3_SECRET_ACCESS_KEY! },
+      // Cloudflare R2 and other S3-compatible stores: send checksums only when an operation needs them.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   })();
 

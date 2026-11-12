@@ -68,6 +68,10 @@ function load(): Env {
     throw new Error(`Invalid environment:\n${lines.join('\n')}`);
   }
   const env = parsed.data;
+  if (env.STORAGE_DRIVER === 's3') {
+    const missing = (['S3_ENDPOINT', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'] as const).filter((k) => !env[k]);
+    if (missing.length) throw new Error(`STORAGE_DRIVER=s3 needs ${missing.join(', ')}.`);
+  }
   if (env.NODE_ENV === 'production' && !env.PUBLIC_DEMO) {
     if (env.PAYMENT_PROVIDER === 'mock' || env.ALLOW_MOCK_PAYMENTS) {
       throw new Error('The mock payment provider cannot run with NODE_ENV=production.');
