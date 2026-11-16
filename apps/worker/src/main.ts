@@ -32,7 +32,8 @@ let ratesAt = 0;
 
 async function slowTick() {
   const expired = await expireSubscriptions(db);
-  await purgeExpired(db);
+  const purged = await purgeExpired(db);
+  if (Object.values(purged).some(Boolean)) log.info(purged, 'old rows purged');
   const badges = await settleBadges(db);
   // Official exchange rates, at most every six hours; a failed fetch keeps the stored rates.
   if (Date.now() - ratesAt > 6 * 3_600_000) {

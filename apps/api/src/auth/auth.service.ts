@@ -7,7 +7,7 @@ import type { z } from 'zod';
 import type { deleteAccountBody, loginBody, registerBody } from '@faith/validators';
 import { EmailService } from '../core/adapters';
 import { decrypt, encrypt, randomToken, sha256, slugify } from '../core/crypto';
-import { env } from '../core/env';
+import { autoVerifyEmail, env } from '../core/env';
 import { appleConfigured } from './apple';
 import { applyFounder } from '../identity/badges';
 import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
@@ -76,14 +76,14 @@ export class AuthService {
         email: body.email,
         passwordHash,
         locale,
-        // A public demo cannot send email, so its accounts are usable at once.
-        emailVerifiedAt: env.PUBLIC_DEMO ? new Date() : null,
+        // A public demo without real email makes accounts usable at once.
+        emailVerifiedAt: autoVerifyEmail ? new Date() : null,
         profile: { create: { displayName: body.displayName, username: await this.freeUsername(body.displayName) } },
         roles: { create: { roleId: customer.id } },
       },
     });
     await this.announce(user.id, body.displayName, user.email, 'email');
-    if (!env.PUBLIC_DEMO) await this.sendVerification(user);
+    if (!autoVerifyEmail) await this.sendVerification(user);
   }
 
   /** Tells the platform owners about a new account (drained into notifications by the worker). */

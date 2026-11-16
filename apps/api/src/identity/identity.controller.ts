@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Persona, PERSONAS } from '@faith/config';
 import {
@@ -6,7 +6,7 @@ import {
 } from '@faith/validators';
 import type { z } from 'zod';
 import { Auth, AuthContext } from '../auth/context';
-import { ZBody } from '../core/zod';
+import { QText, ZBody } from '../core/zod';
 import { IdentityService } from './identity.service';
 
 @ApiTags('identity')
@@ -35,7 +35,7 @@ export class IdentityController {
   }
 
   @Get('onboarding/questions')
-  questions(@Query('personas') personas = '') {
+  questions(@QText('personas', 300) personas = '') {
     const list = personas.split(',').filter((p): p is Persona => (PERSONAS as readonly string[]).includes(p));
     return this.identity.onboardingQuestions(list);
   }

@@ -1,4 +1,4 @@
-import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions, settleBadges } from '@faith/automation';
+import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired, settleBadges } from '@faith/automation';
 
 /** Drains every pending event; one call handles a batch, and sign-ups add events of their own. */
 const drainAll = async (db: Parameters<typeof drainOutbox>[0]) => { while ((await drainOutbox(db, { batch: 200 })).processed > 0); };
@@ -829,6 +829,58 @@ describe('rate limiting and health', () => {
       results.push(r.status);
     }
     expect(results).toContain(429);
+  });
+
+  it('caps public click counters per address', async () => {
+    const codes: number[] = [];
+    for (let i = 0; i < 32; i++) codes.push((await t.http.post('/v1/ads/no-such-ad/click').set('x-test-rate-limit', '1')).status);
+    expect(codes.slice(0, 30).every((c) => c === 200)).toBe(true);
+    expect(codes.at(-1)).toBe(429);
+  });
+
+  it('answers odd query strings with data or a 400, never a server error', async () => {
+    // Repeated parameters arrive as arrays; overlong ones are cut, not sent to the database.
+    await t.http.get('/v1/search?q=temp&q=late').expect(200);
+    await t.http.get(`/v1/search?q=${'x'.repeat(5000)}`).expect(200);
+    await t.http.get('/v1/creators?q=a&q=b').expect(200);
+    const admin = await staff('admin');
+    await admin.agent.get('/v1/admin/products?status=PUBLISHED').expect(200);
+    const bad = await admin.agent.get('/v1/admin/products?status=EVERYTHING').expect(400);
+    expect(bad.body.error.code).toBe('INVALID_FILTER');
+    await admin.agent.get('/v1/admin/finance/payouts?status=PAID&status=REQUESTED').expect(200);
+  });
+
+  it('keeps a sane request id and returns it', async () => {
+    const own = await t.http.get('/v1/no-such-route').set('x-request-id', 'trace-1234abcd').expect(404);
+    expect(own.body.error.requestId).toBe('trace-1234abcd');
+    expect(own.headers['x-request-id']).toBe('trace-1234abcd');
+    const junk = await t.http.get('/v1/no-such-route').set('x-request-id', 'bad id with spaces <script>').expect(404);
+    expect(junk.body.error.requestId).not.toContain(' ');
+  });
+
+  it('purges rows nobody can use any more and keeps the rest', async () => {
+    const u = await t.signUp();
+    const day = 86_400_000;
+    const ago = (days: number) => new Date(Date.now() - days * day);
+    const oldSession = await t.db.session.create({ data: { userId: u.id, tokenHash: t.unique('old-session'), expiresAt: ago(8) } });
+    const revoked = await t.db.session.create({ data: { userId: u.id, tokenHash: t.unique('revoked'), expiresAt: new Date(Date.now() + day), revokedAt: ago(8) } });
+    const live = await t.db.session.create({ data: { userId: u.id, tokenHash: t.unique('live'), expiresAt: new Date(Date.now() + day) } });
+    const usedToken = await t.db.authToken.create({ data: { userId: u.id, type: 'PASSWORD_RESET', tokenHash: t.unique('used'), expiresAt: new Date(Date.now() + day), usedAt: ago(8) } });
+    const oldMail = await t.db.emailOutbox.create({ data: { to: u.email, template: 'x', subject: 'x', text: 'x', adapter: 'dev', createdAt: ago(31) } });
+    const oldEvent = await t.db.outboxEvent.create({ data: { type: 'test.old', payload: {}, processedAt: ago(366) } });
+    const recentEvent = await t.db.outboxEvent.create({ data: { type: 'test.recent', payload: {}, processedAt: ago(40) } });
+
+    const purged = await purgeExpired(t.db);
+    expect(purged.sessions).toBeGreaterThanOrEqual(2);
+    expect(await t.db.session.findUnique({ where: { id: oldSession.id } })).toBeNull();
+    expect(await t.db.session.findUnique({ where: { id: revoked.id } })).toBeNull();
+    expect(await t.db.session.findUnique({ where: { id: live.id } })).not.toBeNull();
+    expect(await t.db.authToken.findUnique({ where: { id: usedToken.id } })).toBeNull();
+    expect(await t.db.emailOutbox.findUnique({ where: { id: oldMail.id } })).toBeNull();
+    expect(await t.db.outboxEvent.findUnique({ where: { id: oldEvent.id } })).toBeNull();
+    // A finished event still feeds the owners' activity export for a year.
+    expect(await t.db.outboxEvent.findUnique({ where: { id: recentEvent.id } })).not.toBeNull();
+    await u.agent.get('/v1/me').expect(200);
   });
 
   it('reports adapters honestly', async () => {

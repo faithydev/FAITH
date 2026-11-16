@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   appReviewDecisionBody, appealDecisionBody, disputeResolutionBody, experimentBody, experimentStatusBody, feedbackBody, flagBody,
@@ -6,7 +6,8 @@ import {
 } from '@faith/validators';
 import { z } from 'zod';
 import { Auth, AuthContext, RequirePermission } from '../auth/context';
-import { ZBody, ZQuery } from '../core/zod';
+import { QEnum, ZBody, ZQuery } from '../core/zod';
+import { PayoutStatus, ProductStatus } from '@faith/database';
 import { DeveloperService } from '../developer/developer.service';
 import { PayoutsService } from '../finance/payouts.service';
 import { RewardsService } from '../rewards/rewards.service';
@@ -107,7 +108,7 @@ export class AdminController {
   }
 
   @Get('products') @RequirePermission('admin.marketplace.moderate')
-  products(@Query('status') status?: string) {
+  products(@QEnum('status', Object.values(ProductStatus)) status?: string) {
     return this.admin.products(status);
   }
 
@@ -214,7 +215,7 @@ export class AdminController {
   }
 
   @Get('finance/payouts') @RequirePermission('admin.finance.read')
-  payoutList(@Query('status') status?: string) {
+  payoutList(@QEnum('status', Object.values(PayoutStatus)) status?: string) {
     return this.payouts.list(status);
   }
 

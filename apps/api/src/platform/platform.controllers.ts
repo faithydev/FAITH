@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   adBody, affiliateLinkBody, aiActionProposalBody, aiRequestBody, apiKeyBody, appBody, appInstallBody, appRatingBody,
@@ -13,7 +13,8 @@ import { DeveloperService } from '../developer/developer.service';
 import { forbidden, notFound } from '../core/errors';
 import { Prisma } from '@faith/database';
 import { PrismaService } from '../core/prisma.service';
-import { ZBody, ZQuery } from '../core/zod';
+import { RateLimit } from '../core/rate-limit';
+import { QText, ZBody, ZQuery } from '../core/zod';
 import { PayoutsService } from '../finance/payouts.service';
 import { CommunicationService, GrowthService, InsightService } from './platform.service';
 
@@ -28,7 +29,7 @@ export class CommunicationController {
   constructor(private readonly comms: CommunicationService) {}
 
   @Public() @Get('search')
-  search(@Query('q') q = '') {
+  search(@QText('q') q = '') {
     return this.comms.search(q);
   }
 
@@ -88,7 +89,7 @@ export class GrowthController {
     return this.growth.fundAd(id, a.user.id, b.idempotencyKey);
   }
 
-  @Public() @Post('ads/:id/click') @HttpCode(200)
+  @Public() @Post('ads/:id/click') @HttpCode(200) @RateLimit(30, 60)
   click(@Param('id') id: string) {
     return this.growth.adClick(id);
   }
@@ -103,7 +104,7 @@ export class GrowthController {
     return this.growth.createAffiliateLink(a.user.id, b.productId);
   }
 
-  @Public() @Post('affiliates/:code/click') @HttpCode(200)
+  @Public() @Post('affiliates/:code/click') @HttpCode(200) @RateLimit(30, 60)
   affiliateClick(@Param('code') code: string) {
     return this.growth.affiliateClick(code);
   }

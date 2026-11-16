@@ -1,6 +1,6 @@
 # FAITH — to'liq yo'l xaritasi (ROADMAP)
 
-> Holat: **2026-yil 16-noyabr**. Bu hujjat FAITH platformasi haqida hamma narsani bir joyga yig'adi:
+> Holat: **2026-yil 17-noyabr**. Bu hujjat FAITH platformasi haqida hamma narsani bir joyga yig'adi:
 > nima uchun bor, bugun nima qurilgan va jonli ishlayapti, nima hali simulyatsiya, qanday xavflar
 > bor, va platforma qaysi tartibda, qaysi bosqichlar orqali o'sishi kerak.
 >
@@ -67,8 +67,9 @@ sotuvchi, ijodkor, frilanser, ish izlovchi, brend yoki dasturchi bo'la oladi.
 
 ## 3. Bugungi holat: nima qurilgan
 
-Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 76/76**,
-**unit testlar 29/29**, lint va TypeScript toza, 8 til bo'yicha 1498 ta tarjima kaliti.
+Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 81/81**,
+**unit testlar 29/29**, lint va TypeScript toza, `pnpm audit`: **ma'lum zaiflik yo'q**, 8 til
+bo'yicha 1503 ta tarjima kaliti.
 
 ### 3.1. Akkaunt va kirish
 - Email va parol bilan ro'yxatdan o'tish, email tasdiqlash, parolni tiklash.
@@ -182,6 +183,22 @@ FairPlay) qila oladi, u 2-bosqichda. Hozir FAITH brauzer qila oladigan hamma nar
 - To'liq ekranda ham suv belgisi qoladi; video qayerda to'xtagan bo'lsa, o'sha joydan davom etadi.
 - Begona yuklangan faylni darsga ulab bo'lmaydi (faqat ijodkorning o'z MP4 fayli).
 
+### 3.15. Backend mustahkamligi (yangi, 17-noyabr)
+Backend qayta tekshirildi; topilgan kamchiliklar va yechimlar:
+
+| Kamchilik | Xavfi | Yechim |
+|---|---|---|
+| Yuklanayotgan fayl (100 MB gacha) butunlay server xotirasida turardi; serverda jami 512 MB | 3–4 ta katta yuklash serverni yiqitardi | Fayl avval vaqtinchalik faylga yoziladi va R2'ga oqim bilan uzatiladi; bir vaqtda 3 ta yuklash; chegaralar: rasm 10 MB, video 300 MB, boshqa fayl 100 MB; vaqtinchalik fayl har doim o'chiriladi |
+| Eskirgan sessiya va havolalarni tozalash faqat alohida worker'da edi, jonli serverda (Render) umuman ishlamasdi | Baza (bepul 1 GB) cheksiz o'sardi | Tozalash API ichidagi worker'ga ulandi (har 6 soatda): eski sessiya/havolalar 7 kunda, yetkazilgan webhook va yozib olingan xatlar 30 kunda, hodisalar 1 yilda. Pul, buyurtma, to'lov va audit jurnaliga tegilmaydi |
+| `nodemailer` va `multer` paketlarining zaif versiyalari (5 ta yuqori xavfli topilma) | Ma'lum hujumlar | `nodemailer` 10.3.1, `multer` 2.5.0; `pnpm audit` toza |
+| Bazaga ulanish kutishi va so'rov vaqti cheksiz edi | Baza javob bermasa, butun API osilib qolardi | Ulanishni kutish 10 s, so'rov 60 s, havza 10 ta ulanish (`DATABASE_POOL_MAX`) |
+| `?q=a&q=b` yoki noto'g'ri `status` kabi so'rovlar 500 xato berardi | Xato jurnali ifloslanadi, sahifa yiqiladi | Matnli parametrlar qisqartiriladi, noto'g'ri filtr — tushunarli 400 |
+| Ochiq "click" hisoblagichlari va cheklovsiz yozish so'rovlari | Soxta kliklar, spam | Click: 30/daqiqa; boshqa barcha o'zgartiruvchi so'rovlar: IP bo'yicha 300/daqiqa (mobil operatorlarda ko'p odam bitta IP'da) |
+| Google/Apple bilan kirishda tashqi so'rovlar cheksiz kutardi | Kirish sahifasi osilib qolardi | 10 soniyalik chegara |
+| Kutilmagan xato butun serverni jimgina to'xtatishi mumkin edi | Sababsiz uzilishlar | Har bir xato jurnalga yoziladi; o'chishda fon taymerlari to'xtatiladi; oqim yarmida xato bo'lsa server qulamaydi |
+| Email faqat bazaga yozilardi va sozlash noqulay edi | Parolni tiklash xati kelmaydi | Render'da `SMTP_URL` qo'yilsa xatlar haqiqatan yuboriladi va yangi akkauntlar emailini tasdiqlaydi (0-bosqich) |
+| Bazaning zaxira nusxasi yo'q edi | Ma'lumot butunlay yo'qolishi mumkin | Har kecha shifrlangan zaxira R2'ga (`Database backup` workflow, 30 kun saqlanadi); tiklash va Neon'ga ko'chish yo'riqnomasi: `docs/BACKUP.md` |
+
 ---
 
 ## 4. Nima haqiqiy, nima hali simulyatsiya
@@ -192,7 +209,8 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 |---|---|---|
 | To'lovlar | **Simulyator** | "SIMULYATSIYA: haqiqiy pul harakatlanmaydi" deb ochiq yozilgan. Payme, Click, Stripe adapterlari bor, lekin ulanmagan |
 | Sotuvchilarga pul o'tkazish | **Simulyatsiya** | So'rov va tasdiqlash oqimi bor, real o'tkazma yo'q |
-| Email | **Yuborilmaydi** | Jonli demo'da xatlar faqat bazaga yoziladi |
+| Email | **Tayyor, kalit kutadi** | Render'da `SMTP_URL` qo'yilmaguncha xatlar faqat bazaga yoziladi |
+| Zaxira nusxa (backup) | **Tayyor, kalit kutadi** | GitHub'ga 5 ta secret qo'yilgach har kecha ishlaydi (`docs/BACKUP.md`) |
 | Fayllar | **Doimiy (Cloudflare R2)** | 2026-yil 13-noyabrdan `faith-files` papkasida saqlanadi |
 | Google kirish | **Haqiqiy** | Jonli ishlaydi |
 | Apple kirish | O'chiq | Apple Developer a'zoligi kerak |
@@ -282,13 +300,13 @@ Pro yoqilganda darhol ochiladi.
 | Sayt (web) | Next.js 16 (App Router, Turbopack), React 19, Tailwind 4, next-intl, Three.js |
 | API | NestJS 11, REST `/v1`, OpenAPI hujjati `/docs` |
 | Ma'lumotlar bazasi | PostgreSQL (109 ta model), Prisma 7 |
-| Fon ishlari | Worker: hodisalar navbati, webhook'lar, obunalar muddati, galochkalar, valyuta kurslari |
+| Fon ishlari | Worker: hodisalar navbati, webhook'lar, obunalar muddati, galochkalar, valyuta kurslari, eski yozuvlarni tozalash |
 | Paketlar | `config`, `money`, `database`, `validators`, `automation`, `design-tokens`, `sdk` |
 | Testlar | Vitest (unit, API integratsiya), Playwright (brauzer), i18n tekshiruvi |
 | Infratuzilma | Docker, GitHub Actions CI, Render Blueprint, Vercel |
 
 Hujjatlar: `docs/` papkasida — ARCHITECTURE, DATABASE, API, AUTHORIZATION, PAYMENTS, REWARDS,
-DESIGN_SYSTEM, THREE_JS, TESTING, DEPLOYMENT, SECURITY.
+DESIGN_SYSTEM, THREE_JS, TESTING, DEPLOYMENT, SECURITY, **BACKUP** (zaxira va tiklash).
 
 ---
 
@@ -311,18 +329,20 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi. 16-noyabrdan u uxlamaydi: A
 
 | # | Xavf | Ta'siri | Yechim | Muddat |
 |---|---|---|---|---|
-| 1 | **Baza muddati tugaydi** (~9-dekabr) | Barcha ma'lumot yo'qoladi | Neon'ga (doimiy bepul) yoki pullik Render'ga o'tish | **9-dekabrdan oldin** |
+| 1 | **Baza muddati tugaydi** (~9-dekabr) | Barcha ma'lumot yo'qoladi | Avval backup'ni yoqing (5 ta secret), keyin Neon'ga (doimiy bepul) yoki pullik Render'ga o'ting — qadamlar `docs/BACKUP.md`da | **9-dekabrdan oldin** |
 | 2 | ~~Yuklangan fayllar qayta deploy'da o'chadi~~ | — | **Hal qilindi:** Cloudflare R2 ulandi (13-noyabr) | ✓ |
-| 3 | Email yuborilmaydi | Parolni tiklash, tasdiqlash xatlari bormaydi | Resend, Postmark yoki SMTP; `EMAIL_DRIVER=smtp` | 0-bosqich |
+| 3 | Email yuborilmaydi | Parolni tiklash, tasdiqlash xatlari bormaydi | Kod tayyor: Resend (bepul 3000 xat/oy) akkaunti → Render'da `SMTP_URL` va `EMAIL_FROM`, eski `EMAIL_DRIVER=dev`ni o'chirish | 0-bosqich |
 | 4 | Neon paroli chatda ochiq qolgan | Bazaga ruxsatsiz kirish xavfi | Neon'da `neondb_owner` parolini almashtirish | Darhol |
 | 5 | ~~Sayt qo'lda deploy qilinadi~~ | — | **Hal qilindi:** Vercel GitHub'ga ulangan | ✓ |
 | 6 | Namuna akkauntlar va ma'lumotlar jonli saytda | Haqiqiy foydalanuvchilarni chalg'itadi | Admin → Users → "Boshqa akkauntlarni olib tashlash" | Siz xohlagan payt |
 | 7 | To'lovlar simulyator | Daromad yo'q | 1-bosqich | 1-bosqich |
 | 8 | Huquqiy hujjatlar tekshirilmagan | Huquqiy xavf | Yurist bilan ishlash | Haqiqiy pul qabul qilishdan oldin |
-| 9 | Monitoring va zaxira nusxa yo'q | Nosozlikni kech bilish, ma'lumot yo'qotish | Sentry, uptime monitor, kunlik backup va tiklash mashqi | 0-bosqich |
+| 9 | Monitoring yo'q; zaxira hali yoqilmagan | Nosozlikni kech bilish, ma'lumot yo'qotish | Kunlik shifrlangan backup tayyor (secret'lar kerak). Qoldi: Sentry, uptime monitor (masalan UptimeRobot), oylik tiklash mashqi | 0-bosqich |
 | 10 | ~~Sayt 3–4 daqiqada ochiladi~~ | — | **Hal qilindi:** uyg'oq server, Frankfurtdagi funksiyalar, kutish chegaralari (3.12) | ✓ |
 | 11 | Ekran yozib olishni brauzer to'liq to'xtata olmaydi | Pullik kurs videosi tarqalishi mumkin | Hozir: suv belgisi + pauza. Keyin: DRM (Widevine/FairPlay) video hamkori bilan | 2-bosqich |
-| 12 | Video Render orqali o'tadi (bepul tarifda oyiga 100 GB trafik, 512 MB xotira, fayl 100 MB gacha) | Ko'p o'quvchida trafik tugaydi | Videoni to'g'ridan-to'g'ri R2'ga yuklash va video hamkori (HLS + CDN) | 2-bosqich |
+| 12 | Video Render orqali o'tadi (bepul tarifda oyiga 100 GB trafik; yuklash endi xotiraga tushmaydi, 300 MB gacha) | Ko'p o'quvchida trafik tugaydi | Videoni to'g'ridan-to'g'ri R2'ga yuklash va video hamkori (HLS + CDN) | 2-bosqich |
+| 13 | API'ga Vercel'ni chetlab, to'g'ridan-to'g'ri `onrender.com` orqali murojaat qilinsa, IP manzilni soxtalashtirib IP bo'yicha cheklovlarni chetlab o'tish mumkin | Ko'p akkauntga parol terish urinishlari (har akkaunt 8 xatodan keyin 15 daqiqa bloklanadi) | API oldiga Cloudflare qo'yish yoki faqat Vercel'dan kelgan so'rovlarni maxfiy sarlavha bilan qabul qilish | 4-bosqich |
+| 14 | Render bepul serverida 1 nusxa; cheklovlar xotirada | Server qayta ishga tushsa hisoblagichlar nolga tushadi | Pullik tarif + Redis (`REDIS_URL` allaqachon qo'llab-quvvatlanadi) | Foydalanuvchilar ko'paygach |
 
 ---
 
@@ -363,10 +383,17 @@ Maqsad: jonli sayt hech narsani yo'qotmasin va o'zini o'zi kuzatsin.
 
 - [ ] Bazani Neon'ga ko'chirish (9-dekabrdan oldin) va Neon parolini almashtirish.
 - [x] Fayllar uchun doimiy saqlash: Cloudflare R2 (`faith-files`).
-- [ ] Haqiqiy email yuborish (Resend yoki SMTP), xat shablonlarini 8 tilda tekshirish.
+- [~] Haqiqiy email yuborish: kod tayyor (17-noyabr). **Sizdan:** Resend akkaunti → Render'da
+      `SMTP_URL` (`smtps://resend:API_KALIT@smtp.resend.com:465`), `EMAIL_FROM`; eski
+      `EMAIL_DRIVER=dev`ni o'chirish. Keyin xat shablonlarini 8 tilda tekshirish.
 - [x] Vercel'ni GitHub'ga ulash: har push'da avtomatik deploy.
 - [ ] GitHub'da CI majburiy tekshiruvlar bilan.
-- [ ] Monitoring (Sentry), uptime ogohlantirish, kunlik backup va tiklash mashqi.
+- [~] Kunlik shifrlangan backup R2'ga: workflow tayyor (17-noyabr). **Sizdan:** GitHub'da 5 ta
+      secret (`docs/BACKUP.md`), keyin "Run workflow" bilan birinchi zaxira.
+- [ ] Oylik tiklash mashqi (Neon branch'ga tiklab ko'rish).
+- [ ] Monitoring (Sentry) va uptime ogohlantirish (UptimeRobot, bepul).
+- [x] Backend mustahkamlash: yuklash xotirasi, tozalash ishi, zaif paketlar, baza ulanish
+      chegaralari, so'rov cheklovlari, tashqi so'rov timeout'lari (17-noyabr, 3.15-bo'lim).
 - [ ] Namuna akkauntlarni olib tashlash (Admin → Users).
 - [x] Render "uyquga ketmaslik" yechimi: API o'zini uyg'otadi + GitHub `Keep warm` (16-noyabr).
 - [x] Vercel funksiyalarini API yoniga (Frankfurt) ko'chirish; sahifalar uxlagan API'ni kutmaydi.
@@ -499,6 +526,8 @@ bo'yicha tekshiriladi; shikoyatga belgilangan muddatda javob beriladi.
 | Apple Developer a'zoligi ($99/yil) | Apple orqali kirish | Ochiq |
 | Video hamkori va DRM (VdoCipher, Bunny Stream, PallyCon — oylik to'lov) | Yozuvda qora ekran, HLS | Ochiq |
 | Render pullik tarifi (~$7/oy) | Uyg'otishsiz doimiy tezlik, ko'proq xotira | Ochiq |
+| Email provayderi (Resend tavsiya: bepul 3000 xat/oy) | Parolni tiklash, email tasdiqlash | Ochiq |
+| Yangi baza: Neon (bepul) yoki Render pullik Postgres (~$7/oy) | 9-dekabrdan keyin ma'lumot saqlanishi | **Shoshilinch** |
 
 ---
 

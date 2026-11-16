@@ -1,0 +1,86 @@
+name: Database backup
+
+# Every night an encrypted dump of the live database goes to the private R2 bucket, under
+# backups/. Nothing is uploaded to GitHub itself: this repository is public.
+#
+# Repository secrets (Settings > Secrets and variables > Actions), see docs/BACKUP.md:
+#   BACKUP_DATABASE_URL    the database's External connection string
+#   BACKUP_PASSPHRASE      a long random passphrase; keep a copy outside GitHub, restores need it
+#   R2_ENDPOINT            https://<account id>.r2.cloudflarestorage.com
+#   R2_ACCESS_KEY_ID       an R2 key that may write to the bucket
+#   R2_SECRET_ACCESS_KEY
+# Optional repository variable R2_BUCKET (default faith-files).
+# Without the secrets the job says what is missing and stops; it never fails the build.
+
+on:
+  schedule:
+    - cron: '30 22 * * *' # 03:30 in Tashkent
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+      PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      # Cloudflare R2 accepts checksums only when an operation needs them.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      BUCKET: ${{ vars.R2_BUCKET || 'faith-files' }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          missing=""
+          for v in DATABASE_URL PASSPHRASE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY R2_ENDPOINT; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::warning::Backup skipped. Missing:$missing (see docs/BACKUP.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dump
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          # pg_dump 18 reads every older server version; the custom format restores selectively.
+          docker run --rm -e DATABASE_URL -e PGCONNECT_TIMEOUT=30 postgres:18 \
+            sh -c 'pg_dump --format=custom --no-owner --no-privileges --dbname "$DATABASE_URL"' > faith.dump
+          test -s faith.dump
+          # Proves the archive is readable before it is kept.
+          docker run --rm -v "$PWD:/w" postgres:18 pg_restore --list /w/faith.dump > /dev/null
+          echo "dump size: $(du -h faith.dump | cut -f1)"
+
+      - name: Encrypt and upload
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -pass env:PASSPHRASE -in faith.dump -out faith.dump.enc
+          rm faith.dump
+          name="backups/faith-$(date -u +%Y-%m-%dT%H%M).dump.enc"
+          aws s3 cp faith.dump.enc "s3://$BUCKET/$name" --endpoint-url "$R2_ENDPOINT" --only-show-errors
+          echo "stored $name"
+
+      - name: Keep the last 30 days
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          cutoff=$(date -u -d '30 days ago' +%Y-%m-%d)
+          aws s3 ls "s3://$BUCKET/backups/" --endpoint-url "$R2_ENDPOINT" | awk '{print $4}' | while read -r f; do
+            day="${f#faith-}"; day="${day:0:10}"
+            if [[ "$f" == faith-*.dump.enc && "$day" < "$cutoff" ]]; then
+              aws s3 rm "s3://$BUCKET/backups/$f" --endpoint-url "$R2_ENDPOINT" --only-show-errors
+              echo "removed $f"
+            fi
+          done

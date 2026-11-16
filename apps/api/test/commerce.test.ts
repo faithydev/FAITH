@@ -1,4 +1,7 @@
 import { refreshRates, settleBadges } from '@faith/automation';
+import { readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { MockPaymentProvider } from '../src/payments/provider';
 import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
@@ -300,6 +303,18 @@ describe('public files', () => {
     await t.db.upload.create({ data: { ownerId: u.id, storageKey: `public/${u.id}/missing.png`, filename: 'missing.png', mime: 'image/png', sizeBytes: 1, purpose: 'image' } });
     await t.http.get(`/v1/files/public/${u.id}/missing.png`).expect(404);
     await t.http.get('/v1/files/public/nobody/never.png').expect(404);
+  });
+
+  it('streams uploads through a temporary file, enforces per-kind size limits and leaves nothing behind', async () => {
+    const u = await t.signUp(['sell']);
+    const header = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
+    const huge = Buffer.concat([header, Buffer.alloc(11 * 1024 * 1024)]);
+    const r = await u.agent.post('/v1/uploads?purpose=image').attach('file', huge, 'huge.png').expect(413);
+    expect(r.body.error.code).toBe('FILE_TOO_LARGE');
+    await u.agent.post('/v1/uploads?purpose=lesson').attach('file', fixtures.mp4, 'clip.mp4').expect(201);
+    await u.agent.post('/v1/uploads?purpose=nonsense').attach('file', fixtures.zip, 'a.zip').expect(400);
+    await u.agent.post('/v1/uploads?purpose=product&purpose=image').attach('file', fixtures.zip, 'a.zip').expect(400);
+    expect(readdirSync(join(tmpdir(), 'faith-uploads', String(process.pid)))).toEqual([]);
   });
 });
 

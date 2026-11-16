@@ -152,6 +152,7 @@ export class AuthController {
         code, client_id: env.GOOGLE_CLIENT_ID!, client_secret: env.GOOGLE_CLIENT_SECRET!,
         redirect_uri: callback('google'), grant_type: 'authorization_code',
       }),
+      signal: AbortSignal.timeout(10_000),
     });
     if (!tokens.ok) {
       logger.warn({ status: tokens.status }, 'google token exchange failed');
@@ -160,7 +161,9 @@ export class AuthController {
     const { access_token } = (await tokens.json()) as { access_token: string };
     const info = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
       headers: { authorization: `Bearer ${access_token}` },
+      signal: AbortSignal.timeout(10_000),
     });
+    if (!info.ok) throw badRequest('OAUTH_FAILED');
     const p = (await info.json()) as { sub: string; email?: string; email_verified?: boolean; name?: string; locale?: string };
     if (!p.email || !p.email_verified) throw badRequest('OAUTH_EMAIL_UNVERIFIED');
     const session = await this.auth.oauthSignIn(

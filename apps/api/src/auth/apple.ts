@@ -42,7 +42,7 @@ async function verifyIdToken(idToken: string): Promise<AppleClaims> {
   if (!h || !p || !s) throw new Error('malformed id_token');
   const header = JSON.parse(Buffer.from(h, 'base64url').toString()) as { kid: string; alg: string };
   if (header.alg !== 'RS256') throw new Error('unexpected id_token algorithm');
-  const keys = (await (await fetch(`${ISSUER}/auth/keys`)).json()) as { keys: (JsonWebKey & { kid: string })[] };
+  const keys = (await (await fetch(`${ISSUER}/auth/keys`, { signal: AbortSignal.timeout(10_000) })).json()) as { keys: (JsonWebKey & { kid: string })[] };
   const jwk = keys.keys.find((k) => k.kid === header.kid);
   if (!jwk) throw new Error('unknown signing key');
   const ok = verify('RSA-SHA256', Buffer.from(`${h}.${p}`), createPublicKey({ key: jwk, format: 'jwk' }), Buffer.from(s, 'base64url'));
@@ -58,6 +58,7 @@ export async function appleIdentity(code: string, redirectUri: string): Promise<
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ client_id: env.APPLE_CLIENT_ID!, client_secret: clientSecret(), code, grant_type: 'authorization_code', redirect_uri: redirectUri }),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) throw new Error(`apple token exchange failed: ${res.status}`);
   const { id_token } = (await res.json()) as { id_token: string };

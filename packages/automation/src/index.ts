@@ -357,10 +357,25 @@ export async function refreshRates(db: PrismaClient, opts: { fetchImpl?: typeof 
 }
 
 /** Removes sessions and single-use tokens that can never be used again. */
-export async function purgeExpired(db: PrismaClient): Promise<void> {
-  const cutoff = new Date(Date.now() - 7 * 86_400_000);
-  await db.session.deleteMany({ where: { expiresAt: { lt: cutoff } } });
-  await db.authToken.deleteMany({ where: { expiresAt: { lt: cutoff } } });
+/**
+ * Keeps the database from growing without bound (the free Postgres has 1 GB). Removes what no
+ * one can use or needs any more: sessions and sign-in links a week after they ended, delivered
+ * webhooks and recorded emails (which may hold sign-in links) after 30 days, and finished outbox
+ * events after a year (the owners' activity export reads them). Money, orders, payments and the
+ * audit log are never touched.
+ */
+export async function purgeExpired(db: PrismaClient, now = new Date()): Promise<Record<string, number>> {
+  const week = new Date(now.getTime() - 7 * 86_400_000);
+  const month = new Date(now.getTime() - 30 * 86_400_000);
+  const year = new Date(now.getTime() - 365 * 86_400_000);
+  const [sessions, tokens, events, deliveries, emails] = await Promise.all([
+    db.session.deleteMany({ where: { OR: [{ expiresAt: { lt: week } }, { revokedAt: { lt: week } }] } }),
+    db.authToken.deleteMany({ where: { OR: [{ expiresAt: { lt: week } }, { usedAt: { lt: week } }] } }),
+    db.outboxEvent.deleteMany({ where: { processedAt: { lt: year } } }),
+    db.webhookDelivery.deleteMany({ where: { status: 'DELIVERED', deliveredAt: { lt: month } } }),
+    db.emailOutbox.deleteMany({ where: { createdAt: { lt: month } } }),
+  ]);
+  return { sessions: sessions.count, tokens: tokens.count, events: events.count, deliveries: deliveries.count, emails: emails.count };
 }
 
 /** The platform automations seeded at install. Each one does real work through the engine. */

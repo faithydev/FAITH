@@ -119,7 +119,12 @@
     "CARD_LIMIT_REACHED": "En fazla 5 kart bağlayabilirsiniz. Önce birini kaldırın.",
     "CARD_NOT_FOUND": "Kart bulunamadı.",
     "UPLOAD_NOT_FOUND": "Yüklenen dosya bulunamadı.",
-    "LESSON_NOT_FOUND": "Ders bulunamadı."
+    "LESSON_NOT_FOUND": "Ders bulunamadı.",
+    "FILE_TOO_LARGE": "Dosya çok büyük. Görseller en fazla 10 MB, videolar 300 MB, diğer dosyalar 100 MB olabilir.",
+    "PAYLOAD_TOO_LARGE": "Dosya çok büyük: en fazla 300 MB.",
+    "UPLOADS_BUSY": "Şu anda çok sayıda dosya yükleniyor. Birkaç saniye sonra tekrar deneyin.",
+    "INVALID_FILTER": "Böyle bir filtre değeri yok.",
+    "INVALID_PURPOSE": "Yüklemenin amacı geçersiz."
   },
   "status": {
     "DRAFT": "Taslak",

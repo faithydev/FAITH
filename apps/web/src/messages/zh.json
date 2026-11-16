@@ -119,7 +119,12 @@
     "CARD_LIMIT_REACHED": "最多可绑定 5 张卡。请先移除一张。",
     "CARD_NOT_FOUND": "未找到该卡。",
     "UPLOAD_NOT_FOUND": "未找到上传的文件。",
-    "LESSON_NOT_FOUND": "未找到课程。"
+    "LESSON_NOT_FOUND": "未找到课程。",
+    "FILE_TOO_LARGE": "文件过大。图片最大 10 MB，视频最大 300 MB，其他文件最大 100 MB。",
+    "PAYLOAD_TOO_LARGE": "文件过大：最大 300 MB。",
+    "UPLOADS_BUSY": "当前上传的文件较多，请几秒后重试。",
+    "INVALID_FILTER": "该筛选值不存在。",
+    "INVALID_PURPOSE": "上传用途无效。"
   },
   "status": {
     "DRAFT": "草稿",

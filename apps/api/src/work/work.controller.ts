@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   candidateProfileBody, disputeBody, freelancerProfileBody, jobApplicationStatusBody, jobApplyBody, jobBody, jobQuery,
@@ -6,7 +6,7 @@ import {
 } from '@faith/validators';
 import { z } from 'zod';
 import { Auth, AuthContext, OptionalAuth, Public, RequirePermission } from '../auth/context';
-import { ZBody, ZQuery } from '../core/zod';
+import { QText, ZBody, ZQuery } from '../core/zod';
 import { WorkService } from './work.service';
 
 const serviceQuery = pageQuery.extend({ q: z.string().trim().max(120).optional() });
@@ -58,7 +58,7 @@ export class WorkController {
   }
 
   @Get('employer/candidates') @RequirePermission('job.post')
-  candidates(@Query('skill') skill?: string) {
+  candidates(@QText('skill', 60) skill?: string) {
     return this.work.discoverCandidates(skill);
   }
 

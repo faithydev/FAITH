@@ -30,7 +30,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
-    const requestId = (req.headers['x-request-id'] as string | undefined) ?? randomUUID();
+    // A caller's own id is kept only when it looks like one, so logs cannot be stuffed through it.
+    const given = req.headers['x-request-id'];
+    const requestId = typeof given === 'string' && /^[\w.-]{8,64}$/.test(given) ? given : randomUUID();
 
     let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     let code = 'INTERNAL';
@@ -58,6 +60,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (status >= 500) {
       logger.error({ err: exception, path: req.path, requestId }, 'unhandled error');
     }
+    // A stream that fails half-way has already sent its headers: end it instead of throwing again.
+    if (res.headersSent) {
+      res.end();
+      return;
+    }
+    res.setHeader('x-request-id', requestId);
     res.status(status).json({ error: { code, details, requestId } });
   }
 }

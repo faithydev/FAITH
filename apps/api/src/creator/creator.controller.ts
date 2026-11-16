@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonBody, lessonVideoBody, memberModerationBody, postBody, sectionBody,
@@ -9,7 +9,7 @@ import { Auth, AuthContext, OptionalAuth, Public, RequirePermission } from '../a
 import { StorageService } from '../core/adapters';
 import { forbidden, notFound } from '../core/errors';
 import { RateLimit } from '../core/rate-limit';
-import { ZBody } from '../core/zod';
+import { QText, ZBody } from '../core/zod';
 import { CreatorService } from './creator.service';
 
 /** Largest slice served per request: players ask again as they play, nobody gets the file in one go. */
@@ -40,7 +40,7 @@ export class CreatorController {
   constructor(private readonly creator: CreatorService, private readonly storage: StorageService) {}
 
   @Public() @Get('creators')
-  creators(@Query('q') q?: string) {
+  creators(@QText('q') q?: string) {
     return this.creator.publicCreators(q);
   }
 

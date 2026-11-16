@@ -46,7 +46,8 @@ const schema = z.object({
   S3_BUCKET: z.string().optional(),
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
-  EMAIL_DRIVER: z.enum(['dev', 'smtp']).default('dev'),
+  /** `smtp` sends real email through SMTP_URL (for example Resend, Postmark or Gmail); `dev` only records it. */
+  EMAIL_DRIVER: z.enum(['dev', 'smtp']).default(process.env.SMTP_URL ? 'smtp' : 'dev'),
   SMTP_URL: z.string().optional(),
   EMAIL_FROM: z.string().default('FAITH <no-reply@faith.local>'),
   ANTHROPIC_API_KEY: z.string().optional(),
@@ -77,6 +78,7 @@ function load(): Env {
     const missing = (['S3_ENDPOINT', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'] as const).filter((k) => !env[k]);
     if (missing.length) throw new Error(`STORAGE_DRIVER=s3 needs ${missing.join(', ')}.`);
   }
+  if (env.EMAIL_DRIVER === 'smtp' && !env.SMTP_URL) throw new Error('EMAIL_DRIVER=smtp needs SMTP_URL.');
   if (env.NODE_ENV === 'production' && !env.PUBLIC_DEMO) {
     if (env.PAYMENT_PROVIDER === 'mock' || env.ALLOW_MOCK_PAYMENTS) {
       throw new Error('The mock payment provider cannot run with NODE_ENV=production.');
@@ -88,3 +90,5 @@ function load(): Env {
 
 export const env = load();
 export const isProd = env.NODE_ENV === 'production';
+/** A demo that cannot send mail marks new addresses as verified; once mail is real, people verify. */
+export const autoVerifyEmail = env.PUBLIC_DEMO && env.EMAIL_DRIVER !== 'smtp';

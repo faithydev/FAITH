@@ -2,6 +2,9 @@ packages:
   - "apps/*"
   - "packages/*"
   - "examples/*"
+# Security fixes for transitive dependencies (pnpm audit), until their parents bump them.
+overrides:
+  multer: 2.5.0
 allowBuilds:
   "@prisma/engines": true
   "@swc/core": true

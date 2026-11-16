@@ -11,9 +11,12 @@ import { PrismaService } from './prisma.service';
 // Object storage
 // ---------------------------------------------------------------------------
 
+/** Bytes in memory, or a file on disk streamed in (large uploads never sit in memory). */
+export type ObjectBody = Buffer | { path: string; size: number };
+
 export interface ObjectStore {
   readonly driver: string;
-  put(key: string, body: Buffer, mime: string): Promise<void>;
+  put(key: string, body: ObjectBody, mime: string): Promise<void>;
   /** A short-lived URL. Local storage signs an API route; S3 presigns. */
   signedUrl(key: string, opts: { ttlSeconds: number; filename?: string }): Promise<string>;
   open(key: string): Promise<Readable>;
@@ -32,10 +35,11 @@ class LocalStore implements ObjectStore {
     if (!full.startsWith(this.root + sep)) throw new Error('invalid storage key');
     return full;
   }
-  async put(key: string, body: Buffer) {
+  async put(key: string, body: ObjectBody) {
     const path = this.path(key);
     await fs.mkdir(dirname(path), { recursive: true });
-    await fs.writeFile(path, body);
+    if (Buffer.isBuffer(body)) await fs.writeFile(path, body);
+    else await fs.copyFile(body.path, path);
   }
   async signedUrl(key: string, opts: { ttlSeconds: number; filename?: string }) {
     const exp = Math.floor(Date.now() / 1000) + opts.ttlSeconds;
@@ -76,9 +80,14 @@ class S3Store implements ObjectStore {
     });
   })();
 
-  async put(key: string, body: Buffer, mime: string) {
+  async put(key: string, body: ObjectBody, mime: string) {
     const { PutObjectCommand } = await import('@aws-sdk/client-s3');
-    await (await this.client).send(new PutObjectCommand({ Bucket: env.S3_BUCKET, Key: key, Body: body, ContentType: mime }));
+    const fromDisk = !Buffer.isBuffer(body);
+    await (await this.client).send(new PutObjectCommand({
+      Bucket: env.S3_BUCKET, Key: key, ContentType: mime,
+      Body: fromDisk ? createReadStream(body.path) : body,
+      ContentLength: fromDisk ? body.size : body.length,
+    }));
   }
   async signedUrl(key: string, opts: { ttlSeconds: number; filename?: string }) {
     const { GetObjectCommand } = await import('@aws-sdk/client-s3');
@@ -145,7 +154,8 @@ export class EmailService {
   async send(m: EmailMessage) {
     const row = await this.prisma.db.emailOutbox.create({ data: { ...m, adapter: env.EMAIL_DRIVER } });
     if (!this.transport) {
-      logger.info({ to: m.to, template: m.template }, 'email recorded by dev adapter, not sent');
+      // The address is masked: logs are not a place for people's email addresses.
+      logger.info({ to: m.to.replace(/^(.).*(@.*)$/, '$1***$2'), template: m.template }, 'email recorded by dev adapter, not sent');
       return;
     }
     try {

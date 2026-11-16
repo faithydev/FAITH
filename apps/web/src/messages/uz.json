@@ -119,7 +119,12 @@
     "CARD_LIMIT_REACHED": "Koʻpi bilan 5 ta karta bogʻlash mumkin. Avval bittasini olib tashlang.",
     "CARD_NOT_FOUND": "Karta topilmadi.",
     "UPLOAD_NOT_FOUND": "Yuklangan fayl topilmadi.",
-    "LESSON_NOT_FOUND": "Dars topilmadi."
+    "LESSON_NOT_FOUND": "Dars topilmadi.",
+    "FILE_TOO_LARGE": "Fayl juda katta. Rasm 10 MB gacha, video 300 MB gacha, boshqa fayllar 100 MB gacha boʻlishi mumkin.",
+    "PAYLOAD_TOO_LARGE": "Fayl juda katta: eng koʻpi 300 MB.",
+    "UPLOADS_BUSY": "Hozir koʻp fayl yuklanmoqda. Bir necha soniyadan keyin qayta urinib koʻring.",
+    "INVALID_FILTER": "Bunday saralash qiymati yoʻq.",
+    "INVALID_PURPOSE": "Bu fayl qayerga yuklanayotgani notoʻgʻri koʻrsatilgan."
   },
   "status": {
     "DRAFT": "Qoralama",

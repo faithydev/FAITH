@@ -119,7 +119,12 @@
     "CARD_LIMIT_REACHED": "Puedes vincular hasta 5 tarjetas. Quita una primero.",
     "CARD_NOT_FOUND": "No se encontró la tarjeta.",
     "UPLOAD_NOT_FOUND": "No se encontró el archivo subido.",
-    "LESSON_NOT_FOUND": "No se encontró la lección."
+    "LESSON_NOT_FOUND": "No se encontró la lección.",
+    "FILE_TOO_LARGE": "El archivo es demasiado grande. Imágenes hasta 10 MB, vídeos hasta 300 MB y otros archivos hasta 100 MB.",
+    "PAYLOAD_TOO_LARGE": "El archivo es demasiado grande: 300 MB como máximo.",
+    "UPLOADS_BUSY": "Ahora se están subiendo muchos archivos. Vuelve a intentarlo en unos segundos.",
+    "INVALID_FILTER": "Ese valor de filtro no existe.",
+    "INVALID_PURPOSE": "El propósito de la subida no es válido."
   },
   "status": {
     "DRAFT": "Borrador",
