@@ -1,4 +1,7 @@
+import type { LinkedCard } from '@/components/billing/cards';
 import { ProCheckout } from '@/components/billing/pro-checkout';
+import { CardWallet } from '@/components/billing/wallet';
+import { PaymentMarks } from '@/components/payments/marks';
 import { ActionButton } from '@/components/ui/client';
 import { BADGE_KINDS } from '@faith/config';
 import { Badge, Card, PageHeader, SectionTitle, SimulatedNotice, StatusBadge } from '@/components/ui/primitives';
@@ -15,7 +18,7 @@ type State = {
 
 export default async function BillingPage() {
   const { t, m, d, status } = await pageContext();
-  const [state, plans] = await Promise.all([api<State>('/billing/state'), api<Plan[]>('/billing/plans')]);
+  const [state, plans, cards] = await Promise.all([api<State>('/billing/state'), api<Plan[]>('/billing/plans'), api<LinkedCard[]>('/billing/cards')]);
   const pro = plans.find((p) => p.key === 'pro');
   const sub = state.subscription;
   const simulated = !state.payments.providers.some((p) => p.name === state.payments.active && p.live);
@@ -40,13 +43,14 @@ export default async function BillingPage() {
           )}
         </Card>
         {pro && !sub && (
-          <Card className="p-5">
+          <Card className="p-5 lg:col-span-2">
             <SectionTitle title={t('app.billing.upgrade')} />
             <ul className="mb-4 grid gap-1 text-sm text-muted sm:grid-cols-2">
               {pro.features.filter((f) => !f.featureKey.startsWith('limit.')).map((f) => <li key={f.featureKey}>{t(`app.features.${f.featureKey.replace('.', '_')}`)}</li>)}
             </ul>
             {pro.monthlyMinor || pro.yearlyMinor ? (
               <ProCheckout
+                cards={cards}
                 title={t('app.billing.chooseBadge')} body={t('app.billing.chooseBadgeBody')} chooseFirst={t('app.billing.chooseBadgeFirst')}
                 kinds={BADGE_KINDS.map((k) => ({ kind: k, label: t(`badges.kinds.${k}`) }))}
                 offers={[
@@ -56,9 +60,14 @@ export default async function BillingPage() {
               />
             ) : <p className="text-sm text-muted">{t('app.billing.priceNotSet')}</p>}
             {simulated && <div className="mt-4"><SimulatedNotice>{t('app.billing.simulated')}</SimulatedNotice></div>}
+            <PaymentMarks className="mt-5" label={t('app.cards.accepted')} />
           </Card>
         )}
       </div>
+      <section className="mt-8">
+        <SectionTitle title={t('app.cards.title')} />
+        <CardWallet cards={cards} />
+      </section>
       <section className="mt-8">
         <SectionTitle title={t('app.billing.history')} />
         {state.history.length === 0 ? <p className="text-sm text-muted">{t('app.billing.noHistory')}</p> : (

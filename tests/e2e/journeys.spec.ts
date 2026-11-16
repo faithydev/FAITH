@@ -201,7 +201,7 @@ test('Free to Pro through the simulator at the set price', async ({ page }) => {
   await page.goto(url('/app/billing'));
   await expect(page.getByTestId('current-plan')).toHaveText('Free');
   // No role, no checkout: the button stays off until one is chosen.
-  await expect(page.getByRole('button', { name: /a month/ })).toBeDisabled();
+  await expect(page.getByTestId('card-submit')).toBeDisabled();
   await goPro(page, 'seller');
   await expect(page.getByTestId('current-plan')).toHaveText('Pro');
   await page.goto(url('/app/settings'));

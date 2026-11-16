@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "Kendinize mesaj gönderemezsiniz.",
     "SHARES_EXCEED_100": "Paylar %100'ü aşamaz.",
     "VERIFICATION_PENDING": "Bekleyen bir talebiniz var.",
-    "WORKSPACE_NOT_AVAILABLE": "Bu çalışma alanı için rol ekleyin."
+    "WORKSPACE_NOT_AVAILABLE": "Bu çalışma alanı için rol ekleyin.",
+    "CARD_LIMIT_REACHED": "En fazla 5 kart bağlayabilirsiniz. Önce birini kaldırın.",
+    "CARD_NOT_FOUND": "Kart bulunamadı.",
+    "UPLOAD_NOT_FOUND": "Yüklenen dosya bulunamadı.",
+    "LESSON_NOT_FOUND": "Ders bulunamadı."
   },
   "status": {
     "DRAFT": "Taslak",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "Platform",
     "build": "Geliştir",
-    "company": "Şirket"
+    "company": "Şirket",
+    "payments": "Ödeme yöntemleri"
   },
   "home": {
     "ctaStart": "Hesabınızı oluşturun",
@@ -734,6 +739,16 @@
       "beginner": "Başlangıç",
       "intermediate": "Orta",
       "advanced": "İleri"
+    },
+    "video": {
+      "guest": "FAITH · ücretsiz önizleme",
+      "shieldTitle": "Bu video korumalı",
+      "shieldBody": "Başka bir pencereye veya uygulamaya geçtiniz ya da ekran görüntüsü tuşuna bastınız; bu yüzden video duraklatıldı ve gizlendi.",
+      "resume": "İzlemeye devam et",
+      "fullscreen": "Tam ekran",
+      "exitFullscreen": "Tam ekrandan çık",
+      "note": "Bu video yalnızca size gösterilir ve adınızı taşır. İndirmek, paylaşmak ve kaydetmek yasaktır.",
+      "has": "Video ders"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "Yeni topluluk",
       "visibility": "Görünürlük",
       "noCommunities": "Henüz topluluk yok.",
-      "communityStats": "Üye: {members} · Gönderi: {posts}"
+      "communityStats": "Üye: {members} · Gönderi: {posts}",
+      "videoUpload": "Video yükle (MP4)",
+      "videoReplace": "Videoyu değiştir",
+      "videoUploading": "Yükleniyor…",
+      "videoReady": "Video derse eklendi ve korumalı oynatıcıda oynatılır.",
+      "videoRemove": "Videoyu kaldır",
+      "videoBadge": "Video"
     },
     "brand": {
       "body": "Kampanyalarınız, harcamalarınız ve sonuçlarınız.",
@@ -1521,6 +1542,32 @@
       "title": "{role} bir Pro özelliğidir",
       "body": "Ücretsiz hesaplar göz atabilir ve satın alabilir. Pro, FAITH'teki tüm araçları açar ve 24 saat içinde profilinize resmi FAITH Verified rozeti ekler.",
       "cta": "Pro'yu gör"
+    },
+    "cards": {
+      "title": "Kartlarım",
+      "empty": "Henüz bağlı kart yok.",
+      "add": "Kart ekle",
+      "link": "Kartı bağla",
+      "linked": "Kart bağlandı. Hiçbir ücret alınmadı.",
+      "accepted": "Kabul edilen ödeme yöntemleri",
+      "number": "Kart numarası",
+      "expiry": "Son kullanma",
+      "holder": "Kart sahibi (isteğe bağlı)",
+      "holderPlaceholder": "AD SOYAD",
+      "safeNote": "Tam kart numaranız FAITH sunucularına gönderilmez: yalnızca kart türü, son 4 hane ve son kullanma tarihi saklanır. CVV istenmez.",
+      "noCharge": "Kart yalnızca bağlanır: karttan ücret alınmaz.",
+      "unknownBrand": "Bu kart türünü tanıyamadık. UZCARD, HUMO, Visa, Mastercard, UnionPay veya Mir kartı girin.",
+      "invalidNumber": "Kart numarasını kontrol edin.",
+      "invalidExpiry": "Son kullanma tarihini AA/YY olarak girin; süresi dolmuş kart bağlanamaz.",
+      "default": "Varsayılan",
+      "makeDefault": "Varsayılan yap",
+      "remove": "Kaldır",
+      "removeConfirm": "{last4} ile biten kart kaldırılsın mı?",
+      "period": "Dönem seçin",
+      "cardStep": "Bir kart bağlayın",
+      "linkAndStart": "Kartı bağla ve Pro’yu aç · {price}",
+      "startWithCard": "Bu kartla Pro’yu aç · {price}",
+      "proOn": "Pro açıldı. Kart bağlandı, ücret alınmadı."
     }
   },
   "admin": {

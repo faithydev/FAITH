@@ -1,14 +1,15 @@
+import { ProtectedVideo } from '@/components/courses/protected-video';
 import { Approx } from '@/components/money/currency';
 import { ActionButton } from '@/components/ui/client';
 import { Badge, Breadcrumbs, Card, LinkButton, SectionTitle, cx } from '@/components/ui/primitives';
 import { api, getMe, publicApi } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
 import { money } from '@/lib/format';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, PlayCircle } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
-type Lesson = { id: string; title: string; durationSec: number | null; isPreview: boolean; completed: boolean; locked: boolean; body: string | null };
+type Lesson = { id: string; title: string; durationSec: number | null; isPreview: boolean; completed: boolean; locked: boolean; body: string | null; hasVideo: boolean };
 type Course = {
   slug: string; title: string; summary: string; level: string; access: boolean; enrolled: boolean; completedAt: string | null;
   creator: { profile: { displayName: string } | null };
@@ -23,6 +24,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     throw e;
   });
   const lessons = c.sections.flatMap((s) => s.lessons);
+  // The viewer's own address on the frame: a recording that leaks says who made it.
+  const viewer = me ? `${me.email} · ${me.id.slice(-6)}` : t('courses.video.guest');
+  const videoLabels = {
+    shieldTitle: t('courses.video.shieldTitle'), shieldBody: t('courses.video.shieldBody'), resume: t('courses.video.resume'),
+    fullscreen: t('courses.video.fullscreen'), exitFullscreen: t('courses.video.exitFullscreen'), note: t('courses.video.note'),
+  };
   const done = lessons.filter((l) => l.completed).length;
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -54,8 +61,10 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     <summary className={cx('flex cursor-pointer items-center gap-2 text-sm font-medium', l.locked && 'cursor-default text-muted')}>
                       {l.completed ? <CheckCircle2 size={16} className="text-positive" /> : l.locked ? <Lock size={14} /> : null}
                       <span className="flex-1">{l.title}</span>
+                      {l.hasVideo && <PlayCircle size={15} className={l.locked ? 'text-subtle' : 'text-neon'} aria-label={t('courses.video.has')} />}
                       {l.isPreview && <Badge tone="accent">{t('app.creator.previewBadge')}</Badge>}
                     </summary>
+                    {l.hasVideo && !l.locked && <ProtectedVideo lessonId={l.id} viewer={viewer} labels={videoLabels} />}
                     {l.body && <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap text-muted">{l.body}</p>}
                     {!l.locked && c.access && !l.completed && me && <div className="mt-3"><ActionButton endpoint={`/lessons/${l.id}/complete`} label={t('courses.markDone')} /></div>}
                   </details>

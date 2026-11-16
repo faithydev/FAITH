@@ -1,6 +1,6 @@
 # FAITH — to'liq yo'l xaritasi (ROADMAP)
 
-> Holat: **2026-yil 13-noyabr**. Bu hujjat FAITH platformasi haqida hamma narsani bir joyga yig'adi:
+> Holat: **2026-yil 16-noyabr**. Bu hujjat FAITH platformasi haqida hamma narsani bir joyga yig'adi:
 > nima uchun bor, bugun nima qurilgan va jonli ishlayapti, nima hali simulyatsiya, qanday xavflar
 > bor, va platforma qaysi tartibda, qaysi bosqichlar orqali o'sishi kerak.
 >
@@ -67,8 +67,8 @@ sotuvchi, ijodkor, frilanser, ish izlovchi, brend yoki dasturchi bo'la oladi.
 
 ## 3. Bugungi holat: nima qurilgan
 
-Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 73/73**,
-**unit testlar 25/25**, lint va TypeScript toza, 8 til bo'yicha 1455 ta tarjima kaliti.
+Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 76/76**,
+**unit testlar 29/29**, lint va TypeScript toza, 8 til bo'yicha 1498 ta tarjima kaliti.
 
 ### 3.1. Akkaunt va kirish
 - Email va parol bilan ro'yxatdan o'tish, email tasdiqlash, parolni tiklash.
@@ -93,6 +93,8 @@ Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testla
 
 ### 3.3. Kurslar va hamjamiyatlar
 - Kurslar: bo'limlar, darslar, yozilish, dars bo'yicha progress.
+- **Video darslar (yangi):** ijodkor har bir darsga MP4 yuklaydi; pullik o'quvchi uni
+  himoyalangan pleyerda ko'radi (3.14-bo'lim).
 - Hamjamiyatlar: kanallar, postlar, izohlar; Pro tarifga bog'liq yopiq hamjamiyatlar.
 
 ### 3.4. Xizmatlar va frilans
@@ -144,6 +146,42 @@ Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testla
   sahifasida to'lqinlar. WebGL bo'lmasa yoki harakat kamaytirilgan bo'lsa, statik variantlar.
 - Rasmiy FAITH logotipi va 8 ta FAITH Verified galochkasi siz bergan rasmlardan olingan.
 
+### 3.12. Tezlik (yangi, 16-noyabr)
+Muammo: sayt telefonda ham, kompyuterda ham 3–4 daqiqada ochilardi. Sabablari va yechimlar:
+
+| Sabab | Yechim |
+|---|---|
+| Bepul Render serveri 15 daqiqa so'rov bo'lmasa uxlaydi; birinchi mehmon uyg'onishini kutadi | API o'zini har 10 daqiqada "ping" qiladi (`KEEP_AWAKE`), qo'shimcha ravishda GitHub Actions (`keep-warm.yml`) har 10 daqiqada API va bosh sahifani uyg'otadi. Bitta doimiy server bepul oylik 750 soatga sig'adi |
+| Vercel funksiyalari AQShda (Vashington), API va baza Frankfurtda — har so'rov okeanni ikki marta kesib o'tardi | Vercel funksiyalari Frankfurtga ko'chirildi (`regions: ["fra1"]`) |
+| Sahifa API javobini cheksiz kutardi; API uxlasa, butun sayt osilib qolardi | Ixtiyoriy bo'limlar 4 soniyada voz kechadi va ma'lumotsiz chiziladi; zarur sahifalar 25 soniyadan keyin "qayta urinish" tugmasini ko'rsatadi; valyuta aniqlash API'siz ham ishlaydi |
+| Mahsulot rasmlari har safar API'dan o'tardi | Rasmlar Vercel chekkasida (CDN) bir kun saqlanadi |
+
+Pullik Render tarifiga o'tilganda `KEEP_AWAKE=false` qilinadi.
+
+### 3.13. To'lov usullari va kartalar (yangi)
+- **To'lov belgilari:** Click, Payme, UZCARD, HUMO, Visa, Mastercard, UnionPay, Mir — footer'da,
+  narxlar sahifasida, savatchada va billing sahifasida.
+- **Jonli karta:** Pro xaridida karta orqa fonda turadi; raqam terilishi bilan karta turi va rangi
+  o'zgaradi (8600 — UZCARD, 9860 — HUMO, 4 — Visa, 51–55/2221–2720 — Mastercard, 62 — UnionPay,
+  2200–2204 — Mir). Raqam, muddat va ism kartada jonli ko'rinadi.
+- **Karta faqat bog'lanadi, pul yechilmaydi.** Serverga faqat karta turi, oxirgi 4 raqam, amal
+  muddati va ism boradi. To'liq raqam va CVV FAITH'ga hech qachon yetib bormaydi (PCI talabi).
+- "Kartalarim": 5 tagacha karta, asosiy karta tanlash, olib tashlash.
+- Pro: rol → muddat (oylik/yillik) → karta. Simulyatorda karta bog'langach Pro darhol yoqiladi.
+
+### 3.14. Himoyalangan video darslar (yangi)
+Brauzerda ekran yozib olishni **100% to'xtatib bo'lmaydi** — buni faqat apparat DRM (Widevine L1,
+FairPlay) qila oladi, u 2-bosqichda. Hozir FAITH brauzer qila oladigan hamma narsani qiladi:
+- Video faqat kirish huquqi bor, tizimga kirgan odamga, 4 MB bo'laklarda, keshlanmasdan beriladi;
+  video manzilini nusxalab yangi oynada ochsa, rad etiladi.
+- Ekranda tomoshabinning **emaili va ID'si** suzib yuradi va butun kadr bo'ylab xira yoziladi:
+  yozib olingan video kimdan chiqqanini ko'rsatadi.
+- Boshqa oyna yoki dasturga o'tilsa, tab yashirilsa yoki skrinshot tugmasi (PrintScreen,
+  Win+Shift+S, Cmd+Shift+3/4/5) bosilsa — video to'xtaydi va qora ekran bilan yopiladi.
+- Yuklab olish tugmasi, rasm-ichida-rasm, televizorga uzatish va o'ng tugma menyusi o'chirilgan.
+- To'liq ekranda ham suv belgisi qoladi; video qayerda to'xtagan bo'lsa, o'sha joydan davom etadi.
+- Begona yuklangan faylni darsga ulab bo'lmaydi (faqat ijodkorning o'z MP4 fayli).
+
 ---
 
 ## 4. Nima haqiqiy, nima hali simulyatsiya
@@ -160,6 +198,8 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 | Apple kirish | O'chiq | Apple Developer a'zoligi kerak |
 | Valyuta kurslari | **Haqiqiy** | Markaziy bank, cbu.uz |
 | AI | Demo | Anthropic kaliti qo'yilsa haqiqiy bo'ladi |
+| Bog'langan kartalar | **Faqat saqlanadi** | Karta turi va oxirgi 4 raqam saqlanadi; hech narsa yechilmaydi. Haqiqiy bog'lash (token) Payme/Click bilan 1-bosqichda |
+| Video himoyasi | **Brauzer darajasida** | Suv belgisi, pauza, bo'lakli oqim bor; DRM (yozuvda qora ekran) — 2-bosqich |
 | Huquqiy hujjatlar | **Tekshirilmagan** | Shartlar va maxfiylik siyosati yuristdan o'tmagan; platforma huquqiy talablarga mos deb da'vo qilinmaydi |
 
 ---
@@ -216,9 +256,11 @@ Pro yoqilganda darhol ochiladi.
 ### 6.2. Pro xaridi va galochka
 1. Xaridor 7 ta roldan **aynan bittasini** tanlaydi: Xaridor/Mijoz, Ish izlovchi, Frilanser,
    Sotuvchi, Ijodkor, Brend, Dasturchi. Tanlamasa, to'lov tugmasi yonmaydi.
-2. To'lovdan keyin tanlangan rol darhol ochiladi.
-3. Galochka **24 soatda avtomatik** tasdiqlanadi yoki admin uni darhol tasdiqlaydi/rad etadi.
-4. Pro tugasa, galochka olib tashlanadi; qayta faollashsa, qaytadi.
+2. Oylik yoki yillik muddatni tanlaydi, keyin kartani bog'laydi (jonli karta, 3.13-bo'lim) yoki
+   saqlangan kartasini tanlaydi. Simulyatorda kartadan pul yechilmaydi.
+3. Tanlangan rol darhol ochiladi.
+4. Galochka **24 soatda avtomatik** tasdiqlanadi yoki admin uni darhol tasdiqlaydi/rad etadi.
+5. Pro tugasa, galochka olib tashlanadi; qayta faollashsa, qaytadi.
 
 ### 6.3. Founder
 - Oltin **Founder** galochkasi va bosh admin huquqi.
@@ -239,7 +281,7 @@ Pro yoqilganda darhol ochiladi.
 | Monorepo | pnpm workspace'lar |
 | Sayt (web) | Next.js 16 (App Router, Turbopack), React 19, Tailwind 4, next-intl, Three.js |
 | API | NestJS 11, REST `/v1`, OpenAPI hujjati `/docs` |
-| Ma'lumotlar bazasi | PostgreSQL (108 ta model), Prisma 7 |
+| Ma'lumotlar bazasi | PostgreSQL (109 ta model), Prisma 7 |
 | Fon ishlari | Worker: hodisalar navbati, webhook'lar, obunalar muddati, galochkalar, valyuta kurslari |
 | Paketlar | `config`, `money`, `database`, `validators`, `automation`, `design-tokens`, `sdk` |
 | Testlar | Vitest (unit, API integratsiya), Playwright (brauzer), i18n tekshiruvi |
@@ -254,13 +296,14 @@ DESIGN_SYSTEM, THREE_JS, TESTING, DEPLOYMENT, SECURITY.
 
 | Qism | Qayerda | Holat |
 |---|---|---|
-| Sayt | Vercel — `https://faith-platform-green.vercel.app` | Ishlaydi. GitHub'ga ulangan: har push'da o'zi yangilanadi |
+| Sayt | Vercel — `https://faith-platform-green.vercel.app`, funksiyalar Frankfurtda (`fra1`) | Ishlaydi. GitHub'ga ulangan: har push'da o'zi yangilanadi |
 | API | Render (Frankfurt, bepul) — `faith-api-mpch.onrender.com` | Ishlaydi. GitHub'ga push qilinganda avtomatik yangilanadi |
 | Baza | Render bepul Postgres | **Taxminan 2026-yil 9-dekabrda muddati tugaydi** |
 | Fayllar | Cloudflare R2 — `faith-files` (yopiq papka, 10 GB bepul) | Ishlaydi |
 | Kod | GitHub — `faithydev/FAITH` (ochiq repo) | — |
 
-Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya oladi.
+Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi. 16-noyabrdan u uxlamaydi: API o'zini har
+10 daqiqada uyg'otadi, GitHub Actions'dagi `Keep warm` ham shuni qiladi (3.12-bo'lim).
 
 ---
 
@@ -277,6 +320,9 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya 
 | 7 | To'lovlar simulyator | Daromad yo'q | 1-bosqich | 1-bosqich |
 | 8 | Huquqiy hujjatlar tekshirilmagan | Huquqiy xavf | Yurist bilan ishlash | Haqiqiy pul qabul qilishdan oldin |
 | 9 | Monitoring va zaxira nusxa yo'q | Nosozlikni kech bilish, ma'lumot yo'qotish | Sentry, uptime monitor, kunlik backup va tiklash mashqi | 0-bosqich |
+| 10 | ~~Sayt 3–4 daqiqada ochiladi~~ | — | **Hal qilindi:** uyg'oq server, Frankfurtdagi funksiyalar, kutish chegaralari (3.12) | ✓ |
+| 11 | Ekran yozib olishni brauzer to'liq to'xtata olmaydi | Pullik kurs videosi tarqalishi mumkin | Hozir: suv belgisi + pauza. Keyin: DRM (Widevine/FairPlay) video hamkori bilan | 2-bosqich |
+| 12 | Video Render orqali o'tadi (bepul tarifda oyiga 100 GB trafik, 512 MB xotira, fayl 100 MB gacha) | Ko'p o'quvchida trafik tugaydi | Videoni to'g'ridan-to'g'ri R2'ga yuklash va video hamkori (HLS + CDN) | 2-bosqich |
 
 ---
 
@@ -285,7 +331,9 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya 
 | Imkoniyat | Whop | FAITH bugun | Reja |
 |---|---|---|---|
 | Raqamli mahsulot sotish | ✓ | ✓ | — |
-| Kurslar | ✓ | ✓ (bo'lim, dars, progress) | Video hosting, test, sertifikat, drip — 2-bosqich |
+| Kurslar | ✓ | ✓ (bo'lim, dars, progress, **video darslar**) | Test, sertifikat, drip — 2-bosqich |
+| **Video himoyasi (suv belgisi, pauza, yuklab olishsiz)** | qisman | ✓ | DRM — 2-bosqich |
+| **Jonli karta (UZCARD/HUMO/Visa... raqamdan aniqlanadi)** | — | ✓ | Payme/Click token — 1-bosqich |
 | Hamjamiyat / chat | ✓ | ✓ (kanal, post, izoh) | Real vaqtli chat — 2-bosqich |
 | Sotuvchining oylik obunalari (a'zolik) | ✓ asosiy model | Qisman (MEMBERSHIP mahsulot turi bor) | **To'liq takroriy to'lov — 2-bosqich, 1-o'rin** |
 | Telegram / Discord orqali kirish | ✓ | — | Telegram avtomatik kirish va chiqarish — 2-bosqich |
@@ -297,7 +345,7 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi; birinchi so'rov ~50 soniya 
 | Upsell / order bump | ✓ | — | 2-bosqich |
 | Bo'lib to'lash | qisman | — | 2-bosqich |
 | Ilovalar do'koni va API | ✓ | ✓ | — |
-| **O'zbekiston to'lovlari (Payme, Click, Uzum)** | — | Adapter tayyor | 1-bosqich |
+| **O'zbekiston to'lovlari (Payme, Click, Uzum)** | — | Adapter tayyor, belgilar saytda | 1-bosqich |
 | **Mahalliy valyutada narx (58 ta)** | qisman | ✓ | Mahalliy to'lov — 3-bosqich |
 | **8 til, arab tili RTL** | asosan ingliz | ✓ | Qo'shimcha Osiyo tillari — 3-bosqich |
 | **Ish bozori (vakansiya, ariza)** | — | ✓ | — |
@@ -320,8 +368,9 @@ Maqsad: jonli sayt hech narsani yo'qotmasin va o'zini o'zi kuzatsin.
 - [ ] GitHub'da CI majburiy tekshiruvlar bilan.
 - [ ] Monitoring (Sentry), uptime ogohlantirish, kunlik backup va tiklash mashqi.
 - [ ] Namuna akkauntlarni olib tashlash (Admin → Users).
-- [ ] Render'ni bepul tarifdan chiqarish yoki "uyquga ketmaslik" yechimi (haqiqiy foydalanuvchilar
-      kelganda).
+- [x] Render "uyquga ketmaslik" yechimi: API o'zini uyg'otadi + GitHub `Keep warm` (16-noyabr).
+- [x] Vercel funksiyalarini API yoniga (Frankfurt) ko'chirish; sahifalar uxlagan API'ni kutmaydi.
+- [ ] Haqiqiy foydalanuvchilar ko'paygach Render'ni pullik tarifga o'tkazish (`KEEP_AWAKE=false`).
 
 **Tayyor mezoni:** server qayta ishga tushganda hech qanday fayl yoki yozuv yo'qolmaydi; parolni
 tiklash xati haqiqatan keladi; nosozlik haqida 5 daqiqada xabar keladi; backup'dan tiklash bir
@@ -335,6 +384,12 @@ Maqsad: birinchi haqiqiy so'm va dollar platformaga tushadi va sotuvchiga o'tadi
 - [ ] Har bir hamkor uchun adapterni haqiqiy test muhitida tekshirish (imzolar, webhook'lar,
       qaytarish).
 - [ ] Xalqaro karta to'lovlari uchun hamkor (Visa/Mastercard, USD).
+- [ ] **Kartani haqiqiy bog'lash:** Payme (`cards.create` → SMS kod → token) va Click kartani
+      tokenlash. Karta raqami to'g'ridan-to'g'ri hamkorga boradi, FAITH faqat tokenni saqlaydi
+      (shifrlangan). Hozirgi "Kartalarim" shu tokenni oladi.
+- [ ] Saqlangan karta tokenidan Pro'ni har oy avtomatik uzaytirish; yechilmasa 3 kunlik imkon
+      va xabarnoma.
+- [ ] Bir bosishda xarid (one-click): saqlangan karta bilan kurs va mahsulot sotib olish.
 - [ ] Hamkor hisobotlari bilan kunlik solishtirish (reconciliation).
 - [ ] Sotuvchilarga pul o'tkazish hamkor API'si orqali; minimal summa va jadval.
 - [ ] Chek va hisob-faktura (fiskal talablar bo'yicha yurist bilan).
@@ -353,8 +408,15 @@ Tartib bo'yicha:
        to'lov, avtomatik uzaytirish, bekor qilish, kirishni avtomatik ochish/yopish.
 2. [ ] **Telegram integratsiyasi** — to'lagan odam yopiq kanal/guruhga qo'shiladi, obuna tugasa
        chiqariladi (Telegram bot tokeni kerak).
-3. [ ] **Kurslarni chuqurlashtirish** — video hosting va himoyalangan pleyer, testlar, uy
-       vazifalari, sertifikatlar, darslarni bosqichma-bosqich ochish (drip), kurs reytingi.
+3. [~] **Kurslarni chuqurlashtirish.** Bajarildi: video darslar, himoyalangan pleyer (suv
+       belgisi, pauza, bo'lakli oqim, joydan davom etish). Qoldi:
+       - [ ] **DRM** (Widevine L1 / FairPlay / PlayReady) video hamkori orqali (masalan VdoCipher,
+             Bunny Stream yoki PallyCon): ko'p qurilmalarda ekran yozuvida video qora chiqadi.
+       - [ ] HLS transkodlash (360p–1080p, internetga qarab sifat), CDN orqali tarqatish.
+       - [ ] Katta fayllarni (100 MB+) to'g'ridan-to'g'ri R2'ga yuklash.
+       - [ ] Bir akkaunt — bir vaqtda bitta qurilmada tomosha (akkauntni ulashishga qarshi).
+       - [ ] Server tomonida videoga "kuydirilgan" shaxsiy suv belgisi (forensic watermark).
+       - [ ] Testlar, uy vazifalari, sertifikatlar, drip, kurs reytingi.
 4. [ ] **Bepul sinov muddati va kutish ro'yxati.**
 5. [ ] **Upsell va order bump** — to'lov sahifasida qo'shimcha taklif.
 6. [ ] **Bo'lib to'lash** (3, 6, 12 oy) — hamkor qo'llasa.
@@ -362,6 +424,16 @@ Tartib bo'yicha:
 8. [ ] **Real vaqtli hamjamiyat chati.**
 9. [ ] **Frilans escrow** — pul bosqich tasdiqlanguncha platformada ushlab turiladi
        (1-bosqichdagi hamkor va yurist bilan).
+
+**Whop'dan oson va kuchliroq bo'lish uchun qo'shimcha g'oyalar (tartib bo'yicha):**
+1. [ ] **AI kurs quruvchi** — ijodkor mavzuni yozadi, AI bo'lim/dars rejasi, tavsif va narx
+       taklifini tayyorlaydi; ijodkor tasdiqlaydi.
+2. [ ] **5 daqiqada do'kon** — bitta sahifali "sehrgar": nom → mahsulot → narx → to'lov havolasi.
+3. [ ] **Telegram Mini App** — xaridor Telegram ichidan sotib oladi va darsni ko'radi.
+4. [ ] **Mahalliy to'lovlarda bir bosishda xarid** (saqlangan UZCARD/HUMO bilan).
+5. [ ] **Avtomatik sertifikat** — kurs tugaganda QR kodli, tekshirsa bo'ladigan sertifikat.
+6. [ ] **Sotuvchi uchun "sotuv voronkasi"** — sahifa → upsell → obuna, bitta oynada tahlil bilan.
+7. [ ] **O'zbek va rus tilida AI yordamchi** — o'quvchining dars bo'yicha savoliga javob beradi.
 
 **Tayyor mezoni:** ijodkor kursini oylik obuna sifatida sotadi, xaridor to'laydi va Telegram
 kanaliga avtomatik qo'shiladi, keyingi oy avtomatik yechiladi, bekor qilsa kanaldan chiqariladi.
@@ -425,6 +497,8 @@ bo'yicha tekshiriladi; shikoyatga belgilangan muddatda javob beriladi.
 | Mahsulot sifat standartlari ("jiddiy" nima) | 4-bosqich | Ochiq |
 | Birinchi kengayadigan Osiyo mamlakatlari | 3-bosqich tartibi | Ochiq |
 | Apple Developer a'zoligi ($99/yil) | Apple orqali kirish | Ochiq |
+| Video hamkori va DRM (VdoCipher, Bunny Stream, PallyCon — oylik to'lov) | Yozuvda qora ekran, HLS | Ochiq |
+| Render pullik tarifi (~$7/oy) | Uyg'otishsiz doimiy tezlik, ko'proq xotira | Ochiq |
 
 ---
 

@@ -91,6 +91,8 @@ export const fixtures = {
   zip: Buffer.from('504b0304140000000000', 'hex'),
   png: Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex'),
   html: Buffer.from('<html><script>alert(1)</script></html>'),
+  // An MP4 header ("ftyp") and some payload: enough for sniffing and byte-range reads.
+  mp4: Buffer.concat([Buffer.from('000000186674797069736f6d0000020069736f6d69736f32', 'hex'), Buffer.alloc(5000, 7)]),
 };
 
 export async function createStoreWithProduct(

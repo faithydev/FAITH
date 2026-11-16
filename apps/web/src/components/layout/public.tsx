@@ -6,6 +6,7 @@ import { FaithLockup, FaithLogo, FaithWordmark } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
 import { MobileNavigation, NavLinks, NavScrollFrame } from './mobile-nav';
 import { CurrencySwitcher } from '../money/currency';
+import { PaymentMarks } from '../payments/marks';
 import { CartLink, CommandPalette, LocaleSwitcher, MotionToggle, NotificationLink, ThemeToggle, UserAvatarMenu } from './controls';
 
 export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean }) {
@@ -63,6 +64,7 @@ export async function Footer() {
         <div>
           <FaithLockup height={44} />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">{t('brand.vision')}</p>
+          <PaymentMarks className="mt-6" size="sm" label={t('footer.payments')} />
         </div>
         {columns.map((c) => (
           <nav key={c.title} aria-label={c.title}>

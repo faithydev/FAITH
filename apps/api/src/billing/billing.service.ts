@@ -1,8 +1,11 @@
 import { BADGE_GRANT_HOURS } from '@faith/config';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import type { Payment } from '@faith/database';
+import type { cardBody } from '@faith/validators';
+import type { z } from 'zod';
 import { EntitlementsService } from '../auth/entitlements.service';
 import { badRequest, conflict, notFound } from '../core/errors';
+import { env } from '../core/env';
 import { EventsService } from '../core/platform.services';
 import { PrismaService, Tx } from '../core/prisma.service';
 import { Accounts, LedgerService } from '../finance/ledger.service';
@@ -53,14 +56,70 @@ export class BillingService implements OnModuleInit {
     return { plan, subscription, history, payments: this.payments.status() };
   }
 
+  // --- Linked cards ------------------------------------------------------------
+
+  private static readonly MAX_CARDS = 5;
+  private static readonly cardFields = { id: true, brand: true, last4: true, expMonth: true, expYear: true, holder: true, isDefault: true, createdAt: true } as const;
+
+  cards(userId: string) {
+    return this.prisma.db.paymentCard.findMany({
+      where: { userId }, orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }], select: BillingService.cardFields,
+    });
+  }
+
+  /**
+   * Links a card. Only the brand, the last four digits, the expiry and the name arrive here; the
+   * same card linked twice stays one row. The first card becomes the default.
+   */
+  async addCard(userId: string, body: z.infer<typeof cardBody>) {
+    return this.prisma.tx(async (tx) => {
+      const same = await tx.paymentCard.findFirst({
+        where: { userId, brand: body.brand, last4: body.last4, expMonth: body.expMonth, expYear: body.expYear },
+        select: BillingService.cardFields,
+      });
+      if (same) return same;
+      const count = await tx.paymentCard.count({ where: { userId } });
+      if (count >= BillingService.MAX_CARDS) throw conflict('CARD_LIMIT_REACHED');
+      return tx.paymentCard.create({
+        data: { userId, brand: body.brand, last4: body.last4, expMonth: body.expMonth, expYear: body.expYear, holder: body.holder?.toUpperCase() || null, isDefault: count === 0 },
+        select: BillingService.cardFields,
+      });
+    });
+  }
+
+  async makeDefault(userId: string, id: string) {
+    return this.prisma.tx(async (tx) => {
+      const card = await tx.paymentCard.findUnique({ where: { id } });
+      if (!card || card.userId !== userId) throw notFound('CARD_NOT_FOUND');
+      await tx.paymentCard.updateMany({ where: { userId, isDefault: true }, data: { isDefault: false } });
+      return tx.paymentCard.update({ where: { id }, data: { isDefault: true }, select: BillingService.cardFields });
+    });
+  }
+
+  async removeCard(userId: string, id: string) {
+    return this.prisma.tx(async (tx) => {
+      const card = await tx.paymentCard.findUnique({ where: { id } });
+      if (!card || card.userId !== userId) throw notFound('CARD_NOT_FOUND');
+      await tx.paymentCard.delete({ where: { id } });
+      if (card.isDefault) {
+        const next = await tx.paymentCard.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } });
+        if (next) await tx.paymentCard.update({ where: { id: next.id }, data: { isDefault: true } });
+      }
+      return { removed: true };
+    });
+  }
+
   /** Prices are admin-configured. With no price set, upgrades stay closed rather than free. */
-  async upgrade(userId: string, interval: 'MONTHLY' | 'YEARLY', key: string, badgeKind: string) {
+  async upgrade(userId: string, interval: 'MONTHLY' | 'YEARLY', key: string, badgeKind: string, cardId?: string) {
     const plan = await this.prisma.db.subscriptionPlan.findUnique({ where: { key: 'pro' } });
     if (!plan || !plan.active) throw notFound('PLAN_NOT_FOUND');
     const price = interval === 'MONTHLY' ? plan.monthlyMinor : plan.yearlyMinor;
     if (!price || price <= 0n) throw conflict('PLAN_PRICE_NOT_SET');
     const current = await this.entitlements.activePlan(userId);
     if (current.subscription?.plan.key === 'pro') throw conflict('ALREADY_SUBSCRIBED');
+
+    const card = cardId ? await this.prisma.db.paymentCard.findUnique({ where: { id: cardId } }) : null;
+    if (cardId && (!card || card.userId !== userId)) throw notFound('CARD_NOT_FOUND');
 
     const idempotencyKey = `subscription:${userId}:${key}`;
     const prior = await this.prisma.db.payment.findUnique({ where: { idempotencyKey } });
@@ -69,10 +128,16 @@ export class BillingService implements OnModuleInit {
     const sub = await this.prisma.db.subscription.create({
       data: { userId, planId: plan.id, interval, priceMinor: price, currency: plan.currency, provider: this.payments.active().name, badgeKind },
     });
-    return this.payments.start({
+    const started = await this.payments.start({
       purpose: 'SUBSCRIPTION', payerId: userId, amountMinor: price, currency: plan.currency, idempotencyKey,
       description: `FAITH ${plan.name} (${interval.toLowerCase()})`, subscriptionId: sub.id,
     });
+    // With a linked card in the simulator, Pro turns on at once: the card is only linked, nothing
+    // is charged to it. A live partner will charge the card's token here instead.
+    if (card && started.status === 'PENDING' && started.provider === 'mock' && env.ALLOW_MOCK_PAYMENTS) {
+      return this.payments.simulate(started.paymentId, userId, 'success');
+    }
+    return started;
   }
 
   private async activate(tx: Tx, payment: Payment) {

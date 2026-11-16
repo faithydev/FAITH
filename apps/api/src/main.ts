@@ -16,6 +16,24 @@ async function bootstrap() {
   await app.get(BadgesService).boot().catch((err: unknown) => logger.error({ err }, 'badge start-up failed'));
   logger.info({ port: env.API_PORT }, 'FAITH API listening');
   if (env.RUN_WORKER) startWorker(app.get(PrismaService));
+  keepAwake();
+}
+
+/**
+ * Render's free plan stops a web service after 15 minutes without inbound traffic; the next
+ * visitor then waits for a cold start (a minute or more, longer on a busy host). A request to
+ * the service's own public address goes through Render's edge and counts as inbound traffic.
+ * One service awake all month stays within the free plan's monthly instance hours.
+ */
+function keepAwake() {
+  const self = process.env.RENDER_EXTERNAL_URL;
+  if (!self || !env.KEEP_AWAKE) return;
+  const ping = () => {
+    fetch(`${self}/v1/health`, { signal: AbortSignal.timeout(30_000) })
+      .catch((err: unknown) => logger.warn({ err: (err as Error).message }, 'keep-awake ping failed'));
+  };
+  setInterval(ping, 10 * 60_000);
+  logger.info('keep-awake ping every 10 minutes');
 }
 
 /** The worker's loop, in this process: for hosts that offer one web service and no worker. */

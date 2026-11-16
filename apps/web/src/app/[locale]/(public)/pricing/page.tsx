@@ -1,4 +1,5 @@
 import { Approx } from '@/components/money/currency';
+import { PaymentMarks } from '@/components/payments/marks';
 import { Card, LinkButton } from '@/components/ui/primitives';
 import { tryPublicApi } from '@/lib/api';
 import { money, percent } from '@/lib/format';
@@ -42,6 +43,7 @@ export default async function PricingPage() {
             {FEATURES.map((f) => <li key={f} className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-accent" />{t(`app.features.${f.replace('.', '_')}`)}</li>)}
           </ul>
           <LinkButton href="/app/billing" className="mt-auto">{t('pricing.upgrade')}</LinkButton>
+          <PaymentMarks className="mt-5" size="sm" label={t('footer.payments')} />
         </Card>
       </div>
       <p className="mt-8 text-sm text-muted">{t('pricing.note', { rate: percent(DEFAULT_COMMISSION_BPS, locale) })}</p>

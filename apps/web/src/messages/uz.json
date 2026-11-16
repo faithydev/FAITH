@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "Oʻzingizga xabar yoza olmaysiz.",
     "SHARES_EXCEED_100": "Ulushlar 100% dan oshmasligi kerak.",
     "VERIFICATION_PENDING": "Sizda koʻrib chiqilayotgan soʻrov bor.",
-    "WORKSPACE_NOT_AVAILABLE": "Bu ish maydoni uchun rol qoʻshing."
+    "WORKSPACE_NOT_AVAILABLE": "Bu ish maydoni uchun rol qoʻshing.",
+    "CARD_LIMIT_REACHED": "Koʻpi bilan 5 ta karta bogʻlash mumkin. Avval bittasini olib tashlang.",
+    "CARD_NOT_FOUND": "Karta topilmadi.",
+    "UPLOAD_NOT_FOUND": "Yuklangan fayl topilmadi.",
+    "LESSON_NOT_FOUND": "Dars topilmadi."
   },
   "status": {
     "DRAFT": "Qoralama",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "Platforma",
     "build": "Yaratish",
-    "company": "Kompaniya"
+    "company": "Kompaniya",
+    "payments": "Toʻlov usullari"
   },
   "home": {
     "ctaStart": "Akkaunt yaratish",
@@ -734,6 +739,16 @@
       "beginner": "Boshlangʻich",
       "intermediate": "Oʻrta",
       "advanced": "Yuqori"
+    },
+    "video": {
+      "guest": "FAITH · bepul koʻrish",
+      "shieldTitle": "Video himoyalangan",
+      "shieldBody": "Boshqa oyna yoki dasturga oʻtdingiz yoxud skrinshot tugmasi bosildi, shuning uchun video toʻxtatildi va yashirildi.",
+      "resume": "Davom ettirish",
+      "fullscreen": "Toʻliq ekran",
+      "exitFullscreen": "Toʻliq ekrandan chiqish",
+      "note": "Video faqat sizga koʻrsatiladi va unda ismingiz turadi. Yuklab olish, ulashish va yozib olish taqiqlanadi.",
+      "has": "Video dars"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "Yangi hamjamiyat",
       "visibility": "Koʻrinish",
       "noCommunities": "Hali hamjamiyatlar yoʻq.",
-      "communityStats": "Aʼzolar: {members} · Postlar: {posts}"
+      "communityStats": "Aʼzolar: {members} · Postlar: {posts}",
+      "videoUpload": "Video yuklash (MP4)",
+      "videoReplace": "Videoni almashtirish",
+      "videoUploading": "Yuklanmoqda…",
+      "videoReady": "Video darsga biriktirildi va himoyalangan pleyerda koʻrsatiladi.",
+      "videoRemove": "Videoni olib tashlash",
+      "videoBadge": "Video"
     },
     "brand": {
       "body": "Kampaniyalaringiz, xarajat va natijalar.",
@@ -1521,6 +1542,32 @@
       "title": "{role}: Pro imkoniyati",
       "body": "Bepul akkauntda faqat koʼrish va xarid qilish mumkin. Pro FAITHʼdagi barcha vositalarni ochadi va 24 soat ichida profilingizga rasmiy FAITH Verified galochkasini qoʼyadi.",
       "cta": "Proʼni koʼrish"
+    },
+    "cards": {
+      "title": "Kartalarim",
+      "empty": "Hali karta bogʻlanmagan.",
+      "add": "Karta qoʻshish",
+      "link": "Kartani bogʻlash",
+      "linked": "Karta bogʻlandi. Undan pul yechilmadi.",
+      "accepted": "Qabul qilinadigan toʻlov usullari",
+      "number": "Karta raqami",
+      "expiry": "Amal muddati",
+      "holder": "Karta egasi (ixtiyoriy)",
+      "holderPlaceholder": "ISM FAMILIYA",
+      "safeNote": "Karta raqamingizning toʻliq koʻrinishi FAITH serveriga yuborilmaydi: faqat karta turi, oxirgi 4 raqam va amal muddati saqlanadi. CVV soʻralmaydi.",
+      "noCharge": "Karta faqat bogʻlanadi — undan pul yechilmaydi.",
+      "unknownBrand": "Bu karta turini taniy olmadik. UZCARD, HUMO, Visa, Mastercard, UnionPay yoki Mir kartasini kiriting.",
+      "invalidNumber": "Karta raqamini tekshiring.",
+      "invalidExpiry": "Amal muddatini OO/YY koʻrinishida kiriting; muddati oʻtgan karta qabul qilinmaydi.",
+      "default": "Asosiy",
+      "makeDefault": "Asosiy qilish",
+      "remove": "Olib tashlash",
+      "removeConfirm": "•••• {last4} kartasini olib tashlaysizmi?",
+      "period": "Muddatni tanlang",
+      "cardStep": "Kartani bogʻlang",
+      "linkAndStart": "Kartani bogʻlash va Proʻni yoqish · {price}",
+      "startWithCard": "Proʻni shu karta bilan yoqish · {price}",
+      "proOn": "Pro yoqildi. Karta bogʻlandi, pul yechilmadi."
     }
   },
   "admin": {

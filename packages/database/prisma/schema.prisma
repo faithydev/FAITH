@@ -55,6 +55,7 @@ model User {
   memberships         OrganizationMember[]
   verificationRequests VerificationRequest[] @relation("VerificationSubject")
   subscriptions       Subscription[]
+  paymentCards        PaymentCard[]
   badge               VerifiedBadge?
   stores              Store[]
   cart                Cart?
@@ -350,6 +351,25 @@ model Subscription {
 
   @@index([userId, status])
   @@index([status, currentPeriodEnd])
+}
+
+/// A card a member linked, for example at the Pro checkout. Only what a receipt shows is kept:
+/// the brand, the last four digits, the expiry and the name on the card. The full number and the
+/// security code never reach FAITH; a live payment partner keeps them and returns a token.
+model PaymentCard {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// uzcard, humo, visa, mastercard, unionpay or mir.
+  brand     String
+  last4     String
+  expMonth  Int
+  expYear   Int
+  holder    String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------

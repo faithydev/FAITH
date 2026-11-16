@@ -5,7 +5,7 @@ const drainAll = async (db: Parameters<typeof drainOutbox>[0]) => { while ((awai
 import { FaithClient, verifyWebhook } from '@faith/sdk';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { normalizeContentUrl } from '../src/rewards/verification';
-import { buy, createStoreWithProduct, TestApp } from './harness';
+import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
 
 const t = new TestApp();
 beforeAll(() => t.start());
@@ -290,6 +290,46 @@ describe('creator studio', () => {
     const after = (await student.agent.get(`/v1/courses/${course.slug}`).expect(200)).body;
     expect(after.access).toBe(false);
     expect(after.sections[0].lessons[1].body).toBeNull();
+  });
+
+  it('streams lesson video in slices only to people with access', async () => {
+    const creator = await t.signUp(['create']);
+    const student = await t.signUp(['discover']);
+    const stranger = await t.signUp(['create']);
+    const { product, variantId } = await createStoreWithProduct(t, creator, { type: 'COURSE', priceMinor: '2000' });
+    const course = (await creator.agent.post('/v1/creator/courses').send({ title: 'Lighting', summary: 'Soft light', productId: product.id }).expect(201)).body;
+    const section = (await creator.agent.post(`/v1/creator/courses/${course.id}/sections`).send({ title: 'Setup' }).expect(201)).body;
+    const lesson = (await creator.agent.post(`/v1/creator/sections/${section.id}/lessons`).send({ title: 'Key light' }).expect(201)).body;
+    const video = (await creator.agent.post('/v1/uploads?purpose=lesson').attach('file', fixtures.mp4, 'key-light.mp4').expect(201)).body;
+    expect(video.storageKey).toMatch(/^private\//);
+
+    // Nobody can point a lesson at a file they did not upload.
+    const foreign = (await stranger.agent.post('/v1/uploads?purpose=lesson').attach('file', fixtures.mp4, 'mine.mp4').expect(201)).body;
+    await creator.agent.put(`/v1/creator/lessons/${lesson.id}/video`).send({ uploadId: foreign.id }).expect(404);
+    await creator.agent.post(`/v1/creator/sections/${section.id}/lessons`).send({ title: 'Stolen', videoKey: foreign.storageKey }).expect(404);
+    await stranger.agent.put(`/v1/creator/lessons/${lesson.id}/video`).send({ uploadId: foreign.id }).expect(404);
+
+    await creator.agent.put(`/v1/creator/lessons/${lesson.id}/video`).send({ uploadId: video.id }).expect(200);
+    await creator.agent.post(`/v1/creator/courses/${course.id}/published`).send({ published: true }).expect(200);
+    const outline = (await t.http.get(`/v1/courses/${course.slug}`).expect(200)).body;
+    expect(outline.sections[0].lessons[0]).toMatchObject({ hasVideo: true, locked: true });
+    expect(JSON.stringify(outline)).not.toContain(video.storageKey);
+
+    await t.http.get(`/v1/lessons/${lesson.id}/stream`).expect(401);
+    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).expect(403);
+    await buy(t, student, variantId);
+    const part = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=0-99').expect(206);
+    expect(part.headers['content-range']).toBe(`bytes 0-99/${fixtures.mp4.length}`);
+    expect(part.headers['cache-control']).toBe('private, no-store');
+    expect(Number(part.headers['content-length'])).toBe(100);
+    const tail = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=-10').expect(206);
+    expect(tail.headers['content-range']).toBe(`bytes ${fixtures.mp4.length - 10}-${fixtures.mp4.length - 1}/${fixtures.mp4.length}`);
+    // Opened as a page (a copied address), the video is refused.
+    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Sec-Fetch-Dest', 'document').expect(403);
+    await creator.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=0-').expect(206);
+
+    await creator.agent.delete(`/v1/creator/lessons/${lesson.id}/video`).expect(200);
+    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).expect(404);
   });
 
   it('keeps private communities private and enforces moderation', async () => {

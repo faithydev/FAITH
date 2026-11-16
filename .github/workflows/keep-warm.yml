@@ -1,0 +1,21 @@
+name: Keep warm
+
+# A second line of defence next to the API's own keep-awake ping: every ten minutes, touch the
+# API and the home page so neither Render's free server nor Vercel's functions start cold.
+# GitHub may delay scheduled runs by a few minutes; the API's own ping covers those gaps.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: API
+        run: curl -fsS --max-time 120 -o /dev/null -w "api %{http_code} %{time_total}s\n" https://faith-api-mpch.onrender.com/v1/health || true
+      - name: Web
+        run: curl -fsS --max-time 60 -o /dev/null -w "web %{http_code} %{time_total}s\n" https://faith-platform-green.vercel.app/ || true

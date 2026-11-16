@@ -28,7 +28,8 @@ const BY_LOCALE: Record<string, string> = { uz: 'UZS', ru: 'RUB', en: 'USD', tr:
  * shown soum just because they have an account.
  */
 export const getDisplayCurrency = cache(async (locale: string): Promise<string> => {
-  const [jar, head, me] = await Promise.all([cookies(), headers(), getMe()]);
+  // A slow or sleeping API must not hold every page: without the account, the cookie, country and language decide.
+  const [jar, head, me] = await Promise.all([cookies(), headers(), getMe().catch(() => null)]);
   const chosen = jar.get('faith_currency')?.value;
   if (chosen && isSupportedCurrency(chosen)) return chosen;
   if (me && me.currency !== 'UZS' && isSupportedCurrency(me.currency)) return me.currency;

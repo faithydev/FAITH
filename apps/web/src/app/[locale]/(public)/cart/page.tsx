@@ -1,6 +1,7 @@
 import { Approx } from '@/components/money/currency';
 import { IntlScope } from '@/components/auth/scope';
 import { CheckoutSummary } from '@/components/commerce/checkout-summary';
+import { PaymentMarks } from '@/components/payments/marks';
 import { ActionButton } from '@/components/ui/client';
 import { Cover } from '@/components/ui/cover';
 import { EmptyState, LinkButton } from '@/components/ui/primitives';
@@ -35,7 +36,7 @@ export default async function CartPage() {
               </li>
             ))}
           </ul>
-          <IntlScope ns={['cart']}><CheckoutSummary totals={cart.totals} /></IntlScope>
+          <div className="lg:sticky lg:top-20 lg:self-start"><IntlScope ns={['cart']}><CheckoutSummary totals={cart.totals} /></IntlScope><PaymentMarks className="mt-4 px-1" size="sm" label={t('footer.payments')} /></div>
         </div>
       )}
     </div>

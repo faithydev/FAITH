@@ -3,7 +3,7 @@ import { Prisma } from '@faith/database';
 import type { communityBody, courseBody, creatorProfileBody, lessonBody, postBody } from '@faith/validators';
 import type { z } from 'zod';
 import { uniqueSlug } from '../core/crypto';
-import { conflict, forbidden, notFound } from '../core/errors';
+import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
 import { EventsService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
 
@@ -96,7 +96,10 @@ export class CreatorService {
         ...s,
         lessons: s.lessons.map((l) => {
           const open = access || l.isPreview;
-          return { id: l.id, title: l.title, durationSec: l.durationSec, isPreview: l.isPreview, completed: done.has(l.id), locked: !open, body: open ? l.body : null };
+          return {
+            id: l.id, title: l.title, durationSec: l.durationSec, isPreview: l.isPreview, completed: done.has(l.id), locked: !open,
+            body: open ? l.body : null, hasVideo: !!l.videoKey,
+          };
         }),
       })),
     };
@@ -123,7 +126,7 @@ export class CreatorService {
     return this.prisma.db.course.findMany({
       where: { creatorId: userId },
       orderBy: { updatedAt: 'desc' },
-      include: { sections: { orderBy: { position: 'asc' }, include: { lessons: { orderBy: { position: 'asc' }, select: { id: true, title: true, isPreview: true } } } }, _count: { select: { enrollments: true } } },
+      include: { sections: { orderBy: { position: 'asc' }, include: { lessons: { orderBy: { position: 'asc' }, select: { id: true, title: true, isPreview: true, videoKey: true } } } }, _count: { select: { enrollments: true } } },
     });
   }
 
@@ -145,8 +148,47 @@ export class CreatorService {
     const section = await this.prisma.db.courseSection.findUnique({ where: { id: sectionId } });
     if (!section) throw notFound();
     await this.ownedCourse(section.courseId, userId);
+    // A lesson may only point at files its own creator uploaded: never at someone else's private key.
+    if (body.fileKey) await this.ownUpload({ storageKey: body.fileKey }, userId);
+    if (body.videoKey) await this.ownUpload({ storageKey: body.videoKey }, userId, 'video/mp4');
     const position = await this.prisma.db.lesson.count({ where: { sectionId } });
     return this.prisma.db.lesson.create({ data: { ...body, sectionId, position } });
+  }
+
+  private async ownUpload(where: { id: string } | { storageKey: string }, userId: string, mime?: string) {
+    const upload = await this.prisma.db.upload.findUnique({ where });
+    if (!upload || upload.ownerId !== userId) throw notFound('UPLOAD_NOT_FOUND');
+    if (mime && upload.mime !== mime) throw badRequest('UNSUPPORTED_FILE_TYPE');
+    return upload;
+  }
+
+  private async ownedLesson(lessonId: string, userId: string) {
+    const lesson = await this.prisma.db.lesson.findUnique({ where: { id: lessonId }, include: { section: { include: { course: true } } } });
+    if (!lesson || lesson.section.course.creatorId !== userId) throw notFound('LESSON_NOT_FOUND');
+    return lesson;
+  }
+
+  /** Attaches an uploaded MP4 to a lesson; it is then only ever streamed to people with access. */
+  async setLessonVideo(lessonId: string, userId: string, uploadId: string | null) {
+    await this.ownedLesson(lessonId, userId);
+    const videoKey = uploadId ? (await this.ownUpload({ id: uploadId }, userId, 'video/mp4')).storageKey : null;
+    await this.prisma.db.lesson.update({ where: { id: lessonId }, data: { videoKey } });
+    return { id: lessonId, hasVideo: !!videoKey };
+  }
+
+  /**
+   * Where a lesson's video lives, for the streaming route. A preview lesson streams to anyone;
+   * every other lesson only to its creator and to people who bought or joined the course.
+   */
+  async lessonVideo(lessonId: string, userId?: string) {
+    const lesson = await this.prisma.db.lesson.findUnique({ where: { id: lessonId }, include: { section: { include: { course: true } } } });
+    const course = lesson?.section.course;
+    if (!lesson?.videoKey || !course || (course.status !== 'PUBLISHED' && course.creatorId !== userId)) throw notFound('LESSON_NOT_FOUND');
+    if (!lesson.isPreview) {
+      if (!userId) throw unauthorized();
+      if (!(await this.hasAccess(course, userId))) throw forbidden('COURSE_ACCESS_REQUIRED');
+    }
+    return { key: lesson.videoKey };
   }
 
   async setCoursePublished(id: string, userId: string, published: boolean) {

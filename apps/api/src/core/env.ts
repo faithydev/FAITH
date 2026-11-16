@@ -22,6 +22,11 @@ const schema = z.object({
   PUBLIC_DEMO: bool.default(false),
   /** Runs the outbox and webhook loop inside the API process, for hosts without a worker. */
   RUN_WORKER: bool.default(false),
+  /**
+   * On Render's free plan: ping the service's own public address every ten minutes so it never
+   * falls asleep and no visitor waits for a cold start. Set to false on a paid, always-on plan.
+   */
+  KEEP_AWAKE: bool.default(true),
   /** Proxy hops in front of the API: 1 for a load balancer, 2 behind the web app's rewrite too. */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
   APP_ENCRYPTION_KEY: secret,

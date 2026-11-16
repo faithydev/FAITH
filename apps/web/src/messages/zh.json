@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "您不能给自己发消息。",
     "SHARES_EXCEED_100": "分成比例不得超过 100%。",
     "VERIFICATION_PENDING": "您已有一项申请正在审核中。",
-    "WORKSPACE_NOT_AVAILABLE": "请添加角色以打开此工作区。"
+    "WORKSPACE_NOT_AVAILABLE": "请添加角色以打开此工作区。",
+    "CARD_LIMIT_REACHED": "最多可绑定 5 张卡。请先移除一张。",
+    "CARD_NOT_FOUND": "未找到该卡。",
+    "UPLOAD_NOT_FOUND": "未找到上传的文件。",
+    "LESSON_NOT_FOUND": "未找到课程。"
   },
   "status": {
     "DRAFT": "草稿",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "平台",
     "build": "开发",
-    "company": "公司"
+    "company": "公司",
+    "payments": "支付方式"
   },
   "home": {
     "ctaStart": "创建账户",
@@ -734,6 +739,16 @@
       "beginner": "入门",
       "intermediate": "中级",
       "advanced": "高级"
+    },
+    "video": {
+      "guest": "FAITH · 免费试看",
+      "shieldTitle": "视频受保护",
+      "shieldBody": "你切换到了其他窗口或应用，或按下了截图键，因此视频已暂停并隐藏。",
+      "resume": "继续观看",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏",
+      "note": "此视频仅向你播放并带有你的名字。禁止下载、分享和录制。",
+      "has": "视频课"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "新建社区",
       "visibility": "可见性",
       "noCommunities": "暂无社区。",
-      "communityStats": "成员：{members} · 帖子：{posts}"
+      "communityStats": "成员：{members} · 帖子：{posts}",
+      "videoUpload": "上传视频（MP4）",
+      "videoReplace": "替换视频",
+      "videoUploading": "上传中…",
+      "videoReady": "视频已添加到课程，并在受保护的播放器中播放。",
+      "videoRemove": "移除视频",
+      "videoBadge": "视频"
     },
     "brand": {
       "body": "您的活动、支出和成果。",
@@ -1521,6 +1542,32 @@
       "title": "{role}是 Pro 功能",
       "body": "免费账户可以浏览和购买。Pro 开通 FAITH 的全部工具，并在 24 小时内为你的资料加上官方 FAITH Verified 徽章。",
       "cta": "查看 Pro"
+    },
+    "cards": {
+      "title": "我的卡",
+      "empty": "尚未绑定任何卡。",
+      "add": "添加卡",
+      "link": "绑定卡",
+      "linked": "卡已绑定，未扣任何费用。",
+      "accepted": "支持的支付方式",
+      "number": "卡号",
+      "expiry": "有效期",
+      "holder": "持卡人姓名（可选）",
+      "holderPlaceholder": "NAME SURNAME",
+      "safeNote": "完整卡号不会发送到 FAITH 服务器：仅保存卡类型、末四位和有效期。不需要 CVV。",
+      "noCharge": "仅绑定卡片：不会从卡中扣款。",
+      "unknownBrand": "无法识别此卡类型。请输入 UZCARD、HUMO、Visa、Mastercard、UnionPay 或 Mir 卡。",
+      "invalidNumber": "请检查卡号。",
+      "invalidExpiry": "请按 MM/YY 输入有效期；过期的卡无法绑定。",
+      "default": "默认",
+      "makeDefault": "设为默认",
+      "remove": "移除",
+      "removeConfirm": "移除尾号 {last4} 的卡？",
+      "period": "选择周期",
+      "cardStep": "绑定一张卡",
+      "linkAndStart": "绑定卡并开通 Pro · {price}",
+      "startWithCard": "用此卡开通 Pro · {price}",
+      "proOn": "Pro 已开通。卡已绑定，未扣款。"
     }
   },
   "admin": {

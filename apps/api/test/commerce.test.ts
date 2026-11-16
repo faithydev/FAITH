@@ -410,6 +410,37 @@ describe('billing', () => {
     expect(await t.ledgerBalance('platform:subscriptions:USD')).toBeGreaterThanOrEqual(1900n);
   });
 
+  it('links cards without the full number and turns Pro on with a card, charging nothing to it', async () => {
+    const u = await t.signUp(['sell'], { free: true });
+    const other = await t.signUp();
+    // The full number and the security code are never accepted.
+    await u.agent.post('/v1/billing/cards').send({ brand: 'visa', last4: '4242424242424242', expMonth: 12, expYear: 2040 }).expect(422);
+    await u.agent.post('/v1/billing/cards').send({ brand: 'visa', last4: '4242', expMonth: 1, expYear: 2020 }).expect(422);
+    await u.agent.post('/v1/billing/cards').send({ brand: 'amex', last4: '0005', expMonth: 1, expYear: 2040 }).expect(422);
+    const uzcard = (await u.agent.post('/v1/billing/cards').send({ brand: 'uzcard', last4: '9012', expMonth: 9, expYear: 2030, holder: 'Ali Valiyev' }).expect(201)).body;
+    expect(uzcard).toMatchObject({ brand: 'uzcard', last4: '9012', holder: 'ALI VALIYEV', isDefault: true });
+    // The same card twice stays one card.
+    const again = (await u.agent.post('/v1/billing/cards').send({ brand: 'uzcard', last4: '9012', expMonth: 9, expYear: 2030 }).expect(201)).body;
+    expect(again.id).toBe(uzcard.id);
+    const humo = (await u.agent.post('/v1/billing/cards').send({ brand: 'humo', last4: '1111', expMonth: 3, expYear: 2031 }).expect(201)).body;
+    expect(humo.isDefault).toBe(false);
+    // Another member cannot see, use or remove these cards.
+    expect((await other.agent.get('/v1/billing/cards').expect(200)).body).toHaveLength(0);
+    await other.agent.delete(`/v1/billing/cards/${humo.id}`).expect(404);
+    await other.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'customer', cardId: humo.id }).expect(404);
+
+    const paid = (await u.agent.post('/v1/billing/upgrade').send({ interval: 'MONTHLY', idempotencyKey: t.unique('up'), badgeKind: 'seller', cardId: humo.id }).expect(201)).body;
+    expect(paid).toMatchObject({ status: 'SUCCEEDED', simulated: true });
+    expect((await u.agent.get('/v1/me')).body.plan.key).toBe('pro');
+
+    await u.agent.post(`/v1/billing/cards/${humo.id}/default`).expect(200);
+    await u.agent.delete(`/v1/billing/cards/${humo.id}`).expect(200);
+    const left = (await u.agent.get('/v1/billing/cards').expect(200)).body;
+    expect(left).toHaveLength(1);
+    expect(left[0]).toMatchObject({ id: uzcard.id, isDefault: true });
+    expect(JSON.stringify(left)).not.toMatch(/\d{12,}/);
+  });
+
   it('keeps upgrades closed when no price is configured', async () => {
     await t.db.subscriptionPlan.update({ where: { key: 'pro' }, data: { monthlyMinor: null } });
     const u = await t.signUp();

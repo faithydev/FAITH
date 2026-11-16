@@ -17,6 +17,10 @@ export interface ObjectStore {
   /** A short-lived URL. Local storage signs an API route; S3 presigns. */
   signedUrl(key: string, opts: { ttlSeconds: number; filename?: string }): Promise<string>;
   open(key: string): Promise<Readable>;
+  /** Size in bytes, or null when there is no such object. */
+  size(key: string): Promise<number | null>;
+  /** Bytes `start` to `end`, both inclusive: for video players that seek. */
+  openRange(key: string, start: number, end: number): Promise<Readable>;
 }
 
 class LocalStore implements ObjectStore {
@@ -44,6 +48,16 @@ class LocalStore implements ObjectStore {
     const path = this.path(key);
     await fs.access(path);
     return createReadStream(path);
+  }
+  async size(key: string) {
+    try {
+      return (await fs.stat(this.path(key))).size;
+    } catch {
+      return null;
+    }
+  }
+  async openRange(key: string, start: number, end: number) {
+    return createReadStream(this.path(key), { start, end });
   }
 }
 
@@ -82,6 +96,20 @@ class S3Store implements ObjectStore {
   async open(key: string) {
     const { GetObjectCommand } = await import('@aws-sdk/client-s3');
     const out = await (await this.client).send(new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
+    return out.Body as Readable;
+  }
+  async size(key: string) {
+    const { HeadObjectCommand } = await import('@aws-sdk/client-s3');
+    try {
+      const out = await (await this.client).send(new HeadObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
+      return out.ContentLength ?? null;
+    } catch {
+      return null;
+    }
+  }
+  async openRange(key: string, start: number, end: number) {
+    const { GetObjectCommand } = await import('@aws-sdk/client-s3');
+    const out = await (await this.client).send(new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key, Range: `bytes=${start}-${end}` }));
     return out.Body as Readable;
   }
 }

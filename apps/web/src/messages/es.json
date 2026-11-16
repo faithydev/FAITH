@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "No puedes enviarte mensajes a ti mismo.",
     "SHARES_EXCEED_100": "Las participaciones no pueden superar el 100%.",
     "VERIFICATION_PENDING": "Ya tienes una solicitud en revisión.",
-    "WORKSPACE_NOT_AVAILABLE": "Añade un rol para abrir este espacio de trabajo."
+    "WORKSPACE_NOT_AVAILABLE": "Añade un rol para abrir este espacio de trabajo.",
+    "CARD_LIMIT_REACHED": "Puedes vincular hasta 5 tarjetas. Quita una primero.",
+    "CARD_NOT_FOUND": "No se encontró la tarjeta.",
+    "UPLOAD_NOT_FOUND": "No se encontró el archivo subido.",
+    "LESSON_NOT_FOUND": "No se encontró la lección."
   },
   "status": {
     "DRAFT": "Borrador",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "Plataforma",
     "build": "Desarrollar",
-    "company": "Empresa"
+    "company": "Empresa",
+    "payments": "Formas de pago"
   },
   "home": {
     "ctaStart": "Crea tu cuenta",
@@ -734,6 +739,16 @@
       "beginner": "Principiante",
       "intermediate": "Intermedio",
       "advanced": "Avanzado"
+    },
+    "video": {
+      "guest": "FAITH · vista previa gratis",
+      "shieldTitle": "Este vídeo está protegido",
+      "shieldBody": "Cambiaste a otra ventana o aplicación, o pulsaste una tecla de captura, así que el vídeo se pausó y se ocultó.",
+      "resume": "Seguir viendo",
+      "fullscreen": "Pantalla completa",
+      "exitFullscreen": "Salir de pantalla completa",
+      "note": "Este vídeo solo se muestra a ti y lleva tu nombre. No se permite descargarlo, compartirlo ni grabarlo.",
+      "has": "Lección en vídeo"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "Nueva comunidad",
       "visibility": "Visibilidad",
       "noCommunities": "Aún no hay comunidades.",
-      "communityStats": "Miembros: {members} · Publicaciones: {posts}"
+      "communityStats": "Miembros: {members} · Publicaciones: {posts}",
+      "videoUpload": "Subir vídeo (MP4)",
+      "videoReplace": "Cambiar vídeo",
+      "videoUploading": "Subiendo…",
+      "videoReady": "El vídeo se adjuntó y se reproduce en el reproductor protegido.",
+      "videoRemove": "Quitar vídeo",
+      "videoBadge": "Vídeo"
     },
     "brand": {
       "body": "Tus campañas, gasto y resultados.",
@@ -1521,6 +1542,32 @@
       "title": "{role} es una función Pro",
       "body": "Las cuentas gratuitas pueden explorar y comprar. Pro desbloquea todas las herramientas de FAITH y añade la insignia oficial FAITH Verified a tu perfil en 24 horas.",
       "cta": "Ver Pro"
+    },
+    "cards": {
+      "title": "Mis tarjetas",
+      "empty": "Aún no hay tarjetas vinculadas.",
+      "add": "Añadir tarjeta",
+      "link": "Vincular tarjeta",
+      "linked": "Tarjeta vinculada. No se cobró nada.",
+      "accepted": "Formas de pago aceptadas",
+      "number": "Número de tarjeta",
+      "expiry": "Caducidad",
+      "holder": "Titular (opcional)",
+      "holderPlaceholder": "NOMBRE APELLIDO",
+      "safeNote": "El número completo de tu tarjeta nunca llega a los servidores de FAITH: solo se guardan el tipo, los 4 últimos dígitos y la caducidad. No se pide CVV.",
+      "noCharge": "La tarjeta solo se vincula: no se le cobra nada.",
+      "unknownBrand": "No reconocemos este tipo de tarjeta. Introduce una UZCARD, HUMO, Visa, Mastercard, UnionPay o Mir.",
+      "invalidNumber": "Revisa el número de la tarjeta.",
+      "invalidExpiry": "Introduce la caducidad como MM/AA; no se puede vincular una tarjeta caducada.",
+      "default": "Principal",
+      "makeDefault": "Hacer principal",
+      "remove": "Quitar",
+      "removeConfirm": "¿Quitar la tarjeta terminada en {last4}?",
+      "period": "Elige el periodo",
+      "cardStep": "Vincula una tarjeta",
+      "linkAndStart": "Vincular tarjeta y activar Pro · {price}",
+      "startWithCard": "Activar Pro con esta tarjeta · {price}",
+      "proOn": "Pro activado. La tarjeta quedó vinculada y no se cobró nada."
     }
   },
   "admin": {

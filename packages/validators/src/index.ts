@@ -190,7 +190,91 @@ export const payoutDecisionBody = z.object({
 
 // --- Billing ----------------------------------------------------------------
 
-export const upgradeBody = z.object({ interval: z.enum(['MONTHLY', 'YEARLY']), idempotencyKey: z.string().min(8).max(100), badgeKind: z.enum(BADGE_KINDS) });
+export const upgradeBody = z.object({
+  interval: z.enum(['MONTHLY', 'YEARLY']),
+  idempotencyKey: z.string().min(8).max(100),
+  badgeKind: z.enum(BADGE_KINDS),
+  /** A card the member linked first. In the simulator nothing is charged to it. */
+  cardId: z.string().max(40).optional(),
+});
+
+// --- Payment cards ----------------------------------------------------------
+
+/**
+ * Card networks FAITH recognises while a number is typed. Order matters: the first rule whose
+ * prefix matches wins, so the national schemes (UZCARD 8600, HUMO 9860) come before the
+ * international ones and Mir (2200–2204) before Mastercard's 2-series.
+ */
+export const CARD_BRANDS = ['uzcard', 'humo', 'visa', 'mastercard', 'unionpay', 'mir'] as const;
+export type CardBrand = (typeof CARD_BRANDS)[number];
+
+const CARD_RULES: { brand: CardBrand; test: (d: string) => boolean; lengths: number[]; luhn: boolean }[] = [
+  { brand: 'uzcard', test: (d) => d.startsWith('8600'), lengths: [16], luhn: false },
+  { brand: 'humo', test: (d) => d.startsWith('9860'), lengths: [16], luhn: false },
+  { brand: 'mir', test: (d) => /^220[0-4]/.test(d), lengths: [16, 17, 18, 19], luhn: true },
+  { brand: 'visa', test: (d) => d.startsWith('4'), lengths: [13, 16, 19], luhn: true },
+  {
+    brand: 'mastercard',
+    test: (d) => /^5[1-5]/.test(d) || (d.length >= 4 && Number(d.slice(0, 4)) >= 2221 && Number(d.slice(0, 4)) <= 2720),
+    lengths: [16], luhn: true,
+  },
+  // Some UnionPay cards are issued without a Luhn check digit.
+  { brand: 'unionpay', test: (d) => d.startsWith('62') || d.startsWith('81'), lengths: [16, 17, 18, 19], luhn: false },
+];
+
+/** The network a (partial) card number belongs to, from its first digits; null while unknown. */
+export function detectCardBrand(number: string): CardBrand | null {
+  const d = number.replace(/\D/g, '');
+  if (!d) return null;
+  return CARD_RULES.find((r) => r.test(d))?.brand ?? null;
+}
+
+export function luhnValid(number: string): boolean {
+  const d = number.replace(/\D/g, '');
+  let sum = 0;
+  for (let i = 0; i < d.length; i++) {
+    let n = Number(d[d.length - 1 - i]);
+    if (i % 2 === 1) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+  }
+  return d.length > 0 && sum % 10 === 0;
+}
+
+/** Longest number the detected network issues, for the input mask; 16 while unknown. */
+export const cardMaxLength = (brand: CardBrand | null) => Math.max(...(CARD_RULES.find((r) => r.brand === brand)?.lengths ?? [16]));
+
+/** A complete, plausible number for its network: right length and, where the network uses it, Luhn. */
+export function cardNumberValid(number: string): boolean {
+  const d = number.replace(/\D/g, '');
+  const rule = CARD_RULES.find((r) => r.test(d));
+  if (!rule || !rule.lengths.includes(d.length)) return false;
+  return !rule.luhn || luhnValid(d);
+}
+
+/** Not expired at the end of its month. `year` is four digits. */
+export function cardExpiryValid(month: number, year: number, now = new Date()): boolean {
+  if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year)) return false;
+  const y = now.getUTCFullYear();
+  if (year > y + 20) return false;
+  return year > y || (year === y && month >= now.getUTCMonth() + 1);
+}
+
+/**
+ * What the server receives when a card is linked. Never the full number or the security code:
+ * the browser keeps those, and a live payment partner would receive them directly.
+ */
+export const cardBody = z.object({
+  brand: z.enum(CARD_BRANDS),
+  last4: z.string().regex(/^\d{4}$/),
+  expMonth: z.number().int().min(1).max(12),
+  expYear: z.number().int().min(2000).max(2100),
+  holder: z.string().trim().max(60).regex(/^[\p{L} .'-]*$/u).optional(),
+}).refine((c) => cardExpiryValid(c.expMonth, c.expYear), { path: ['expMonth'], message: 'CARD_EXPIRED' });
+
+export const lessonVideoBody = z.object({ uploadId: z.string().min(1).max(40) });
 export const planPriceBody = z.object({
   monthlyMinor: minorAmount.nullable(),
   yearlyMinor: minorAmount.nullable(),

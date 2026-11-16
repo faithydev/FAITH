@@ -41,13 +41,16 @@ export async function onboard(page: Page, personas: string[]) {
 
 export const api = (request: APIRequestContext) => request;
 
-/** Buys Pro through the simulator, choosing the role whose badge the profile will carry. */
+/**
+ * Buys Pro, choosing the role whose badge the profile will carry, with a linked test card. In
+ * the simulator the card is only linked, nothing is charged, and Pro turns on at once.
+ */
 export async function goPro(page: Page, role: string) {
   await page.goto(url('/app/billing'));
   await page.getByTestId(`pick-${role}`).click();
-  await page.getByRole('button', { name: /a month/ }).click();
-  await page.waitForURL(/checkout\/simulator/);
-  await page.getByTestId('simulate-success').click();
-  await page.getByTestId('payment-continue').click();
-  await page.waitForURL(/\/app\/billing/);
+  await page.getByTestId('card-number').fill('4242424242424242');
+  await expect(page.getByTestId('card-face')).toHaveAttribute('data-brand', 'visa');
+  await page.getByTestId('card-expiry').fill('1239');
+  await page.getByTestId('card-submit').click();
+  await expect(page.getByTestId('current-plan')).toHaveText('Pro');
 }

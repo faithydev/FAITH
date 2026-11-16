@@ -70,7 +70,9 @@ export class UploadsController {
     }
     res.setHeader('Content-Type', row.mime);
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    // Keys are random per upload, so a day at the browser and at Vercel's edge (s-maxage) is safe;
+    // the image then never makes the trip to the API again that day.
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
     stream.pipe(res);
   }
 

@@ -1,19 +1,43 @@
-import { Controller, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
-  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonBody, memberModerationBody, postBody, sectionBody,
+  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonBody, lessonVideoBody, memberModerationBody, postBody, sectionBody,
 } from '@faith/validators';
+import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { Auth, AuthContext, OptionalAuth, Public, RequirePermission } from '../auth/context';
+import { StorageService } from '../core/adapters';
+import { forbidden, notFound } from '../core/errors';
+import { RateLimit } from '../core/rate-limit';
 import { ZBody } from '../core/zod';
 import { CreatorService } from './creator.service';
+
+/** Largest slice served per request: players ask again as they play, nobody gets the file in one go. */
+const CHUNK = 4 * 1024 * 1024;
+
+/** A single `bytes=a-b`, `bytes=a-` or `bytes=-n` range, clamped to the file; null when unusable. */
+function parseRange(header: string | undefined, size: number): [number, number] | null {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(header ?? '');
+  if (!m || (!m[1] && !m[2])) return null;
+  let start: number;
+  let end: number;
+  if (!m[1]) {
+    start = Math.max(0, size - Number(m[2]));
+    end = size - 1;
+  } else {
+    start = Number(m[1]);
+    end = m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
+  }
+  if (start >= size || start > end) return null;
+  return [start, Math.min(end, start + CHUNK - 1)];
+}
 
 const publishedBody = z.object({ published: z.boolean() });
 
 @ApiTags('creator')
 @Controller()
 export class CreatorController {
-  constructor(private readonly creator: CreatorService) {}
+  constructor(private readonly creator: CreatorService, private readonly storage: StorageService) {}
 
   @Public() @Get('creators')
   creators(@Query('q') q?: string) {
@@ -85,6 +109,43 @@ export class CreatorController {
   @Post('creator/sections/:id/lessons') @RequirePermission('course.manage')
   lesson(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(lessonBody) b: z.infer<typeof lessonBody>) {
     return this.creator.addLesson(id, a.user.id, b);
+  }
+
+  @Put('creator/lessons/:id/video') @RequirePermission('course.manage')
+  setVideo(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(lessonVideoBody) b: z.infer<typeof lessonVideoBody>) {
+    return this.creator.setLessonVideo(id, a.user.id, b.uploadId);
+  }
+
+  @Delete('creator/lessons/:id/video') @RequirePermission('course.manage')
+  removeVideo(@Auth() a: AuthContext, @Param('id') id: string) {
+    return this.creator.setLessonVideo(id, a.user.id, null);
+  }
+
+  /**
+   * Lesson video, streamed in slices to the signed-in viewer who has access. Same origin as the
+   * site (through its /api rewrite), never cached, and refused when opened as a page, so a copied
+   * address does not play or download outside the protected player.
+   */
+  @Public() @Get('lessons/:id/stream') @RateLimit(600, 60)
+  async stream(@Param('id') id: string, @OptionalAuth() a: AuthContext | undefined, @Req() req: Request, @Res() res: Response) {
+    if (req.headers['sec-fetch-dest'] === 'document') throw forbidden('PROTECTED_VIDEO');
+    const { key } = await this.creator.lessonVideo(id, a?.user.id);
+    const size = await this.storage.store.size(key);
+    if (size === null) throw notFound('LESSON_NOT_FOUND');
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    const range = parseRange(req.headers.range, size) ?? [0, Math.min(size, CHUNK) - 1];
+    const [start, end] = range;
+    res.status(206);
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
+    res.setHeader('Content-Length', String(end - start + 1));
+    const body = await this.storage.store.openRange(key, start, end);
+    body.on('error', () => res.destroy());
+    body.pipe(res);
   }
 
   @Post('creator/courses/:id/published') @HttpCode(200) @RequirePermission('course.manage')

@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "You cannot message yourself.",
     "SHARES_EXCEED_100": "Shares cannot exceed 100%.",
     "VERIFICATION_PENDING": "You already have a pending request.",
-    "WORKSPACE_NOT_AVAILABLE": "Add this role to use that workspace."
+    "WORKSPACE_NOT_AVAILABLE": "Add this role to use that workspace.",
+    "CARD_LIMIT_REACHED": "You can link up to 5 cards. Remove one first.",
+    "CARD_NOT_FOUND": "Card not found.",
+    "UPLOAD_NOT_FOUND": "Uploaded file not found.",
+    "LESSON_NOT_FOUND": "Lesson not found."
   },
   "status": {
     "DRAFT": "Draft",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "Platform",
     "build": "Build",
-    "company": "Company"
+    "company": "Company",
+    "payments": "Ways to pay"
   },
   "home": {
     "ctaStart": "Create your account",
@@ -734,6 +739,16 @@
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced"
+    },
+    "video": {
+      "guest": "FAITH · free preview",
+      "shieldTitle": "This video is protected",
+      "shieldBody": "You switched to another window or app, or pressed a screenshot key, so the video was paused and hidden.",
+      "resume": "Continue watching",
+      "fullscreen": "Full screen",
+      "exitFullscreen": "Exit full screen",
+      "note": "This video is shown only to you and carries your name. Downloading, sharing and recording are not allowed.",
+      "has": "Video lesson"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "New community",
       "visibility": "Visibility",
       "noCommunities": "No communities yet.",
-      "communityStats": "Members: {members} · Posts: {posts}"
+      "communityStats": "Members: {members} · Posts: {posts}",
+      "videoUpload": "Upload video (MP4)",
+      "videoReplace": "Replace video",
+      "videoUploading": "Uploading…",
+      "videoReady": "The video is attached and plays in the protected player.",
+      "videoRemove": "Remove video",
+      "videoBadge": "Video"
     },
     "brand": {
       "body": "Your campaigns, spend and results.",
@@ -1521,6 +1542,32 @@
       "title": "{role} is a Pro feature",
       "body": "Free accounts can browse and buy. Pro unlocks every tool on FAITH and adds an official FAITH Verified badge to your profile within 24 hours.",
       "cta": "See Pro"
+    },
+    "cards": {
+      "title": "My cards",
+      "empty": "No cards linked yet.",
+      "add": "Add a card",
+      "link": "Link card",
+      "linked": "Card linked. Nothing was charged.",
+      "accepted": "Accepted ways to pay",
+      "number": "Card number",
+      "expiry": "Expiry",
+      "holder": "Name on card (optional)",
+      "holderPlaceholder": "NAME SURNAME",
+      "safeNote": "Your full card number never reaches FAITH’s servers: only the card type, the last 4 digits and the expiry are kept. No CVV is asked for.",
+      "noCharge": "The card is only linked: nothing is charged to it.",
+      "unknownBrand": "We do not recognise this card type. Enter an UZCARD, HUMO, Visa, Mastercard, UnionPay or Mir card.",
+      "invalidNumber": "Check the card number.",
+      "invalidExpiry": "Enter the expiry as MM/YY; an expired card cannot be linked.",
+      "default": "Default",
+      "makeDefault": "Make default",
+      "remove": "Remove",
+      "removeConfirm": "Remove the card ending {last4}?",
+      "period": "Choose a period",
+      "cardStep": "Link a card",
+      "linkAndStart": "Link card and turn on Pro · {price}",
+      "startWithCard": "Turn on Pro with this card · {price}",
+      "proOn": "Pro is on. The card is linked and nothing was charged."
     }
   },
   "admin": {

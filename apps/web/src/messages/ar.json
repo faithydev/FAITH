@@ -115,7 +115,11 @@
     "CANNOT_MESSAGE_SELF": "لا يمكنك مراسلة نفسك.",
     "SHARES_EXCEED_100": "يجب ألا تتجاوز الحصص 100%.",
     "VERIFICATION_PENDING": "لديك طلب قيد المراجعة بالفعل.",
-    "WORKSPACE_NOT_AVAILABLE": "أضف دورًا لفتح مساحة العمل هذه."
+    "WORKSPACE_NOT_AVAILABLE": "أضف دورًا لفتح مساحة العمل هذه.",
+    "CARD_LIMIT_REACHED": "يمكنك ربط 5 بطاقات كحد أقصى. أزل واحدة أولًا.",
+    "CARD_NOT_FOUND": "البطاقة غير موجودة.",
+    "UPLOAD_NOT_FOUND": "لم يُعثر على الملف المرفوع.",
+    "LESSON_NOT_FOUND": "الدرس غير موجود."
   },
   "status": {
     "DRAFT": "مسودة",
@@ -257,7 +261,8 @@
   "footer": {
     "platform": "المنصة",
     "build": "التطوير",
-    "company": "الشركة"
+    "company": "الشركة",
+    "payments": "طرق الدفع"
   },
   "home": {
     "ctaStart": "أنشئ حسابك",
@@ -734,6 +739,16 @@
       "beginner": "مبتدئ",
       "intermediate": "متوسط",
       "advanced": "متقدم"
+    },
+    "video": {
+      "guest": "FAITH · معاينة مجانية",
+      "shieldTitle": "هذا الفيديو محمي",
+      "shieldBody": "انتقلت إلى نافذة أو تطبيق آخر أو ضغطت مفتاح لقطة الشاشة، لذلك أُوقف الفيديو وأُخفي.",
+      "resume": "متابعة المشاهدة",
+      "fullscreen": "ملء الشاشة",
+      "exitFullscreen": "الخروج من ملء الشاشة",
+      "note": "يُعرض هذا الفيديو لك وحدك ويحمل اسمك. التنزيل والمشاركة والتسجيل غير مسموح بها.",
+      "has": "درس فيديو"
     }
   },
   "communities": {
@@ -1349,7 +1364,13 @@
       "newCommunity": "مجتمع جديد",
       "visibility": "الظهور",
       "noCommunities": "لا توجد مجتمعات بعد.",
-      "communityStats": "الأعضاء: {members} · المنشورات: {posts}"
+      "communityStats": "الأعضاء: {members} · المنشورات: {posts}",
+      "videoUpload": "رفع فيديو (MP4)",
+      "videoReplace": "استبدال الفيديو",
+      "videoUploading": "جارٍ الرفع…",
+      "videoReady": "أُرفق الفيديو بالدرس ويُعرض في المشغّل المحمي.",
+      "videoRemove": "إزالة الفيديو",
+      "videoBadge": "فيديو"
     },
     "brand": {
       "body": "حملاتك وإنفاقك ونتائجك.",
@@ -1521,6 +1542,32 @@
       "title": "{role} ميزة في Pro",
       "body": "الحسابات المجانية تتيح التصفح والشراء. يفتح Pro كل أدوات FAITH ويضيف شارة FAITH Verified الرسمية إلى ملفك خلال 24 ساعة.",
       "cta": "اطّلع على Pro"
+    },
+    "cards": {
+      "title": "بطاقاتي",
+      "empty": "لم تُربط أي بطاقة بعد.",
+      "add": "إضافة بطاقة",
+      "link": "ربط البطاقة",
+      "linked": "تم ربط البطاقة. لم يُخصم أي مبلغ.",
+      "accepted": "طرق الدفع المقبولة",
+      "number": "رقم البطاقة",
+      "expiry": "تاريخ الانتهاء",
+      "holder": "الاسم على البطاقة (اختياري)",
+      "holderPlaceholder": "NAME SURNAME",
+      "safeNote": "لا يصل رقم بطاقتك الكامل إلى خوادم FAITH: نحفظ نوع البطاقة وآخر 4 أرقام وتاريخ الانتهاء فقط. لا نطلب رمز CVV.",
+      "noCharge": "تُربط البطاقة فقط: لا يُخصم منها أي مبلغ.",
+      "unknownBrand": "لم نتعرف على نوع هذه البطاقة. أدخل بطاقة UZCARD أو HUMO أو Visa أو Mastercard أو UnionPay أو Mir.",
+      "invalidNumber": "تحقق من رقم البطاقة.",
+      "invalidExpiry": "أدخل تاريخ الانتهاء بصيغة MM/YY؛ لا يمكن ربط بطاقة منتهية.",
+      "default": "الافتراضية",
+      "makeDefault": "جعلها الافتراضية",
+      "remove": "إزالة",
+      "removeConfirm": "إزالة البطاقة المنتهية بـ {last4}؟",
+      "period": "اختر المدة",
+      "cardStep": "اربط بطاقة",
+      "linkAndStart": "اربط البطاقة وفعّل Pro · {price}",
+      "startWithCard": "فعّل Pro بهذه البطاقة · {price}",
+      "proOn": "تم تفعيل Pro. رُبطت البطاقة ولم يُخصم أي مبلغ."
     }
   },
   "admin": {

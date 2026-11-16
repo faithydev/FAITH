@@ -44,7 +44,8 @@ export function Approx({ minor, currency, className }: { minor: string | bigint 
   const approx = useApprox();
   const text = approx(minor, currency);
   if (!text) return null;
-  return <span data-testid="approx" className={cx('block text-xs font-normal tabular-nums text-subtle', className)}>≈ {text}</span>;
+  // Browsers without the Uzbek locale data format "so'm" differently from the server; keep the server's text.
+  return <span data-testid="approx" suppressHydrationWarning className={cx('block text-xs font-normal tabular-nums text-subtle', className)}>≈ {text}</span>;
 }
 
 /**

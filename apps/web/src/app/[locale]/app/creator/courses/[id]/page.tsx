@@ -1,10 +1,11 @@
+import { LessonVideoUpload } from '@/components/courses/lesson-video';
 import { ActionButton, FormDialog } from '@/components/ui/client';
 import { Badge, Breadcrumbs, Card, EmptyState, LinkButton, PageHeader, StatusBadge } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import { notFound } from 'next/navigation';
 
-type Course = { id: string; slug: string; title: string; summary: string; status: string; sections: { id: string; title: string; lessons: { id: string; title: string; isPreview: boolean }[] }[] };
+type Course = { id: string; slug: string; title: string; summary: string; status: string; sections: { id: string; title: string; lessons: { id: string; title: string; isPreview: boolean; videoKey: string | null }[] }[] };
 
 export default async function CourseEditor({ params }: { params: Promise<{ id: string }> }) {
   const [{ id }, { t, status }] = await Promise.all([params, pageContext()]);
@@ -44,7 +45,17 @@ export default async function CourseEditor({ params }: { params: Promise<{ id: s
                 />
               </div>
               <ul className="mt-2 divide-y divide-line text-sm">
-                {s.lessons.map((l) => <li key={l.id} className="flex items-center justify-between gap-2 py-2">{l.title}{l.isPreview && <Badge tone="accent">{t('app.creator.previewBadge')}</Badge>}</li>)}
+                {s.lessons.map((l) => (
+                  <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                    <span className="min-w-0 flex-1">{l.title}</span>
+                    <span className="flex flex-wrap items-center gap-2">
+                      {l.isPreview && <Badge tone="accent">{t('app.creator.previewBadge')}</Badge>}
+                      {l.videoKey && <Badge tone="positive">{t('app.creator.videoBadge')}</Badge>}
+                      <LessonVideoUpload lessonId={l.id} hasVideo={!!l.videoKey} />
+                      {l.videoKey && <ActionButton endpoint={`/creator/lessons/${l.id}/video`} method="DELETE" variant="ghost" label={t('app.creator.videoRemove')} />}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </Card>
           ))}
