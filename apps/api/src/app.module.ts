@@ -17,6 +17,8 @@ import { OrdersService } from './commerce/orders.service';
 import { SellerService } from './commerce/seller.service';
 import { UploadsController } from './commerce/uploads.controller';
 import { EmailService, StorageService } from './core/adapters';
+import { BackupService } from './core/backup.service';
+import { BackupController } from './admin/backup.controller';
 import { AllExceptionsFilter } from './core/errors';
 import { AuditService, EventsService, FlagsService, SettingsService } from './core/platform.services';
 import { PrismaService } from './core/prisma.service';
@@ -44,7 +46,7 @@ import { WorkController } from './work/work.controller';
 import { WorkService } from './work/work.service';
 
 const shared = [
-  PrismaService, AuditService, EventsService, SettingsService, FlagsService, EmailService, StorageService,
+  PrismaService, AuditService, EventsService, SettingsService, FlagsService, EmailService, StorageService, BackupService,
   EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService, BadgesService,
 ];
 
@@ -95,7 +97,7 @@ export class CommunicationModule {}
 
 @Module({
   imports: [CommerceModule, RewardsModule, DeveloperModule],
-  controllers: [AdminController, LabController, ExportController],
+  controllers: [AdminController, LabController, ExportController, BackupController],
   providers: [AdminService, RemovalService],
 })
 export class AdminModule {}

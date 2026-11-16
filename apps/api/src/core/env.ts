@@ -27,6 +27,13 @@ const schema = z.object({
    * falls asleep and no visitor waits for a cold start. Set to false on a paid, always-on plan.
    */
   KEEP_AWAKE: bool.default(true),
+  /**
+   * Nightly encrypted database backup into object storage, made by the API itself (needs
+   * RUN_WORKER). On by default in production. The key is BACKUP_PASSPHRASE, else APP_ENCRYPTION_KEY.
+   */
+  BACKUP_ENABLED: bool.default(process.env.NODE_ENV === 'production'),
+  BACKUP_PASSPHRASE: z.string().min(16, 'must be at least 16 characters').optional(),
+  BACKUP_KEEP_DAYS: z.coerce.number().int().min(3).max(365).default(14),
   /** Proxy hops in front of the API: 1 for a load balancer, 2 behind the web app's rewrite too. */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
   APP_ENCRYPTION_KEY: secret,

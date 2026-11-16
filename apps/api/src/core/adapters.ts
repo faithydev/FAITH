@@ -24,7 +24,12 @@ export interface ObjectStore {
   size(key: string): Promise<number | null>;
   /** Bytes `start` to `end`, both inclusive: for video players that seek. */
   openRange(key: string, start: number, end: number): Promise<Readable>;
+  /** Objects whose key starts with `prefix`, for maintenance such as backups. */
+  list(prefix: string): Promise<StoredObject[]>;
+  remove(key: string): Promise<void>;
 }
+
+export type StoredObject = { key: string; size: number; modifiedAt: Date };
 
 class LocalStore implements ObjectStore {
   readonly driver = 'local';
@@ -62,6 +67,20 @@ class LocalStore implements ObjectStore {
   }
   async openRange(key: string, start: number, end: number) {
     return createReadStream(this.path(key), { start, end });
+  }
+  async list(prefix: string) {
+    const dir = dirname(this.path(`${prefix}x`));
+    const names = await fs.readdir(dir).catch(() => [] as string[]);
+    const out: StoredObject[] = [];
+    for (const name of names) {
+      const key = `${prefix}${name}`;
+      const st = await fs.stat(this.path(key)).catch(() => null);
+      if (st?.isFile()) out.push({ key, size: st.size, modifiedAt: st.mtime });
+    }
+    return out;
+  }
+  async remove(key: string) {
+    await fs.rm(this.path(key), { force: true });
   }
 }
 
@@ -120,6 +139,21 @@ class S3Store implements ObjectStore {
     const { GetObjectCommand } = await import('@aws-sdk/client-s3');
     const out = await (await this.client).send(new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key, Range: `bytes=${start}-${end}` }));
     return out.Body as Readable;
+  }
+  async list(prefix: string) {
+    const { ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+    const out: StoredObject[] = [];
+    let token: string | undefined;
+    do {
+      const page = await (await this.client).send(new ListObjectsV2Command({ Bucket: env.S3_BUCKET, Prefix: prefix, ContinuationToken: token }));
+      for (const o of page.Contents ?? []) if (o.Key) out.push({ key: o.Key, size: o.Size ?? 0, modifiedAt: o.LastModified ?? new Date(0) });
+      token = page.IsTruncated ? page.NextContinuationToken : undefined;
+    } while (token);
+    return out;
+  }
+  async remove(key: string) {
+    const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+    await (await this.client).send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
   }
 }
 

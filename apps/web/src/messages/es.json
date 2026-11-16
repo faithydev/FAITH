@@ -124,7 +124,9 @@
     "PAYLOAD_TOO_LARGE": "El archivo es demasiado grande: 300 MB como máximo.",
     "UPLOADS_BUSY": "Ahora se están subiendo muchos archivos. Vuelve a intentarlo en unos segundos.",
     "INVALID_FILTER": "Ese valor de filtro no existe.",
-    "INVALID_PURPOSE": "El propósito de la subida no es válido."
+    "INVALID_PURPOSE": "El propósito de la subida no es válido.",
+    "BACKUP_RUNNING": "Ya se está haciendo una copia. Inténtalo de nuevo en un minuto.",
+    "BACKUP_NOT_FOUND": "No se encontró esa copia."
   },
   "status": {
     "DRAFT": "Borrador",
@@ -1722,6 +1724,19 @@
       "run": "Eliminarlas",
       "done": "{count} cuentas eliminadas",
       "nothing": "No hay nada que eliminar."
+    },
+    "backups": {
+      "title": "Copias de seguridad",
+      "body": "Cada noche el servidor hace una copia cifrada de toda la base de datos y la guarda {days} días. Para restaurar, consulta docs/BACKUP.md.",
+      "now": "Copiar ahora",
+      "made": "Copia lista.",
+      "on": "Automática cada noche",
+      "off": "La copia automática está desactivada",
+      "localDisk": "Disco del servidor",
+      "keyOwn": "Clave: BACKUP_PASSPHRASE. Sin ella no se puede abrir ninguna copia; guárdala en tu gestor de contraseñas.",
+      "keyApp": "Clave: APP_ENCRYPTION_KEY en Render. Cópiala ahora en tu gestor de contraseñas: sin ella no se pueden abrir ni la copia ni los secretos de los datos.",
+      "empty": "Aún no hay copias. La primera se hace 3 minutos después de arrancar el servidor.",
+      "download": "Descargar"
     }
   },
   "badges": {

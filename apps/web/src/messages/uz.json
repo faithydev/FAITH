@@ -124,7 +124,9 @@
     "PAYLOAD_TOO_LARGE": "Fayl juda katta: eng koʻpi 300 MB.",
     "UPLOADS_BUSY": "Hozir koʻp fayl yuklanmoqda. Bir necha soniyadan keyin qayta urinib koʻring.",
     "INVALID_FILTER": "Bunday saralash qiymati yoʻq.",
-    "INVALID_PURPOSE": "Bu fayl qayerga yuklanayotgani notoʻgʻri koʻrsatilgan."
+    "INVALID_PURPOSE": "Bu fayl qayerga yuklanayotgani notoʻgʻri koʻrsatilgan.",
+    "BACKUP_RUNNING": "Zaxira nusxa hozir olinmoqda. Bir daqiqadan keyin qayta urinib koʻring.",
+    "BACKUP_NOT_FOUND": "Bunday zaxira nusxa topilmadi."
   },
   "status": {
     "DRAFT": "Qoralama",
@@ -1722,6 +1724,19 @@
       "run": "Olib tashlash",
       "done": "{count} ta akkaunt olib tashlandi",
       "nothing": "Olib tashlanadigan akkaunt yoʻq."
+    },
+    "backups": {
+      "title": "Zaxira nusxalar",
+      "body": "Server har kecha butun bazaning shifrlangan nusxasini oladi va {days} kun saqlaydi. Tiklash yoʻriqnomasi: docs/BACKUP.md.",
+      "now": "Hozir zaxira qilish",
+      "made": "Zaxira nusxa tayyor.",
+      "on": "Har kecha avtomatik",
+      "off": "Avtomatik zaxira oʻchiq",
+      "localDisk": "Server diski",
+      "keyOwn": "Kalit: BACKUP_PASSPHRASE. Usiz nusxani ochib boʻlmaydi — uni parol menejeringizda saqlang.",
+      "keyApp": "Kalit: Render’dagi APP_ENCRYPTION_KEY. Uni hozir nusxalab, parol menejeringizda saqlang: usiz na nusxani, na bazadagi maxfiy maʼlumotlarni ochib boʻladi.",
+      "empty": "Hali zaxira nusxa yoʻq. Birinchisi server ishga tushgandan 3 daqiqa keyin olinadi.",
+      "download": "Yuklab olish"
     }
   },
   "badges": {

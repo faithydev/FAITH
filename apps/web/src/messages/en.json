@@ -124,7 +124,9 @@
     "PAYLOAD_TOO_LARGE": "The file is too large: 300 MB at most.",
     "UPLOADS_BUSY": "Many files are uploading right now. Try again in a few seconds.",
     "INVALID_FILTER": "That filter value does not exist.",
-    "INVALID_PURPOSE": "The upload’s purpose is not valid."
+    "INVALID_PURPOSE": "The upload’s purpose is not valid.",
+    "BACKUP_RUNNING": "A backup is already running. Try again in a minute.",
+    "BACKUP_NOT_FOUND": "That backup was not found."
   },
   "status": {
     "DRAFT": "Draft",
@@ -1722,6 +1724,19 @@
       "run": "Remove them",
       "done": "{count} accounts removed",
       "nothing": "There is nothing to remove."
+    },
+    "backups": {
+      "title": "Backups",
+      "body": "Every night the server makes an encrypted copy of the whole database and keeps it for {days} days. To restore, see docs/BACKUP.md.",
+      "now": "Back up now",
+      "made": "Backup ready.",
+      "on": "Automatic every night",
+      "off": "Automatic backup is off",
+      "localDisk": "Server disk",
+      "keyOwn": "Key: BACKUP_PASSPHRASE. Without it no backup can be opened, so keep it in your password manager.",
+      "keyApp": "Key: APP_ENCRYPTION_KEY on Render. Copy it into your password manager now: without it neither the backup nor the secrets in the data can be opened.",
+      "empty": "No backups yet. The first one is made 3 minutes after the server starts.",
+      "download": "Download"
     }
   },
   "badges": {

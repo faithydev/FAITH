@@ -3,6 +3,12 @@ import { SYSTEM_RULES, deliverWebhooks, drainOutbox, expireSubscriptions, purgeE
 /** Drains every pending event; one call handles a batch, and sign-ups add events of their own. */
 const drainAll = async (db: Parameters<typeof drainOutbox>[0]) => { while ((await drainOutbox(db, { batch: 200 })).processed > 0); };
 import { FaithClient, verifyWebhook } from '@faith/sdk';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { normalizeContentUrl } from '../src/rewards/verification';
 import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
@@ -893,6 +899,78 @@ describe('rate limiting and health', () => {
       expect(h.adapters.payments.providers.find((p: { name: string }) => p.name === name).live).toBe(false);
     }
   });
+});
+
+const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
+const runRestore = (args: string[], env: Record<string, string>) =>
+  spawnSync(process.execPath, [join(ROOT, 'scripts/restore-backup.mjs'), ...args], { env: { ...process.env, ...env }, encoding: 'utf8', timeout: 120_000 });
+
+describe('database backups', () => {
+  it('makes an encrypted backup that only super admins can see, and it restores into a fresh database', async () => {
+    const seller = await t.signUp(['sell']);
+    await createStoreWithProduct(t, seller, { title: t.unique('Backed up pack') });
+    const admin = await staff('admin');
+    const root = await staff('super_admin');
+
+    await admin.agent.post('/v1/admin/backups').expect(403);
+    await admin.agent.get('/v1/admin/backups').expect(403);
+    const made = (await root.agent.post('/v1/admin/backups').expect(200)).body as { name: string; size: number; rows: number; tables: number };
+    expect(made.name).toMatch(/^faith-\d{8}T\d{6}Z\.faithbk$/);
+    expect(made.rows).toBeGreaterThan(0);
+    const list = (await root.agent.get('/v1/admin/backups').expect(200)).body as { items: { name: string }[] };
+    expect(list.items.map((i) => i.name)).toContain(made.name);
+    await root.agent.get('/v1/admin/backups/..%2F..%2Fsecret').expect(404);
+
+    const file = await root.agent.get(`/v1/admin/backups/${made.name}`).buffer(true).parse((res, done) => {
+      const chunks: Buffer[] = [];
+      res.on('data', (c: Buffer) => chunks.push(c));
+      res.on('end', () => done(null, Buffer.concat(chunks)));
+    }).expect(200);
+    const bytes = file.body as Buffer;
+    expect(bytes.subarray(0, 8).toString()).toBe('FAITHBK1');
+    // Encrypted: no email address can be read from the file.
+    expect(bytes.includes(Buffer.from(seller.email))).toBe(false);
+    expect(await t.db.auditLog.count({ where: { action: 'admin.backup.downloaded', actorId: root.id } })).toBe(1);
+
+    const dir = mkdtempSync(join(tmpdir(), 'faith-restore-'));
+    const path = join(dir, made.name);
+    writeFileSync(path, bytes);
+    try {
+      const wrong = runRestore([path, '--check'], { BACKUP_PASSPHRASE: 'not-the-right-passphrase', APP_ENCRYPTION_KEY: '' });
+      expect(wrong.status).toBe(1);
+      expect(wrong.stderr).toContain('Wrong key');
+
+      const checked = runRestore([path, '--check'], {});
+      expect(checked.status, checked.stderr).toBe(0);
+      const summary = JSON.parse(checked.stdout.trim().split('\n').at(-1)!) as { rows: number; counts: Record<string, number> };
+      expect(summary.rows).toBe(made.rows);
+      expect(summary.counts.User).toBeGreaterThan(0);
+
+      // A full restore into a brand-new database on the same server, migrated first.
+      const target = new URL(process.env.DATABASE_URL!);
+      const dbName = `faith_restore_${Date.now().toString(36)}`;
+      const created = await t.db.$executeRawUnsafe(`CREATE DATABASE ${dbName}`).then(() => true, () => false);
+      if (!created) return; // A managed test database may not allow CREATE DATABASE; the check above still ran.
+      target.pathname = `/${dbName}`;
+      try {
+        const prisma = createRequire(join(ROOT, 'packages/database/package.json')).resolve('prisma/build/index.js');
+        const migrate = spawnSync(process.execPath, [prisma, 'migrate', 'deploy'], { cwd: join(ROOT, 'packages/database'), env: { ...process.env, DATABASE_URL: target.toString() }, encoding: 'utf8', timeout: 120_000 });
+        expect(migrate.status, migrate.stderr).toBe(0);
+        const restored = runRestore([path], { TARGET_DATABASE_URL: target.toString() });
+        expect(restored.status, restored.stderr).toBe(0);
+        const result = JSON.parse(restored.stdout.trim().split('\n').at(-1)!) as { rows: number; counts: Record<string, number> };
+        expect(result.counts).toEqual(summary.counts);
+        // A second restore into the same, now full, database is refused and changes nothing.
+        const again = runRestore([path], { TARGET_DATABASE_URL: target.toString() });
+        expect(again.status).toBe(1);
+        expect(again.stderr).toContain('not empty');
+      } finally {
+        await t.db.$executeRawUnsafe(`DROP DATABASE IF EXISTS ${dbName} WITH (FORCE)`);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 240_000);
 });
 
 // Last on purpose: it removes every account the earlier tests created.

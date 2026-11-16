@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { deliverWebhooks, drainOutbox, expireSubscriptions, purgeExpired, refreshRates, settleBadges } from '@faith/automation';
 import { BadgesService } from './identity/badges';
 import { AppModule } from './app.module';
+import { BackupService } from './core/backup.service';
 import { configureApp, setupOpenApi } from './configure';
 import { env } from './core/env';
 import { logger } from './core/logger';
@@ -27,7 +28,7 @@ async function bootstrap() {
   await app.listen(env.API_PORT);
   await app.get(BadgesService).boot().catch((err: unknown) => logger.error({ err }, 'badge start-up failed'));
   logger.info({ port: env.API_PORT }, 'FAITH API listening');
-  if (env.RUN_WORKER) startWorker(app.get(PrismaService));
+  if (env.RUN_WORKER) startWorker(app.get(PrismaService), app.get(BackupService));
   keepAwake();
 }
 
@@ -49,7 +50,7 @@ function keepAwake() {
 }
 
 /** The worker's loop, in this process: for hosts that offer one web service and no worker. */
-function startWorker(prisma: PrismaService) {
+function startWorker(prisma: PrismaService, backup: BackupService) {
   const opts = { encryptionKey: env.APP_ENCRYPTION_KEY, allowPrivateTargets: false };
   let busy = false;
   timers.push(setInterval(async () => {
@@ -75,6 +76,14 @@ function startWorker(prisma: PrismaService) {
     setInterval(purge, 6 * 3_600_000),
     setTimeout(purge, 60_000),
   );
+  if (env.BACKUP_ENABLED) {
+    // Checked every half hour; a backup is made when the newest is older than 20 hours.
+    const nightly = () => {
+      backup.runIfDue().catch((err: unknown) => logger.error({ err }, 'database backup failed'));
+    };
+    timers.push(setInterval(nightly, 30 * 60_000), setTimeout(nightly, 3 * 60_000));
+    logger.info('nightly database backup on');
+  }
   // Official exchange rates: once at start, then every six hours. A failed fetch keeps the old rates.
   const rates = () => { refreshRates(prisma.db).then((r) => logger.info(r, 'exchange rates refreshed')).catch((err: unknown) => logger.warn({ err: (err as Error).message }, 'exchange rates not refreshed')); };
   rates();

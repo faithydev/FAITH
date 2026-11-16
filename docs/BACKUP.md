@@ -1,60 +1,98 @@
 # Backups and restore
 
 The live database has no backups of its own (Render's free Postgres keeps none, and it expires
-about 30 days after it was created). The `Database backup` workflow fills that gap: every night
-at 03:30 Tashkent time it dumps the database, encrypts the dump and stores it in the private R2
-bucket under `backups/`, keeping the last 30 days. Nothing is uploaded to GitHub: this
-repository is public.
+about 30 days after it was created). FAITH makes its own, in two independent ways.
 
-## Turn it on (once, about 10 minutes)
+## 1. The API's nightly backup (on by default)
 
-In GitHub, open the repository, then **Settings > Secrets and variables > Actions > New
-repository secret**, and add:
+The API backs the database up itself, with nothing outside the app: no GitHub Actions, no
+`pg_dump`. Every half hour it checks the newest backup; when that is older than 20 hours it makes
+a new one, so there is one a day. Each backup is:
+
+- one consistent snapshot of every table (a single `REPEATABLE READ` transaction),
+- streamed through gzip and AES-256-GCM into a temporary file, never held in memory,
+- stored in object storage under `backups/app/` (Cloudflare R2 bucket `faith-files` on the live
+  site), named `faith-YYYYMMDDTHHMMSSZ.faithbk`,
+- kept for `BACKUP_KEEP_DAYS` days (14 by default); the three newest always stay.
+
+Founders (super admins) see the list in **Admin > Settings > Backups**, can make one at once with
+**Back up now**, and can download any of them. Every backup made by hand and every download is
+written to the audit log.
+
+| Setting (Render > Environment) | Meaning |
+| --- | --- |
+| `BACKUP_ENABLED` | `true` by default in production; `false` turns the nightly run off |
+| `BACKUP_PASSPHRASE` | Optional. The key backups are encrypted with. Without it the key is `APP_ENCRYPTION_KEY` |
+| `BACKUP_KEEP_DAYS` | Days to keep backups, 3 to 365, default 14 |
+
+**Keep the key outside Render.** Copy `APP_ENCRYPTION_KEY` (or your `BACKUP_PASSPHRASE`) from
+Render's Environment tab into your password manager now. Without it no backup can be opened, and
+a restored database also needs `APP_ENCRYPTION_KEY` to read the secrets stored in it (two-factor
+keys, webhook secrets). If you set a `BACKUP_PASSPHRASE` later, older backups still need the old
+key.
+
+## 2. GitHub Actions (`Database backup` workflow, optional)
+
+A second, independent copy made with `pg_dump` by GitHub. It only runs while GitHub Actions work
+for the account (they are currently blocked by a billing issue on the GitHub account). It needs
+these repository secrets (**Settings > Secrets and variables > Actions**):
 
 | Secret | Where it comes from |
 | --- | --- |
 | `BACKUP_DATABASE_URL` | Render > `faith-db` > **Connect** > **External Database URL** |
-| `BACKUP_PASSPHRASE` | A long random passphrase you make up. Keep a copy in your password manager: without it no backup can be opened |
-| `R2_ENDPOINT` | Cloudflare > R2 > bucket `faith-files` > Settings > S3 API, for example `https://<account id>.r2.cloudflarestorage.com` (the same value as `S3_ENDPOINT` on Render) |
-| `R2_ACCESS_KEY_ID` | The R2 API token's access key (the same value as `S3_ACCESS_KEY_ID` on Render, or a new token limited to `faith-files`) |
-| `R2_SECRET_ACCESS_KEY` | That token's secret (`S3_SECRET_ACCESS_KEY` on Render) |
+| `BACKUP_PASSPHRASE` | A long random passphrase you keep in your password manager |
+| `R2_ENDPOINT` | The same value as `S3_ENDPOINT` on Render |
+| `R2_ACCESS_KEY_ID` | The same value as `S3_ACCESS_KEY_ID` on Render |
+| `R2_SECRET_ACCESS_KEY` | The same value as `S3_SECRET_ACCESS_KEY` on Render |
 
-Then **Actions > Database backup > Run workflow** once. The run ends with `stored
-backups/faith-YYYY-MM-DDTHHMM.dump.enc`; the file is visible in the R2 bucket.
+Those files go to `backups/faith-*.dump.enc`. To open one: `openssl enc -d -aes-256-cbc -pbkdf2
+-iter 600000 -in <file> -out faith.dump`, then `pg_restore --no-owner --no-privileges --dbname
+"$NEW_DATABASE_URL" faith.dump`.
 
-Until the secrets exist the workflow only prints which ones are missing.
+## Restoring an app backup
 
-## Restore
+The restore loads a backup into an **empty** database whose schema is already migrated. It runs
+in one transaction: it either completes or changes nothing. The ledger's own checks (balanced
+transactions, matching currencies) run on the restored rows, and every foreign key is checked at
+the end.
 
-Restores need the PostgreSQL 18 client tools (`pg_restore`), OpenSSL and the passphrase.
-
-1. Download the newest `backups/faith-*.dump.enc` from the R2 bucket (Cloudflare dashboard >
-   R2 > `faith-files` > `backups/` > Download).
-2. Decrypt it:
-
-   ```bash
-   openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in faith-2026-12-01T2230.dump.enc -out faith.dump
-   ```
-
-3. Restore into an **empty** database:
+1. Download the backup: Admin > Settings > Backups > **Download** (or from the R2 bucket).
+2. Check that the file opens with your key (touches no database):
 
    ```bash
-   pg_restore --no-owner --no-privileges --dbname "$NEW_DATABASE_URL" faith.dump
+   APP_ENCRYPTION_KEY='<the key>' node scripts/restore-backup.mjs faith-20261201T030000Z.faithbk --check
    ```
 
-4. Point the API at it: on Render, set `DATABASE_URL` to the new address and deploy. The start
-   script applies any newer migrations before the API serves traffic.
+3. Create the new database (for example on Neon) and apply the migrations to it:
+
+   ```bash
+   DATABASE_URL='<new database url>' pnpm db:migrate
+   ```
+
+4. Load the backup:
+
+   ```bash
+   APP_ENCRYPTION_KEY='<the key>' TARGET_DATABASE_URL='<new database url>' node scripts/restore-backup.mjs faith-20261201T030000Z.faithbk
+   ```
+
+   Use `BACKUP_PASSPHRASE='<passphrase>'` instead of `APP_ENCRYPTION_KEY` if backups were made
+   with one. The script refuses a database that already holds any rows.
+
+5. Point the API at the new database (below) and keep the same `APP_ENCRYPTION_KEY` on Render.
 
 ## Moving off Render's free Postgres (before about 9 December 2026)
 
 1. Create the new database (Neon's free plan, or a paid Render Postgres).
-2. Run **Database backup** by hand, then restore that newest dump into the new database (above).
-3. In `render.yaml`, replace the `DATABASE_URL` entry's `fromDatabase` block with `sync: false`,
-   push, and paste the new connection string on Render (Environment tab).
-4. Update the `BACKUP_DATABASE_URL` secret to the new database, so the nightly backups follow.
+2. In Admin > Settings > Backups press **Back up now**, then **Download** the new file.
+3. Restore it into the new database (steps 2 to 4 above). Do this while few people use the site:
+   anything written after the backup is not in it.
+4. In `render.yaml`, replace the `DATABASE_URL` entry's `fromDatabase` block with `sync: false`,
+   push, and paste the new connection string on Render (Environment tab). The API restarts on
+   the new database; its nightly backups continue there.
 
 ## Practise a restore
 
-A backup is only as good as the last restore that worked. Once a month, restore the newest dump
-into a scratch database (a Neon branch works) and check that people, orders and products are
-there. Write the date in the roadmap's operations section.
+A backup is only as good as the last restore that worked. Once a month, restore the newest
+backup into a scratch database (a Neon branch works) and check that people, orders and products
+are there. The automated tests do the same on every run (`database backups` in
+`apps/api/test/platform.test.ts`).

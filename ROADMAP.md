@@ -67,9 +67,9 @@ sotuvchi, ijodkor, frilanser, ish izlovchi, brend yoki dasturchi bo'la oladi.
 
 ## 3. Bugungi holat: nima qurilgan
 
-Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 81/81**,
-**unit testlar 29/29**, lint va TypeScript toza, `pnpm audit`: **ma'lum zaiflik yo'q**, 8 til
-bo'yicha 1503 ta tarjima kaliti.
+Hammasi bitta monorepo'da, avtomatik testlar bilan. Oxirgi o'lchov: **API testlari 82/82**
+(jumladan zaxira → yangi bazaga to'liq tiklash), **unit testlar 29/29**, lint va TypeScript
+toza, `pnpm audit`: **ma'lum zaiflik yo'q**, 8 til bo'yicha 1516 ta tarjima kaliti.
 
 ### 3.1. Akkaunt va kirish
 - Email va parol bilan ro'yxatdan o'tish, email tasdiqlash, parolni tiklash.
@@ -197,7 +197,7 @@ Backend qayta tekshirildi; topilgan kamchiliklar va yechimlar:
 | Google/Apple bilan kirishda tashqi so'rovlar cheksiz kutardi | Kirish sahifasi osilib qolardi | 10 soniyalik chegara |
 | Kutilmagan xato butun serverni jimgina to'xtatishi mumkin edi | Sababsiz uzilishlar | Har bir xato jurnalga yoziladi; o'chishda fon taymerlari to'xtatiladi; oqim yarmida xato bo'lsa server qulamaydi |
 | Email faqat bazaga yozilardi va sozlash noqulay edi | Parolni tiklash xati kelmaydi | Render'da `SMTP_URL` qo'yilsa xatlar haqiqatan yuboriladi va yangi akkauntlar emailini tasdiqlaydi (0-bosqich) |
-| Bazaning zaxira nusxasi yo'q edi | Ma'lumot butunlay yo'qolishi mumkin | Har kecha shifrlangan zaxira R2'ga (`Database backup` workflow, 30 kun saqlanadi); tiklash va Neon'ga ko'chish yo'riqnomasi: `docs/BACKUP.md` |
+| Bazaning zaxira nusxasi yo'q edi | Ma'lumot butunlay yo'qolishi mumkin | **API o'zi** har kecha butun bazaning shifrlangan nusxasini R2'ga yozadi (GitHub'ga bog'liq emas), 14 kun saqlaydi; Admin → Sozlamalar → Zaxira nusxalar: ro'yxat, "Hozir zaxira qilish", yuklab olish. Bo'sh bazaga tiklash skripti bor (`scripts/restore-backup.mjs`), sinovda 11 281 qator 3 soniyada aynan tiklandi. Qo'shimcha: GitHub `Database backup` workflow. Yo'riqnoma: `docs/BACKUP.md` |
 
 ---
 
@@ -210,7 +210,7 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 | To'lovlar | **Simulyator** | "SIMULYATSIYA: haqiqiy pul harakatlanmaydi" deb ochiq yozilgan. Payme, Click, Stripe adapterlari bor, lekin ulanmagan |
 | Sotuvchilarga pul o'tkazish | **Simulyatsiya** | So'rov va tasdiqlash oqimi bor, real o'tkazma yo'q |
 | Email | **Tayyor, kalit kutadi** | Render'da `SMTP_URL` qo'yilmaguncha xatlar faqat bazaga yoziladi |
-| Zaxira nusxa (backup) | **Tayyor, kalit kutadi** | GitHub'ga 5 ta secret qo'yilgach har kecha ishlaydi (`docs/BACKUP.md`) |
+| Zaxira nusxa (backup) | **Ishlaydi** | API har kecha o'zi oladi (R2, 14 kun). Kalit — Render'dagi `APP_ENCRYPTION_KEY`: uni parol menejeringizda saqlang |
 | Fayllar | **Doimiy (Cloudflare R2)** | 2026-yil 13-noyabrdan `faith-files` papkasida saqlanadi |
 | Google kirish | **Haqiqiy** | Jonli ishlaydi |
 | Apple kirish | O'chiq | Apple Developer a'zoligi kerak |
@@ -329,7 +329,7 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi. 16-noyabrdan u uxlamaydi: A
 
 | # | Xavf | Ta'siri | Yechim | Muddat |
 |---|---|---|---|---|
-| 1 | **Baza muddati tugaydi** (~9-dekabr) | Barcha ma'lumot yo'qoladi | Avval backup'ni yoqing (5 ta secret), keyin Neon'ga (doimiy bepul) yoki pullik Render'ga o'ting — qadamlar `docs/BACKUP.md`da | **9-dekabrdan oldin** |
+| 1 | **Baza muddati tugaydi** (~9-dekabr) | Barcha ma'lumot yo'qoladi | Har kecha zaxira olinyapti. Endi: Neon'da (doimiy bepul) yoki pullik Render'da yangi baza → "Hozir zaxira qilish" → tiklash → `DATABASE_URL`ni almashtirish (`docs/BACKUP.md`) | **9-dekabrdan oldin** |
 | 2 | ~~Yuklangan fayllar qayta deploy'da o'chadi~~ | — | **Hal qilindi:** Cloudflare R2 ulandi (13-noyabr) | ✓ |
 | 3 | Email yuborilmaydi | Parolni tiklash, tasdiqlash xatlari bormaydi | Kod tayyor: Resend (bepul 3000 xat/oy) akkaunti → Render'da `SMTP_URL` va `EMAIL_FROM`, eski `EMAIL_DRIVER=dev`ni o'chirish | 0-bosqich |
 | 4 | Neon paroli chatda ochiq qolgan | Bazaga ruxsatsiz kirish xavfi | Neon'da `neondb_owner` parolini almashtirish | Darhol |
@@ -337,7 +337,8 @@ Bepul Render serveri 15 daqiqa ishlatilmasa uxlaydi. 16-noyabrdan u uxlamaydi: A
 | 6 | Namuna akkauntlar va ma'lumotlar jonli saytda | Haqiqiy foydalanuvchilarni chalg'itadi | Admin → Users → "Boshqa akkauntlarni olib tashlash" | Siz xohlagan payt |
 | 7 | To'lovlar simulyator | Daromad yo'q | 1-bosqich | 1-bosqich |
 | 8 | Huquqiy hujjatlar tekshirilmagan | Huquqiy xavf | Yurist bilan ishlash | Haqiqiy pul qabul qilishdan oldin |
-| 9 | Monitoring yo'q; zaxira hali yoqilmagan | Nosozlikni kech bilish, ma'lumot yo'qotish | Kunlik shifrlangan backup tayyor (secret'lar kerak). Qoldi: Sentry, uptime monitor (masalan UptimeRobot), oylik tiklash mashqi | 0-bosqich |
+| 9 | Monitoring yo'q | Nosozlikni kech bilish | Zaxira hal qilindi (API'ning o'zi). Qoldi: Sentry, uptime monitor (masalan UptimeRobot), oylik tiklash mashqi | 0-bosqich |
+| 15 | **GitHub hisobi to'lov muammosi tufayli bloklangan** ("account is locked due to a billing issue") | CI testlari, `Keep warm` va GitHub zaxirasi umuman ishlamaydi (8-noyabrdan beri) | GitHub → Settings → Billing and plans: to'lov usuli yoki to'lanmagan hisobni to'g'rilash (faqat siz) | **Darhol** |
 | 10 | ~~Sayt 3–4 daqiqada ochiladi~~ | — | **Hal qilindi:** uyg'oq server, Frankfurtdagi funksiyalar, kutish chegaralari (3.12) | ✓ |
 | 11 | Ekran yozib olishni brauzer to'liq to'xtata olmaydi | Pullik kurs videosi tarqalishi mumkin | Hozir: suv belgisi + pauza. Keyin: DRM (Widevine/FairPlay) video hamkori bilan | 2-bosqich |
 | 12 | Video Render orqali o'tadi (bepul tarifda oyiga 100 GB trafik; yuklash endi xotiraga tushmaydi, 300 MB gacha) | Ko'p o'quvchida trafik tugaydi | Videoni to'g'ridan-to'g'ri R2'ga yuklash va video hamkori (HLS + CDN) | 2-bosqich |
@@ -388,8 +389,9 @@ Maqsad: jonli sayt hech narsani yo'qotmasin va o'zini o'zi kuzatsin.
       `EMAIL_DRIVER=dev`ni o'chirish. Keyin xat shablonlarini 8 tilda tekshirish.
 - [x] Vercel'ni GitHub'ga ulash: har push'da avtomatik deploy.
 - [ ] GitHub'da CI majburiy tekshiruvlar bilan.
-- [~] Kunlik shifrlangan backup R2'ga: workflow tayyor (17-noyabr). **Sizdan:** GitHub'da 5 ta
-      secret (`docs/BACKUP.md`), keyin "Run workflow" bilan birinchi zaxira.
+- [x] Kunlik shifrlangan zaxira R2'ga — API'ning o'zi oladi, admin panelda ko'rinadi (17-noyabr).
+      **Sizdan:** Render'dagi `APP_ENCRYPTION_KEY`ni parol menejeringizga nusxalash.
+- [ ] GitHub hisobidagi to'lov blokini olib tashlash (CI, `Keep warm`, ikkinchi zaxira ishlashi uchun).
 - [ ] Oylik tiklash mashqi (Neon branch'ga tiklab ko'rish).
 - [ ] Monitoring (Sentry) va uptime ogohlantirish (UptimeRobot, bepul).
 - [x] Backend mustahkamlash: yuklash xotirasi, tozalash ishi, zaif paketlar, baza ulanish

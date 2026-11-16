@@ -124,7 +124,9 @@
     "PAYLOAD_TOO_LARGE": "文件过大：最大 300 MB。",
     "UPLOADS_BUSY": "当前上传的文件较多，请几秒后重试。",
     "INVALID_FILTER": "该筛选值不存在。",
-    "INVALID_PURPOSE": "上传用途无效。"
+    "INVALID_PURPOSE": "上传用途无效。",
+    "BACKUP_RUNNING": "备份正在进行，请一分钟后重试。",
+    "BACKUP_NOT_FOUND": "未找到该备份。"
   },
   "status": {
     "DRAFT": "草稿",
@@ -1722,6 +1724,19 @@
       "run": "移除",
       "done": "已移除 {count} 个账户",
       "nothing": "没有需要移除的账户。"
+    },
+    "backups": {
+      "title": "备份",
+      "body": "服务器每晚为整个数据库生成一份加密副本，保留 {days} 天。恢复方法见 docs/BACKUP.md。",
+      "now": "立即备份",
+      "made": "备份已完成。",
+      "on": "每晚自动",
+      "off": "自动备份已关闭",
+      "localDisk": "服务器磁盘",
+      "keyOwn": "密钥：BACKUP_PASSPHRASE。没有它无法打开备份，请保存在密码管理器中。",
+      "keyApp": "密钥：Render 上的 APP_ENCRYPTION_KEY。请立即复制到密码管理器：没有它，备份和数据中的机密都无法打开。",
+      "empty": "暂无备份。服务器启动 3 分钟后会生成第一份。",
+      "download": "下载"
     }
   },
   "badges": {

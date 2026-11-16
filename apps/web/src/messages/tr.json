@@ -124,7 +124,9 @@
     "PAYLOAD_TOO_LARGE": "Dosya çok büyük: en fazla 300 MB.",
     "UPLOADS_BUSY": "Şu anda çok sayıda dosya yükleniyor. Birkaç saniye sonra tekrar deneyin.",
     "INVALID_FILTER": "Böyle bir filtre değeri yok.",
-    "INVALID_PURPOSE": "Yüklemenin amacı geçersiz."
+    "INVALID_PURPOSE": "Yüklemenin amacı geçersiz.",
+    "BACKUP_RUNNING": "Bir yedekleme zaten sürüyor. Bir dakika sonra tekrar deneyin.",
+    "BACKUP_NOT_FOUND": "Bu yedek bulunamadı."
   },
   "status": {
     "DRAFT": "Taslak",
@@ -1722,6 +1724,19 @@
       "run": "Kaldır",
       "done": "{count} hesap kaldırıldı",
       "nothing": "Kaldırılacak hesap yok."
+    },
+    "backups": {
+      "title": "Yedekler",
+      "body": "Sunucu her gece veritabanının tamamının şifreli bir kopyasını alır ve {days} gün saklar. Geri yükleme: docs/BACKUP.md.",
+      "now": "Şimdi yedekle",
+      "made": "Yedek hazır.",
+      "on": "Her gece otomatik",
+      "off": "Otomatik yedekleme kapalı",
+      "localDisk": "Sunucu diski",
+      "keyOwn": "Anahtar: BACKUP_PASSPHRASE. O olmadan yedek açılamaz; parola yöneticinizde saklayın.",
+      "keyApp": "Anahtar: Render’daki APP_ENCRYPTION_KEY. Şimdi parola yöneticinize kopyalayın: o olmadan ne yedek ne de verideki gizli bilgiler açılabilir.",
+      "empty": "Henüz yedek yok. İlki sunucu başladıktan 3 dakika sonra alınır.",
+      "download": "İndir"
     }
   },
   "badges": {
