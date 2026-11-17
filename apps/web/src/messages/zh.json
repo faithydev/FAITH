@@ -264,7 +264,8 @@
     },
     "toggleMotion": "动画",
     "leaderboard": "排行榜",
-    "download": "桌面应用"
+    "download": "桌面应用",
+    "downloadShort": "下载"
   },
   "footer": {
     "platform": "平台",

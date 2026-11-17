@@ -264,7 +264,8 @@
     },
     "toggleMotion": "الحركة",
     "leaderboard": "لوحة الصدارة",
-    "download": "تطبيق الحاسوب"
+    "download": "تطبيق الحاسوب",
+    "downloadShort": "تنزيل"
   },
   "footer": {
     "platform": "المنصة",

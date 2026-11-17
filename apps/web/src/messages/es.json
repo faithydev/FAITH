@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Animaciones",
     "leaderboard": "Clasificación",
-    "download": "App de escritorio"
+    "download": "App de escritorio",
+    "downloadShort": "Descargar"
   },
   "footer": {
     "platform": "Plataforma",

@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Animasyonlar",
     "leaderboard": "Sıralama",
-    "download": "Masaüstü uygulaması"
+    "download": "Masaüstü uygulaması",
+    "downloadShort": "İndir"
   },
   "footer": {
     "platform": "Platform",

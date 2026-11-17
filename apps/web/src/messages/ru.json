@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Анимации",
     "leaderboard": "Рейтинг",
-    "download": "Приложение для ПК"
+    "download": "Приложение для ПК",
+    "downloadShort": "Скачать"
   },
   "footer": {
     "platform": "Платформа",

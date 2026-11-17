@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Animatsiyalar",
     "leaderboard": "Reyting",
-    "download": "Kompyuter ilovasi"
+    "download": "Kompyuter ilovasi",
+    "downloadShort": "Yuklab olish"
   },
   "footer": {
     "platform": "Platforma",

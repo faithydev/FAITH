@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Animations",
     "leaderboard": "Leaderboard",
-    "download": "Desktop app"
+    "download": "Desktop app",
+    "downloadShort": "Download"
   },
   "footer": {
     "platform": "Platform",

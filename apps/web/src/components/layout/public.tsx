@@ -1,6 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { getMe } from '@/lib/api';
-import { Menu } from 'lucide-react';
+import { Download, Menu } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { FaithLockup, FaithLogo, FaithWordmark } from '../ui/logo';
 import { LinkButton } from '../ui/primitives';
@@ -22,6 +22,13 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
       <nav aria-label={t('nav.primary')} className="mx-auto flex h-15 max-w-[92rem] items-center gap-3 px-3 sm:gap-5 sm:px-6 lg:px-8">
         <Link href="/" aria-label={t('nav.home')} className="shrink-0"><FaithLogo compact /></Link>
         <NavLinks links={links} />
+        {/* The Windows app, one click from every public page (same width rule as the links: wide screens only). */}
+        {/* Narrower rows would squeeze the links: icon only from 1360px, with its label from 1440px.
+            Kazakh labels are longest, so there it waits for 1440px. Below xl it sits in the mobile menu;
+            the footer links it everywhere. */}
+        <LinkButton href="/download" size="sm" variant="secondary" aria-label={t('nav.download')} title={t('nav.download')} className="hidden shrink-0 min-[1360px]:inline-flex max-[1439px]:[:lang(kk)_&]:hidden" data-testid="nav-download">
+          <Download aria-hidden size={15} strokeWidth={1.8} /><span className="hidden min-[1440px]:inline">{t('nav.downloadShort')}</span>
+        </LinkButton>
         <div className="ms-auto flex items-center gap-1">
           <CommandPalette />
           <CurrencySwitcher persist={!!me} />
@@ -42,7 +49,7 @@ export async function PrimaryNavigation({ overlay = false }: { overlay?: boolean
           )}
           <MobileNavigation
             label={t('nav.menu')} closeLabel={t('common.close')} icon={<Menu size={19} strokeWidth={1.7} />}
-            links={[...links, ...(me ? [{ href: '/app', label: t('nav.dashboard') }] : [{ href: '/login', label: t('nav.login') }, { href: '/register', label: t('nav.register') }])]}
+            links={[...links, { href: '/download', label: t('nav.download') }, ...(me ? [{ href: '/app', label: t('nav.dashboard') }] : [{ href: '/login', label: t('nav.login') }, { href: '/register', label: t('nav.register') }])]}
           />
         </div>
       </nav>

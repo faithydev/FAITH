@@ -264,7 +264,8 @@
     },
     "toggleMotion": "Анимациялар",
     "leaderboard": "Рейтинг",
-    "download": "Компьютер қолданбасы"
+    "download": "Компьютер қолданбасы",
+    "downloadShort": "Жүктеу"
   },
   "footer": {
     "platform": "Платформа",
