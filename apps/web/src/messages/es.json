@@ -263,7 +263,8 @@
       "settings": "Ajustes"
     },
     "toggleMotion": "Animaciones",
-    "leaderboard": "Clasificación"
+    "leaderboard": "Clasificación",
+    "download": "App de escritorio"
   },
   "footer": {
     "platform": "Plataforma",
@@ -1790,5 +1791,29 @@
       "other": "Otras"
     },
     "priceIn": "Los precios se fijan en soms o dólares estadounidenses. Cada comprador los ve en su propia moneda."
+  },
+  "download": {
+    "eyebrow": "App de escritorio",
+    "title": "FAITH para Windows",
+    "body": "FAITH en tu ordenador: ventana propia, sesión recordada y la misma cuenta que en el sitio web.",
+    "installer": "Descargar para Windows",
+    "installerNote": "Instalador · {size} · añade accesos directos al Escritorio y al menú Inicio",
+    "portable": "Versión portátil",
+    "portableNote": "Un solo archivo · {size} · funciona sin instalar",
+    "requirements": "Windows 10 u 11, 64 bits, con conexión a internet",
+    "version": "Versión {version}",
+    "releases": "Todas las versiones",
+    "featuresTitle": "Por qué instalarla",
+    "protectTitle": "Protección de pantalla",
+    "protectBody": "Las capturas, la grabación y el uso compartido de pantalla ven una ventana vacía, así los cursos y las lecciones quedan protegidos.",
+    "freshTitle": "Siempre al día",
+    "freshBody": "La app abre la plataforma en vivo, así cada novedad llega sin reinstalar.",
+    "windowTitle": "Ventana propia",
+    "windowBody": "Se abre desde la barra de tareas, recuerda su tamaño y tu sesión y te avisa cuando termina una descarga.",
+    "stepsTitle": "Cómo instalar",
+    "step1": "Descarga el instalador y ábrelo.",
+    "step2": "Si Windows SmartScreen dice “Windows protected your PC”, elige More info y después Run anyway.",
+    "step3": "Elige una carpeta, termina la instalación y abre FAITH desde el Escritorio.",
+    "otherDevices": "La app es para Windows. En otros dispositivos FAITH funciona igual en el navegador."
   }
 }

@@ -263,7 +263,8 @@
       "settings": "Settings"
     },
     "toggleMotion": "Animations",
-    "leaderboard": "Leaderboard"
+    "leaderboard": "Leaderboard",
+    "download": "Desktop app"
   },
   "footer": {
     "platform": "Platform",
@@ -1790,5 +1791,29 @@
       "other": "Other"
     },
     "priceIn": "Prices are set in soum or US dollars. Buyers everywhere see them in their own currency."
+  },
+  "download": {
+    "eyebrow": "Desktop app",
+    "title": "FAITH for Windows",
+    "body": "Keep FAITH on your computer: its own window, your sign-in remembered and the same account as on the website.",
+    "installer": "Download for Windows",
+    "installerNote": "Installer · {size} · adds Desktop and Start menu shortcuts",
+    "portable": "Portable version",
+    "portableNote": "Single file · {size} · runs without installing",
+    "requirements": "Windows 10 or 11, 64-bit, with an internet connection",
+    "version": "Version {version}",
+    "releases": "All releases",
+    "featuresTitle": "Why install it",
+    "protectTitle": "Screen protection",
+    "protectBody": "Screenshots, screen recording and screen sharing see an empty window, so courses and lessons stay protected.",
+    "freshTitle": "Always up to date",
+    "freshBody": "The app opens the live platform, so every new feature arrives without reinstalling.",
+    "windowTitle": "Its own window",
+    "windowBody": "Starts from the taskbar, remembers its size and your sign-in, and tells you when a download is finished.",
+    "stepsTitle": "How to install",
+    "step1": "Download the installer and open it.",
+    "step2": "If Windows SmartScreen says “Windows protected your PC”, choose More info, then Run anyway.",
+    "step3": "Choose a folder, finish setup and open FAITH from the Desktop.",
+    "otherDevices": "The app is for Windows. On other devices FAITH works the same in the browser."
   }
 }

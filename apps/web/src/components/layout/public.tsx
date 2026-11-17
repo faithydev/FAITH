@@ -54,7 +54,7 @@ export async function Footer() {
   const t = await getTranslations();
   const columns = [
     { title: t('footer.platform'), links: [['/courses', t('nav.courses')], ['/services', t('nav.services')], ['/marketplace', t('nav.marketplace')], ['/jobs', t('nav.jobs')], ['/rewards', t('nav.rewards')], ['/creators', t('nav.creators')], ['/leaderboard', t('nav.leaderboard')]] },
-    { title: t('footer.build'), links: [['/developers', t('nav.developers')], ['/apps', t('nav.apps')], ['/pricing', t('nav.pricing')], ['/explore', t('nav.explore')]] },
+    { title: t('footer.build'), links: [['/developers', t('nav.developers')], ['/apps', t('nav.apps')], ['/pricing', t('nav.pricing')], ['/explore', t('nav.explore')], ['/download', t('nav.download')]] },
     { title: t('footer.company'), links: [['/about', t('nav.about')], ['/help', t('nav.help')], ['/terms', t('nav.terms')], ['/privacy', t('nav.privacy')]] },
   ];
   return (

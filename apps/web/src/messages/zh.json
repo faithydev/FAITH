@@ -263,7 +263,8 @@
       "settings": "设置"
     },
     "toggleMotion": "动画",
-    "leaderboard": "排行榜"
+    "leaderboard": "排行榜",
+    "download": "桌面应用"
   },
   "footer": {
     "platform": "平台",
@@ -1790,5 +1791,29 @@
       "other": "其他"
     },
     "priceIn": "价格以苏姆或美元设定。各地买家都能以自己的货币查看。"
+  },
+  "download": {
+    "eyebrow": "桌面应用",
+    "title": "Windows 版 FAITH",
+    "body": "把 FAITH 装进电脑：独立窗口、记住登录状态，账户与网站完全相同。",
+    "installer": "下载 Windows 版",
+    "installerNote": "安装程序 · {size} · 添加桌面和开始菜单快捷方式",
+    "portable": "便携版",
+    "portableNote": "单个文件 · {size} · 无需安装即可运行",
+    "requirements": "Windows 10 或 11，64 位，需联网",
+    "version": "版本 {version}",
+    "releases": "所有版本",
+    "featuresTitle": "为什么安装",
+    "protectTitle": "屏幕保护",
+    "protectBody": "截图、录屏和屏幕共享只能看到空白窗口，课程与课时内容得到保护。",
+    "freshTitle": "始终最新",
+    "freshBody": "应用打开的是在线平台，所有新功能无需重新安装即可使用。",
+    "windowTitle": "独立窗口",
+    "windowBody": "从任务栏启动，记住窗口大小和登录状态，下载完成时会提醒你。",
+    "stepsTitle": "安装步骤",
+    "step1": "下载安装程序并打开。",
+    "step2": "如果 Windows SmartScreen 提示“Windows protected your PC”，请选择 More info，然后选择 Run anyway。",
+    "step3": "选择文件夹，完成安装，然后从桌面打开 FAITH。",
+    "otherDevices": "该应用适用于 Windows。在其他设备上，FAITH 在浏览器中同样好用。"
   }
 }

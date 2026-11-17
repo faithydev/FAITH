@@ -263,7 +263,8 @@
       "settings": "Ayarlar"
     },
     "toggleMotion": "Animasyonlar",
-    "leaderboard": "Sıralama"
+    "leaderboard": "Sıralama",
+    "download": "Masaüstü uygulaması"
   },
   "footer": {
     "platform": "Platform",
@@ -1790,5 +1791,29 @@
       "other": "Diğer"
     },
     "priceIn": "Fiyatlar som veya ABD doları olarak belirlenir. Her alıcı onları kendi para biriminde görür."
+  },
+  "download": {
+    "eyebrow": "Masaüstü uygulaması",
+    "title": "Windows için FAITH",
+    "body": "FAITH bilgisayarınızda: kendi penceresi, hatırlanan oturum ve sitedekiyle aynı hesap.",
+    "installer": "Windows için indir",
+    "installerNote": "Kurulum · {size} · Masaüstü ve Başlat menüsüne kısayol ekler",
+    "portable": "Taşınabilir sürüm",
+    "portableNote": "Tek dosya · {size} · kurulum olmadan çalışır",
+    "requirements": "Windows 10 veya 11, 64 bit, internet bağlantısıyla",
+    "version": "Sürüm {version}",
+    "releases": "Tüm sürümler",
+    "featuresTitle": "Neden kurmalı",
+    "protectTitle": "Ekran koruması",
+    "protectBody": "Ekran görüntüsü, ekran kaydı ve ekran paylaşımı boş bir pencere görür; kurslar ve dersler korunur.",
+    "freshTitle": "Her zaman güncel",
+    "freshBody": "Uygulama canlı platformu açar, her yenilik yeniden kurulum olmadan gelir.",
+    "windowTitle": "Kendi penceresi",
+    "windowBody": "Görev çubuğundan açılır, boyutunu ve oturumunuzu hatırlar, indirme bitince haber verir.",
+    "stepsTitle": "Nasıl kurulur",
+    "step1": "Kurulum dosyasını indirip açın.",
+    "step2": "Windows SmartScreen “Windows protected your PC” derse More info, ardından Run anyway seçin.",
+    "step3": "Bir klasör seçin, kurulumu bitirin ve FAITH’i Masaüstünden açın.",
+    "otherDevices": "Uygulama Windows içindir. Diğer cihazlarda FAITH tarayıcıda aynı şekilde çalışır."
   }
 }

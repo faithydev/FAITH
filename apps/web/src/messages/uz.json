@@ -263,7 +263,8 @@
       "settings": "Sozlamalar"
     },
     "toggleMotion": "Animatsiyalar",
-    "leaderboard": "Reyting"
+    "leaderboard": "Reyting",
+    "download": "Kompyuter ilovasi"
   },
   "footer": {
     "platform": "Platforma",
@@ -1790,5 +1791,29 @@
       "other": "Boshqa"
     },
     "priceIn": "Narxlar soʻm yoki AQSh dollarida belgilanadi. Har bir xaridor ularni oʻz valyutasida koʻradi."
+  },
+  "download": {
+    "eyebrow": "Kompyuter ilovasi",
+    "title": "Windows uchun FAITH",
+    "body": "FAITH kompyuteringizda: alohida oyna, kirish eslab qolinadi, hisob esa saytdagi bilan bir xil.",
+    "installer": "Windows uchun yuklab olish",
+    "installerNote": "Oʻrnatuvchi · {size} · Ish stoli va Start menyusiga yorliq qoʻshadi",
+    "portable": "Portativ versiya",
+    "portableNote": "Bitta fayl · {size} · oʻrnatmasdan ishga tushadi",
+    "requirements": "Windows 10 yoki 11, 64-bit, internet aloqasi bilan",
+    "version": "Versiya {version}",
+    "releases": "Barcha versiyalar",
+    "featuresTitle": "Nega oʻrnatish kerak",
+    "protectTitle": "Ekran himoyasi",
+    "protectBody": "Skrinshot, ekranni yozish va ekran namoyishida oyna boʻsh koʻrinadi, shuning uchun kurs va darslar himoyalangan.",
+    "freshTitle": "Doim yangilangan",
+    "freshBody": "Ilova jonli platformani ochadi, har bir yangilik qayta oʻrnatmasdan keladi.",
+    "windowTitle": "Alohida oyna",
+    "windowBody": "Vazifalar panelidan ochiladi, oʻlcham va kirishni eslab qoladi, yuklab olish tugaganini aytadi.",
+    "stepsTitle": "Qanday oʻrnatiladi",
+    "step1": "Oʻrnatuvchini yuklab oling va oching.",
+    "step2": "Windows SmartScreen “Windows protected your PC” desa, More info, soʻng Run anyway ni tanlang.",
+    "step3": "Papkani tanlang, oʻrnatishni tugating va FAITH ni Ish stolidan oching.",
+    "otherDevices": "Ilova Windows uchun. Boshqa qurilmalarda FAITH brauzerda xuddi shunday ishlaydi."
   }
 }
