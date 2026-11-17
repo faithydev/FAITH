@@ -49,19 +49,20 @@ export default async function HomePage() {
       <main id="main">
         <RouteTransition>
           <ThreeDHero>
-            <div className="mx-auto w-full max-w-[92rem] px-4 pt-36 pb-12 sm:px-6 sm:pb-16 lg:px-8">
+            {/* Centred in the hero, set in Google Sans Flex and in capitals (the owner's choice). */}
+            <div className="mx-auto flex w-full max-w-[92rem] flex-col items-center self-center px-4 pt-32 pb-12 text-center font-hero uppercase [font-variation-settings:'slnt'_0,'wdth'_100,'ROND'_0] sm:px-6 sm:pb-16 lg:px-8">
               <p className="eyebrow animate-rise text-white/60!">{t('brand.tagline')}</p>
-              <h1 className="tracking-display mt-6 max-w-[14ch] text-[length:var(--text-display)] leading-[0.95] font-semibold">
+              <h1 className="mt-6 font-hero text-[length:var(--text-hero)] leading-[0.98] font-semibold tracking-[-0.02em] [overflow-wrap:anywhere] [:lang(ar)_&]:tracking-normal [:lang(zh)_&]:tracking-normal">
                 <span className="animate-rise block" style={{ '--rise-delay': '80ms' } as React.CSSProperties}>{lead}</span>
                 {lit && <span className="animate-rise text-neon block pb-[0.08em]" style={{ '--rise-delay': '220ms' } as React.CSSProperties}>{lit}</span>}
               </h1>
-              <p className="animate-rise mt-7 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg" style={{ '--rise-delay': '360ms' } as React.CSSProperties}>{t('brand.vision')}</p>
-              <div className="animate-rise mt-9 flex flex-wrap items-center gap-3" style={{ '--rise-delay': '480ms' } as React.CSSProperties}>
+              <p className="animate-rise mt-7 max-w-2xl text-base leading-relaxed tracking-[0.02em] text-white/65 [text-shadow:0_1px_18px_rgb(0_0_0/0.85)] sm:text-lg" style={{ '--rise-delay': '360ms' } as React.CSSProperties}>{t('brand.vision')}</p>
+              <div className="animate-rise mt-9 flex flex-wrap items-center justify-center gap-3" style={{ '--rise-delay': '480ms' } as React.CSSProperties}>
                 <LinkButton href="/register" size="lg" arrow>{t('home.ctaStart')}</LinkButton>
                 <LinkButton href="/explore" size="lg" variant="secondary">{t('home.ctaExplore')}</LinkButton>
               </div>
               {stats.length > 0 && (
-                <dl className="animate-rise mt-14 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10" style={{ '--rise-delay': '600ms' } as React.CSSProperties}>
+                <dl className="animate-rise mt-14 grid w-full max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10" style={{ '--rise-delay': '600ms' } as React.CSSProperties}>
                   {stats.map((s) => (
                     <div key={s.label} className="bg-black/70 px-4 py-3.5 backdrop-blur-md sm:px-5">
                       <dt className="font-mono text-[0.68rem] tracking-wide text-white/45 uppercase [:lang(ar)_&]:normal-case [:lang(zh)_&]:normal-case">{s.label}</dt>

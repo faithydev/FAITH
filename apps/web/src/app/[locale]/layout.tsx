@@ -2,6 +2,7 @@ import '@fontsource-variable/geist/index.css';
 import '@fontsource-variable/geist-mono/index.css';
 import '@fontsource-variable/onest/index.css';
 import '@fontsource-variable/alexandria/index.css';
+import '@fontsource-variable/google-sans-flex/opsz.css';
 import '../globals.css';
 import { NavProgress, PointerFx } from '@/components/motion/fx';
 import { Toaster } from '@/components/ui/client';
