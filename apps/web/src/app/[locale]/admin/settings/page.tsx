@@ -1,6 +1,6 @@
+import { FreshDownload } from '@/components/admin/fresh-download';
 import { ActionButton, AutoForm, FormDialog } from '@/components/ui/client';
-import { Badge, buttonClass, Card, PageHeader, SectionTitle } from '@/components/ui/primitives';
-import { Download } from 'lucide-react';
+import { Badge, Card, PageHeader, SectionTitle } from '@/components/ui/primitives';
 import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import { DEFAULT_COMMISSION_BPS, SETTING_KEYS } from '@/lib/settings-keys';
@@ -81,7 +81,7 @@ export default async function AdminSettings() {
                 {backups.items.map((b) => (
                   <li key={b.name} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                     <span className="min-w-0"><span className="font-medium">{date(b.createdAt, locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Tashkent' })}</span><span className="block font-mono text-xs text-subtle">{b.name} · {fileSize(b.size)}</span></span>
-                    <a href={`/api/v1/admin/backups/${b.name}`} download className={buttonClass('secondary', 'sm')}><Download aria-hidden className="size-4" />{t('admin.backups.download')}</a>
+                    <FreshDownload href={`/api/v1/admin/backups/${b.name}`} label={t('admin.backups.download')} />
                   </li>
                 ))}
               </ul>

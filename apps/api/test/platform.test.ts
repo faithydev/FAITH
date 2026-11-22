@@ -973,6 +973,25 @@ describe('database backups', () => {
   }, 240_000);
 });
 
+describe('fresh sign-in for dangerous actions', () => {
+  it('refuses an old session on money and power routes, and accepts a fresh one', async () => {
+    const root = await staff('super_admin');
+    const target = await t.signUp();
+    // The session is older than 30 minutes: a stolen cookie of that age is no longer enough.
+    await t.db.session.updateMany({ where: { userId: root.id }, data: { createdAt: new Date(Date.now() - 31 * 60_000) } });
+    const stale = await root.agent.post(`/v1/admin/users/${target.id}/roles/grant`).send({ role: 'moderator' }).expect(403);
+    expect(stale.body.error.code).toBe('REAUTH_REQUIRED');
+    expect((await root.agent.put('/v1/admin/settings/finance.commissionBps').send({ value: 350, confirm: true })).body.error.code).toBe('REAUTH_REQUIRED');
+    expect((await root.agent.post('/v1/admin/users/removal').send({ keepEmails: [], confirm: 'REMOVE' })).body.error.code).toBe('REAUTH_REQUIRED');
+    // Reading stays open with an older session.
+    await root.agent.get('/v1/admin/users').expect(200);
+
+    // Signing in again opens a new session, and the action goes through.
+    await root.agent.post('/v1/auth/login').send({ email: root.email, password: root.password }).expect(200);
+    await root.agent.post(`/v1/admin/users/${target.id}/roles/grant`).send({ role: 'moderator' }).expect(200);
+  });
+});
+
 // Last on purpose: it removes every account the earlier tests created.
 describe('account removal', () => {
   it('lets only a super admin remove all other accounts, keeping the listed ones', async () => {

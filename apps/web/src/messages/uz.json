@@ -126,7 +126,8 @@
     "INVALID_FILTER": "Bunday saralash qiymati yoʻq.",
     "INVALID_PURPOSE": "Bu fayl qayerga yuklanayotgani notoʻgʻri koʻrsatilgan.",
     "BACKUP_RUNNING": "Zaxira nusxa hozir olinmoqda. Bir daqiqadan keyin qayta urinib koʻring.",
-    "BACKUP_NOT_FOUND": "Bunday zaxira nusxa topilmadi."
+    "BACKUP_NOT_FOUND": "Bunday zaxira nusxa topilmadi.",
+    "REAUTH_REQUIRED": "Xavfsizlik uchun bu amal yangi kirishni talab qiladi. Chiqib, qayta kiring va 30 daqiqa ichida takrorlang."
   },
   "status": {
     "DRAFT": "Qoralama",

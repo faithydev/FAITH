@@ -3,6 +3,7 @@ import { readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { env } from '../src/core/env';
 import { MockPaymentProvider } from '../src/payments/provider';
 import { buy, createStoreWithProduct, fixtures, TestApp } from './harness';
 
@@ -290,6 +291,22 @@ describe('isolation', () => {
     const { variantId } = await createStoreWithProduct(t, seller);
     const r = await seller.agent.post('/v1/cart/items').send({ variantId, quantity: 1 });
     expect(r.body.error.code).toBe('CANNOT_BUY_OWN_PRODUCT');
+  });
+});
+
+describe('payment simulator safety', () => {
+  it('closes the simulator webhook as soon as the simulator is not the allowed provider', async () => {
+    const body = JSON.stringify({ eventId: `evt_${t.unique('x')}`, type: 'payment.succeeded', providerRef: 'mock_nothing', amountMinor: '100', currency: 'USD' });
+    const send = () => t.http.post('/v1/webhooks/payments/mock').set('content-type', 'application/json').set('x-faith-mock-signature', MockPaymentProvider.sign(body)).send(body);
+    const mutable = env as { ALLOW_MOCK_PAYMENTS: boolean };
+    const before = mutable.ALLOW_MOCK_PAYMENTS;
+    mutable.ALLOW_MOCK_PAYMENTS = false;
+    try {
+      // Even a correctly signed simulator event is refused once real payments would be on.
+      await send().expect(404);
+    } finally {
+      mutable.ALLOW_MOCK_PAYMENTS = before;
+    }
   });
 });
 

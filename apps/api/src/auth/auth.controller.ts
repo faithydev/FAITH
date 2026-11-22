@@ -81,6 +81,12 @@ export class AuthController {
     return { status: 'ok' };
   }
 
+  /** When this session was opened, so the interface can ask for a fresh sign-in before it is refused. */
+  @Get('session')
+  session(@Auth() a: AuthContext) {
+    return { signedInAt: a.session.createdAt };
+  }
+
   @Get('sessions')
   async sessions(@Auth() a: AuthContext) {
     const rows = await this.auth.sessions(a.user.id);

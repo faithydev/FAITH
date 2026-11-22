@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, Param, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { Auth, AuthContext, ClientIp, RequirePermission } from '../auth/context';
+import { Auth, AuthContext, ClientIp, RequirePermission, RequireRecentAuth } from '../auth/context';
 import { BackupService } from '../core/backup.service';
 import { env } from '../core/env';
 import { conflict, notFound } from '../core/errors';
@@ -37,7 +37,8 @@ export class BackupController {
     return made;
   }
 
-  @Get(':name')
+  /** A backup holds every account and order: downloading it needs a fresh sign-in. */
+  @Get(':name') @RequireRecentAuth()
   async download(@Auth() a: AuthContext, @Param('name') name: string, @Res() res: Response, @ClientIp() ip?: string) {
     const file = await this.backups.open(name);
     if (!file) throw notFound('BACKUP_NOT_FOUND');

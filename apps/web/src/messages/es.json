@@ -126,7 +126,8 @@
     "INVALID_FILTER": "Ese valor de filtro no existe.",
     "INVALID_PURPOSE": "El propósito de la subida no es válido.",
     "BACKUP_RUNNING": "Ya se está haciendo una copia. Inténtalo de nuevo en un minuto.",
-    "BACKUP_NOT_FOUND": "No se encontró esa copia."
+    "BACKUP_NOT_FOUND": "No se encontró esa copia.",
+    "REAUTH_REQUIRED": "Por tu seguridad, esta acción requiere iniciar sesión de nuevo. Cierra sesión, vuelve a entrar y repítela en 30 minutos."
   },
   "status": {
     "DRAFT": "Borrador",

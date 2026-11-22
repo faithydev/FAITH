@@ -5,7 +5,7 @@ import {
   moderationBody, pageQuery, payoutDecisionBody, planPriceBody, refundDecisionBody, roleGrantBody, settingBody, userStatusBody,
 } from '@faith/validators';
 import { z } from 'zod';
-import { Auth, AuthContext, RequirePermission } from '../auth/context';
+import { Auth, AuthContext, RequirePermission, RequireRecentAuth } from '../auth/context';
 import { QEnum, ZBody, ZQuery } from '../core/zod';
 import { PayoutStatus, ProductStatus } from '@faith/database';
 import { DeveloperService } from '../developer/developer.service';
@@ -47,7 +47,7 @@ export class AdminController {
   }
 
   /** Removes every account except the caller and the listed emails. Cannot be undone. */
-  @Post('users/removal') @HttpCode(200) @RequirePermission('admin.users.write')
+  @Post('users/removal') @HttpCode(200) @RequirePermission('admin.users.write') @RequireRecentAuth()
   removalRun(@Auth() a: AuthContext, @ZBody(removeBody) b: z.infer<typeof removeBody>) {
     return this.removal.removeOthers(a, b.keepEmails);
   }
@@ -77,12 +77,12 @@ export class AdminController {
     return this.admin.setUserStatus(a.user.id, id, b.status, b.reason);
   }
 
-  @Post('users/:id/roles/grant') @HttpCode(200) @RequirePermission('admin.roles.write')
+  @Post('users/:id/roles/grant') @HttpCode(200) @RequirePermission('admin.roles.write') @RequireRecentAuth()
   grant(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(roleGrantBody) b: z.infer<typeof roleGrantBody>) {
     return this.admin.setRole(a.user.id, id, b.role, true);
   }
 
-  @Post('users/:id/roles/revoke') @HttpCode(200) @RequirePermission('admin.roles.write')
+  @Post('users/:id/roles/revoke') @HttpCode(200) @RequirePermission('admin.roles.write') @RequireRecentAuth()
   revoke(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(roleGrantBody) b: z.infer<typeof roleGrantBody>) {
     return this.admin.setRole(a.user.id, id, b.role, false);
   }
@@ -219,7 +219,7 @@ export class AdminController {
     return this.payouts.list(status);
   }
 
-  @Post('finance/payouts/:id/decide') @HttpCode(200) @RequirePermission('admin.finance.write')
+  @Post('finance/payouts/:id/decide') @HttpCode(200) @RequirePermission('admin.finance.write') @RequireRecentAuth()
   decidePayout(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(payoutDecisionBody) b: z.infer<typeof payoutDecisionBody>) {
     return this.payouts.decide(id, a.user.id, b.decision, b.note);
   }
@@ -229,7 +229,7 @@ export class AdminController {
     return this.admin.refunds();
   }
 
-  @Post('finance/refunds/:id/decide') @HttpCode(200) @RequirePermission('admin.finance.write')
+  @Post('finance/refunds/:id/decide') @HttpCode(200) @RequirePermission('admin.finance.write') @RequireRecentAuth()
   decideRefund(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(refundDecisionBody) b: z.infer<typeof refundDecisionBody>) {
     return this.admin.decideRefund(a.user.id, id, b.approve, b.note);
   }
@@ -251,7 +251,7 @@ export class AdminController {
     return this.admin.plans();
   }
 
-  @Patch('plans/:key') @RequirePermission('admin.settings.write')
+  @Patch('plans/:key') @RequirePermission('admin.settings.write') @RequireRecentAuth()
   planPrice(@Auth() a: AuthContext, @Param('key') key: string, @ZBody(planPriceBody) b: z.infer<typeof planPriceBody>) {
     return this.admin.setPlanPrice(a.user.id, key, b);
   }
@@ -261,7 +261,7 @@ export class AdminController {
     return this.admin.allSettings();
   }
 
-  @Put('settings/:key') @RequirePermission('admin.settings.write')
+  @Put('settings/:key') @RequirePermission('admin.settings.write') @RequireRecentAuth()
   setSetting(@Auth() a: AuthContext, @Param('key') key: string, @ZBody(settingBody) b: z.infer<typeof settingBody>) {
     return this.admin.setSetting({ id: a.user.id, permissions: a.permissions }, key, b.value);
   }

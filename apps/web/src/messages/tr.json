@@ -126,7 +126,8 @@
     "INVALID_FILTER": "Böyle bir filtre değeri yok.",
     "INVALID_PURPOSE": "Yüklemenin amacı geçersiz.",
     "BACKUP_RUNNING": "Bir yedekleme zaten sürüyor. Bir dakika sonra tekrar deneyin.",
-    "BACKUP_NOT_FOUND": "Bu yedek bulunamadı."
+    "BACKUP_NOT_FOUND": "Bu yedek bulunamadı.",
+    "REAUTH_REQUIRED": "Güvenliğiniz için bu işlem yeni bir oturum açmayı gerektirir. Çıkış yapıp yeniden giriş yapın ve 30 dakika içinde tekrarlayın."
   },
   "status": {
     "DRAFT": "Taslak",

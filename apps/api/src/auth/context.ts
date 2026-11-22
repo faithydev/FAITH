@@ -29,6 +29,7 @@ export type AuthedRequest = Request & { auth?: AuthContext };
 const PUBLIC_KEY = 'faith:public';
 const PERMISSION_KEY = 'faith:permission';
 const FEATURE_KEY = 'faith:feature';
+const RECENT_KEY = 'faith:recent-auth';
 
 /** Route needs no session. A valid session, if present, is still attached. */
 export const Public = () => SetMetadata(PUBLIC_KEY, true);
@@ -36,6 +37,12 @@ export const Public = () => SetMetadata(PUBLIC_KEY, true);
 export const RequirePermission = (...p: Permission[]) => SetMetadata(PERMISSION_KEY, p);
 /** Route needs a subscription entitlement. */
 export const RequireFeature = (f: Feature) => SetMetadata(FEATURE_KEY, f);
+/**
+ * For actions that cannot be undone or that move money or power: the session must have been
+ * opened by a sign-in within the last `minutes`. A stolen session cookie is then useless for
+ * them once it is older than that, and the owner simply signs in again.
+ */
+export const RequireRecentAuth = (minutes = 30) => SetMetadata(RECENT_KEY, minutes);
 
 export const Auth = createParamDecorator((_: unknown, ctx: ExecutionContext): AuthContext => {
   return ctx.switchToHttp().getRequest<AuthedRequest>().auth!;
@@ -103,12 +110,14 @@ export class PermissionGuard implements CanActivate {
     const targets = [ctx.getHandler(), ctx.getClass()];
     const required = this.reflector.getAllAndMerge<Permission[]>(PERMISSION_KEY, targets);
     const feature = this.reflector.getAllAndOverride<Feature | undefined>(FEATURE_KEY, targets);
-    if (required.length === 0 && !feature) return true;
+    const recent = this.reflector.getAllAndOverride<number | undefined>(RECENT_KEY, targets);
+    if (required.length === 0 && !feature && !recent) return true;
 
     const auth = ctx.switchToHttp().getRequest<AuthedRequest>().auth;
     if (!auth) throw unauthorized();
     if (required.some((p) => !auth.permissions.has(p))) throw forbidden('MISSING_PERMISSION');
     if (feature && !(await this.entitlements.has(auth.user.id, feature))) throw forbidden('PLAN_UPGRADE_REQUIRED');
+    if (recent && Date.now() - auth.session.createdAt.getTime() > recent * 60_000) throw forbidden('REAUTH_REQUIRED');
     return true;
   }
 }

@@ -126,7 +126,8 @@
     "INVALID_FILTER": "That filter value does not exist.",
     "INVALID_PURPOSE": "The upload’s purpose is not valid.",
     "BACKUP_RUNNING": "A backup is already running. Try again in a minute.",
-    "BACKUP_NOT_FOUND": "That backup was not found."
+    "BACKUP_NOT_FOUND": "That backup was not found.",
+    "REAUTH_REQUIRED": "For your safety, this action needs a fresh sign-in. Sign out, sign in again, then repeat it within 30 minutes."
   },
   "status": {
     "DRAFT": "Draft",

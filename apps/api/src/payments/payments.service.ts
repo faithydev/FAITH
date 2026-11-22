@@ -98,6 +98,9 @@ export class PaymentsService {
   async handleWebhook(providerName: string, rawBody: Buffer, headers: Record<string, string | string[] | undefined>) {
     const provider = this.providers.get(providerName);
     if (!provider) throw notFound();
+    // The simulator's webhook exists only while the simulator is the active, allowed provider:
+    // once real payments run, nobody can mark a payment paid through it, whatever they hold.
+    if (providerName === 'mock' && !(env.PAYMENT_PROVIDER === 'mock' && env.ALLOW_MOCK_PAYMENTS)) throw notFound();
     let event: NormalizedEvent;
     try {
       event = provider.parseWebhook(rawBody, headers);
