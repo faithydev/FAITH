@@ -4,6 +4,7 @@ import type { communityBody, courseBody, creatorProfileBody, lessonBody, postBod
 import type { z } from 'zod';
 import { uniqueSlug } from '../core/crypto';
 import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
+import { DrmService } from '../core/drm.service';
 import { EventsService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
 
@@ -11,7 +12,7 @@ const author = { select: { id: true, profile: { select: { displayName: true, use
 
 @Injectable()
 export class CreatorService {
-  constructor(private readonly prisma: PrismaService, private readonly events: EventsService) {}
+  constructor(private readonly prisma: PrismaService, private readonly events: EventsService, private readonly drm: DrmService) {}
 
   // --- Profiles ------------------------------------------------------------
 
@@ -98,7 +99,7 @@ export class CreatorService {
           const open = access || l.isPreview;
           return {
             id: l.id, title: l.title, durationSec: l.durationSec, isPreview: l.isPreview, completed: done.has(l.id), locked: !open,
-            body: open ? l.body : null, hasVideo: !!l.videoKey,
+            body: open ? l.body : null, hasVideo: !!l.videoKey || !!l.drmVideoId, drm: !!l.drmVideoId,
           };
         }),
       })),
@@ -126,7 +127,7 @@ export class CreatorService {
     return this.prisma.db.course.findMany({
       where: { creatorId: userId },
       orderBy: { updatedAt: 'desc' },
-      include: { sections: { orderBy: { position: 'asc' }, include: { lessons: { orderBy: { position: 'asc' }, select: { id: true, title: true, isPreview: true, videoKey: true } } } }, _count: { select: { enrollments: true } } },
+      include: { sections: { orderBy: { position: 'asc' }, include: { lessons: { orderBy: { position: 'asc' }, select: { id: true, title: true, isPreview: true, videoKey: true, drmVideoId: true, drmVideo: { select: { status: true } } } } } }, _count: { select: { enrollments: true } } },
     });
   }
 
@@ -175,11 +176,23 @@ export class CreatorService {
   async setLessonVideo(lessonId: string, userId: string, uploadId: string | null, access?: 'paid' | 'free') {
     await this.ownedLesson(lessonId, userId);
     const videoKey = uploadId ? (await this.ownUpload({ id: uploadId }, userId, 'video/mp4')).storageKey : null;
+    // A lesson has one video: a plain upload replaces a DRM one, and removing clears both.
     const lesson = await this.prisma.db.lesson.update({
       where: { id: lessonId },
-      data: { videoKey, ...(access ? { isPreview: access === 'free' } : {}) },
+      data: { videoKey, drmVideoId: null, ...(access ? { isPreview: access === 'free' } : {}) },
     });
     return { id: lessonId, hasVideo: !!videoKey, access: lesson.isPreview ? 'free' : 'paid' };
+  }
+
+  /**
+   * Attaches a video the creator uploaded to the DRM provider. It is paid content by nature, and
+   * the lesson then has no plain stream at all, so there is nothing unprotected to fall back to.
+   */
+  async setLessonDrm(lessonId: string, userId: string, videoId: string) {
+    await this.ownedLesson(lessonId, userId);
+    const v = await this.drm.refresh(await this.drm.owned(videoId, userId));
+    await this.prisma.db.lesson.update({ where: { id: lessonId }, data: { drmVideoId: v.id, videoKey: null, isPreview: false } });
+    return { id: lessonId, drm: true, status: v.status };
   }
 
   async setLessonAccess(lessonId: string, userId: string, access: 'paid' | 'free') {
@@ -193,14 +206,38 @@ export class CreatorService {
    * every other lesson only to its creator and to people who bought or joined the course.
    */
   async lessonVideo(lessonId: string, userId?: string) {
+    const lesson = await this.watchableLesson(lessonId, userId);
+    if (!lesson.videoKey) throw notFound('LESSON_NOT_FOUND');
+    return { key: lesson.videoKey };
+  }
+
+  /** The same checks, for a lesson whose video is under DRM: a fresh player address for this viewer. */
+  async lessonPlayback(lessonId: string, userId?: string) {
+    const lesson = await this.watchableLesson(lessonId, userId);
+    if (!lesson.drmVideoId) throw notFound('LESSON_NOT_FOUND');
+    return this.drm.player(lesson.drmVideoId, await this.watermark(userId));
+  }
+
+  /**
+   * What the DRM player writes over the picture, so a leaked recording points back to its viewer:
+   * the public username and the end of the account id, never the email.
+   */
+  private async watermark(userId?: string) {
+    const day = new Date().toISOString().slice(0, 10);
+    if (!userId) return `FAITH · ${day}`;
+    const p = await this.prisma.db.userProfile.findUnique({ where: { userId }, select: { username: true } });
+    return `@${p?.username ?? 'faith'} · ${userId.slice(-6)} · ${day}`;
+  }
+
+  private async watchableLesson(lessonId: string, userId?: string) {
     const lesson = await this.prisma.db.lesson.findUnique({ where: { id: lessonId }, include: { section: { include: { course: true } } } });
     const course = lesson?.section.course;
-    if (!lesson?.videoKey || !course || (course.status !== 'PUBLISHED' && course.creatorId !== userId)) throw notFound('LESSON_NOT_FOUND');
+    if (!lesson || !course || (course.status !== 'PUBLISHED' && course.creatorId !== userId)) throw notFound('LESSON_NOT_FOUND');
     if (!lesson.isPreview) {
       if (!userId) throw unauthorized();
       if (!(await this.hasAccess(course, userId))) throw forbidden('COURSE_ACCESS_REQUIRED');
     }
-    return { key: lesson.videoKey };
+    return lesson;
   }
 
   async setCoursePublished(id: string, userId: string, published: boolean) {
@@ -303,7 +340,7 @@ export class CreatorService {
         })
       : [];
     // Where a video is stored never leaves the server; the page only learns that there is one.
-    const posts = rows.map(({ videoKey, ...p }) => ({ ...p, hasVideo: !!videoKey }));
+    const posts = rows.map(({ videoKey, drmVideoId, ...p }) => ({ ...p, hasVideo: !!videoKey || !!drmVideoId, drm: !!drmVideoId }));
     return { ...c, member, canRead, posts };
   }
 
@@ -354,30 +391,42 @@ export class CreatorService {
     if (!c) throw notFound('COMMUNITY_NOT_FOUND');
     const m = await this.membership(c.id, userId);
     if (m?.status !== 'ACTIVE') throw forbidden('COMMUNITY_MEMBER_REQUIRED');
-    const { videoUploadId, ...rest } = body;
+    const { videoUploadId, drmVideoId, ...rest } = body;
     let videoKey: string | null = null;
-    if (videoUploadId) {
-      // Video is the paid content of a VIP channel: only its owner and moderators post it.
-      if (m.role === 'MEMBER') throw forbidden('COMMUNITY_MODERATOR_REQUIRED');
-      videoKey = (await this.ownUpload({ id: videoUploadId }, userId, 'video/mp4')).storageKey;
-    }
+    let drmId: string | null = null;
+    // Video is the paid content of a VIP channel: only its owner and moderators post it.
+    if ((videoUploadId || drmVideoId) && m.role === 'MEMBER') throw forbidden('COMMUNITY_MODERATOR_REQUIRED');
+    if (drmVideoId) drmId = (await this.drm.owned(drmVideoId, userId)).id;
+    else if (videoUploadId) videoKey = (await this.ownUpload({ id: videoUploadId }, userId, 'video/mp4')).storageKey;
     const created = await this.prisma.db.post.create({
-      data: { ...rest, videoKey, channelId: rest.channelId ?? null, communityId: c.id, authorId: userId },
+      data: { ...rest, videoKey, drmVideoId: drmId, channelId: rest.channelId ?? null, communityId: c.id, authorId: userId },
     });
-    const { videoKey: stored, ...post } = created;
-    return { ...post, hasVideo: !!stored };
+    const { videoKey: stored, drmVideoId: storedDrm, ...post } = created;
+    return { ...post, hasVideo: !!stored || !!storedDrm, drm: !!storedDrm };
   }
 
   /** Where a post's video lives, for the streaming route: only for people who can read the community. */
   async postVideo(postId: string, userId?: string) {
+    const post = await this.readablePost(postId, userId);
+    if (!post.videoKey) throw notFound('POST_NOT_FOUND');
+    return { key: post.videoKey };
+  }
+
+  async postPlayback(postId: string, userId?: string) {
+    const post = await this.readablePost(postId, userId);
+    if (!post.drmVideoId) throw notFound('POST_NOT_FOUND');
+    return this.drm.player(post.drmVideoId, await this.watermark(userId));
+  }
+
+  private async readablePost(postId: string, userId?: string) {
     const post = await this.prisma.db.post.findUnique({ where: { id: postId }, include: { community: true } });
-    if (!post?.videoKey || post.status !== 'VISIBLE') throw notFound('POST_NOT_FOUND');
+    if (!post || post.status !== 'VISIBLE') throw notFound('POST_NOT_FOUND');
     if (post.community.visibility === 'PRIVATE') {
       if (!userId) throw unauthorized();
       const m = await this.membership(post.communityId, userId);
       if (m?.status !== 'ACTIVE') throw forbidden('COMMUNITY_MEMBER_REQUIRED');
     }
-    return { key: post.videoKey };
+    return post;
   }
 
   async comment(postId: string, userId: string, body: string) {

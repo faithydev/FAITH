@@ -12,7 +12,10 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  `connect-src 'self'${dev ? ' ws:' : ''}`,
+  // Paid video under DRM uploads straight from the browser to the provider's S3 storage.
+  `connect-src 'self' https://*.amazonaws.com${dev ? ' ws:' : ''}`,
+  // The DRM provider's player, which alone holds the decryption path.
+  "frame-src https://player.vdocipher.com",
   "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",

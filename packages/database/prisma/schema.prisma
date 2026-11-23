@@ -104,6 +104,7 @@ model User {
   auditLogs           AuditLog[]
   revenueShares       RevenueShare[]
   paymentReceipts     PaymentReceipt[]
+  drmVideos           DrmVideo[]
 
   @@index([status])
   @@index([createdAt])
@@ -783,6 +784,27 @@ model PaymentEvent {
   processedAt DateTime?
 
   @@unique([provider, eventId])
+}
+
+/**
+ * A video held by the DRM provider (VdoCipher): encrypted with Widevine and FairPlay, played only
+ * through the provider's player with a short-lived one-time token. `id` is the provider's own id.
+ */
+model DrmVideo {
+  id          String   @id
+  provider    String
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  title       String
+  /// uploading, processing, ready or failed
+  status      String   @default("uploading")
+  durationSec Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lessons     Lesson[]
+  posts       Post[]
+
+  @@index([ownerId])
 }
 
 enum ReceiptStatus {
@@ -1710,6 +1732,9 @@ model Lesson {
   title       String
   body        String         @default("")
   videoKey    String?
+  /// Paid video under DRM, hosted by the DRM provider. When set, the lesson has no plain stream.
+  drmVideoId  String?
+  drmVideo    DrmVideo?      @relation(fields: [drmVideoId], references: [id], onDelete: SetNull)
   fileKey     String?
   durationSec Int?
   position    Int            @default(0)
@@ -1824,6 +1849,9 @@ model Post {
   body        String
   /// A protected MP4 streamed only to people who can read the community.
   videoKey    String?
+  /// The same, under DRM with the DRM provider.
+  drmVideoId  String?
+  drmVideo    DrmVideo?         @relation(fields: [drmVideoId], references: [id], onDelete: SetNull)
   status      ContentStatus     @default(VISIBLE)
   createdAt   DateTime          @default(now())
   comments    Comment[]

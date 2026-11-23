@@ -65,6 +65,8 @@ services:
         sync: false
       # Optional social sign-in (GOOGLE_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY):
       # add them later under the service's Environment tab; each button turns on once its values are set.
+      # Optional DRM for paid video: add VDOCIPHER_API_SECRET (VdoCipher dashboard > Config > API keys)
+      # under the Environment tab; paid uploads then go to VdoCipher under Widevine and FairPlay.
 
 databases:
   - name: faith-db

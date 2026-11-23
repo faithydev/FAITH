@@ -139,7 +139,11 @@
     "RECEIPT_NOT_FOUND": "Chek topilmadi.",
     "PAYMENT_NOT_FOUND": "Toʻlov topilmadi.",
     "COMMUNITY_MODERATOR_REQUIRED": "Buni faqat egasi va moderatorlar qila oladi.",
-    "NOT_A_DIRECT_PAYMENT": "Bu toʻlov toʻgʻridan-toʻgʻri oʻtkazma emas."
+    "NOT_A_DIRECT_PAYMENT": "Bu toʻlov toʻgʻridan-toʻgʻri oʻtkazma emas.",
+    "DRM_PROVIDER_ERROR": "Video xizmati javob bermadi. Bir daqiqadan keyin qayta urinib koʻring.",
+    "DRM_NOT_CONFIGURED": "Himoyalangan video xizmati hali yoqilmagan.",
+    "DRM_UPLOAD_FAILED": "Videoni yuklab boʻlmadi. Internetni tekshirib, qayta urinib koʻring.",
+    "VIDEO_NOT_FOUND": "Video topilmadi."
   },
   "status": {
     "DRAFT": "Qoralama",
@@ -796,7 +800,8 @@
     "addVideo": "Video biriktirish (MP4)",
     "videoHint": "Videoni faqat aʼzolar koʻradi, himoyalangan pleyerda, ustida oʻz ismi bilan.",
     "uploading": "Video yuklanmoqda…",
-    "posted": "Eʼlon qilindi"
+    "posted": "Eʼlon qilindi",
+    "uploadingPercent": "Video yuklanmoqda… {percent}%"
   },
   "creators": {
     "title": "Ijodkorlar",
@@ -1414,7 +1419,14 @@
       "accessFreeBody": "Roʻyxatdan oʻtgan-oʻtmaganidan qatʼi nazar hamma koʻradi, himoyasiz.",
       "current": "hozir",
       "videoReadyPaid": "Video yuklandi va himoyalandi.",
-      "videoReadyFree": "Video yuklandi. U hamma uchun bepul."
+      "videoReadyFree": "Video yuklandi. U hamma uchun bepul.",
+      "drmUploading": "Yuklanmoqda {percent}%",
+      "drmReady": "Video DRM bilan yuklandi. Shifrlash bir necha daqiqa oladi.",
+      "drmBadge": "DRM",
+      "drmProcessing": "Shifrlanmoqda…",
+      "drmFailed": "Shifrlash muvaffaqiyatsiz",
+      "accessPaidDrm": "Pullik: DRM himoyasi",
+      "accessPaidDrmBody": "Widevine va FairPlay bilan shifrlanadi: faqat xaridorlar koʻradi, ekranda ularning ismi yuradi, yuklab olish yoki DevTools hech narsa bermaydi. Fayl toʻgʻridan-toʻgʻri video xizmatiga ketadi."
     },
     "brand": {
       "body": "Kampaniyalaringiz, xarajat va natijalar.",
@@ -1864,7 +1876,14 @@
     "signInAgain": "Bu yerda qayta kirish",
     "appHint": "Eng kuchli himoya: FAITH kompyuter ilovasida bu videoni ekrandan yozib olsa, yozuv boʻsh chiqadi.",
     "appLink": "Ilovani yuklab olish",
-    "freeNote": "Bepul video: uni hamma koʻra oladi."
+    "freeNote": "Bepul video: uni hamma koʻra oladi.",
+    "drmPlay": "Himoyalangan videoni ochish",
+    "drmTitle": "Himoyalangan video",
+    "drmProcessing": "Video hali shifrlanmoqda. Bir necha daqiqadan keyin qayta urinib koʻring.",
+    "drmRetry": "Qayta urinish",
+    "drmUnsupported": "Bu brauzer yoki ilova DRM videoni ochmaydi. Sahifani Chrome, Edge, Firefox yoki Safari’da oching.",
+    "drmFailed": "Bu videoni tayyorlab boʻlmadi. Muallif uni qayta yuklashi kerak.",
+    "drmNote": "DRM himoyasi: video shifrlangan (Widevine, FairPlay). Yuklab olish, DevTools va saqlangan trafikdan koʻrsa boʻladigan hech narsa chiqmaydi."
   },
   "directPay": {
     "title": "Sotuvchiga toʻgʻridan-toʻgʻri toʻlash",

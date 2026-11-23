@@ -139,7 +139,11 @@
     "RECEIPT_NOT_FOUND": "未找到凭证。",
     "PAYMENT_NOT_FOUND": "未找到付款。",
     "COMMUNITY_MODERATOR_REQUIRED": "只有所有者和版主可以这样做。",
-    "NOT_A_DIRECT_PAYMENT": "此付款不是直接转账。"
+    "NOT_A_DIRECT_PAYMENT": "此付款不是直接转账。",
+    "DRM_PROVIDER_ERROR": "视频服务未响应，请一分钟后再试。",
+    "DRM_NOT_CONFIGURED": "受保护视频托管尚未开启。",
+    "DRM_UPLOAD_FAILED": "视频上传失败，请检查网络后重试。",
+    "VIDEO_NOT_FOUND": "未找到视频。"
   },
   "status": {
     "DRAFT": "草稿",
@@ -796,7 +800,8 @@
     "addVideo": "附加视频（MP4）",
     "videoHint": "只有成员能在带有其姓名的受保护播放器中观看此视频。",
     "uploading": "正在上传视频…",
-    "posted": "已发布"
+    "posted": "已发布",
+    "uploadingPercent": "正在上传视频… {percent}%"
   },
   "creators": {
     "title": "创作者",
@@ -1414,7 +1419,14 @@
       "accessFreeBody": "无论是否登录，任何人都能观看，不加保护。",
       "current": "当前",
       "videoReadyPaid": "视频已上传并受保护。",
-      "videoReadyFree": "视频已上传，对所有人免费。"
+      "videoReadyFree": "视频已上传，对所有人免费。",
+      "drmUploading": "正在上传 {percent}%",
+      "drmReady": "视频已以 DRM 方式上传，加密需要几分钟。",
+      "drmBadge": "DRM",
+      "drmProcessing": "加密中…",
+      "drmFailed": "加密失败",
+      "accessPaidDrm": "付费：DRM 保护",
+      "accessPaidDrmBody": "使用 Widevine 和 FairPlay 加密：只有买家能观看，画面上移动显示其姓名，下载或开发者工具都拿不到可播放的内容。文件直接上传到视频服务。"
     },
     "brand": {
       "body": "您的活动、支出和成果。",
@@ -1864,7 +1876,14 @@
     "signInAgain": "在此重新登录",
     "appHint": "最强保护：在 FAITH 桌面应用中，录屏得到的此视频画面是空白的。",
     "appLink": "下载应用",
-    "freeNote": "免费视频：任何人都可以观看。"
+    "freeNote": "免费视频：任何人都可以观看。",
+    "drmPlay": "播放受保护视频",
+    "drmTitle": "受保护视频",
+    "drmProcessing": "视频仍在加密中，请几分钟后再试。",
+    "drmRetry": "重试",
+    "drmUnsupported": "此浏览器或应用无法播放 DRM 视频。请在 Chrome、Edge、Firefox 或 Safari 中打开此页面。",
+    "drmFailed": "此视频无法处理，需要作者重新上传。",
+    "drmNote": "DRM 保护：视频已加密（Widevine、FairPlay）。下载、开发者工具和保存的网络流量都得不到可播放的内容。"
   },
   "directPay": {
     "title": "直接付款给卖家",

@@ -321,6 +321,9 @@ export const lessonVideoBody = z.object({
   access: z.enum(['paid', 'free']).optional(),
 });
 export const lessonAccessBody = z.object({ access: z.enum(['paid', 'free']) });
+/** Step one of a DRM upload: the file goes from the browser straight to the DRM provider. */
+export const drmUploadBody = z.object({ title: z.string().trim().min(1).max(200) });
+export const drmVideoBody = z.object({ videoId: z.string().min(1).max(80) });
 export const planPriceBody = z.object({
   monthlyMinor: minorAmount.nullable(),
   yearlyMinor: minorAmount.nullable(),
@@ -524,6 +527,8 @@ export const postBody = z.object({
   channelId: z.string().nullable().optional(),
   /** An MP4 the author uploaded; only the community's owner and moderators may attach video. */
   videoUploadId: z.string().min(1).max(40).optional(),
+  /** Or a video the author uploaded to the DRM provider. */
+  drmVideoId: z.string().min(1).max(80).optional(),
 });
 export const commentBody = z.object({ body: z.string().trim().min(1).max(4000) });
 export const memberModerationBody = z.object({

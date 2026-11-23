@@ -139,7 +139,11 @@
     "RECEIPT_NOT_FOUND": "No se encontró el comprobante.",
     "PAYMENT_NOT_FOUND": "No se encontró el pago.",
     "COMMUNITY_MODERATOR_REQUIRED": "Solo el propietario y los moderadores pueden hacerlo.",
-    "NOT_A_DIRECT_PAYMENT": "Este pago no es una transferencia directa."
+    "NOT_A_DIRECT_PAYMENT": "Este pago no es una transferencia directa.",
+    "DRM_PROVIDER_ERROR": "El servicio de vídeo no respondió. Inténtalo de nuevo en un minuto.",
+    "DRM_NOT_CONFIGURED": "El alojamiento de vídeo protegido aún no está activado.",
+    "DRM_UPLOAD_FAILED": "No se pudo subir el vídeo. Revisa la conexión y vuelve a intentarlo.",
+    "VIDEO_NOT_FOUND": "No se encontró el vídeo."
   },
   "status": {
     "DRAFT": "Borrador",
@@ -796,7 +800,8 @@
     "addVideo": "Adjuntar vídeo (MP4)",
     "videoHint": "Solo los miembros ven el vídeo, en el reproductor protegido con su nombre.",
     "uploading": "Subiendo vídeo…",
-    "posted": "Publicado"
+    "posted": "Publicado",
+    "uploadingPercent": "Subiendo vídeo… {percent} %"
   },
   "creators": {
     "title": "Creadores",
@@ -1414,7 +1419,14 @@
       "accessFreeBody": "Cualquiera lo ve, con o sin sesión, sin protección.",
       "current": "ahora",
       "videoReadyPaid": "Vídeo subido y protegido.",
-      "videoReadyFree": "Vídeo subido. Es gratuito para todos."
+      "videoReadyFree": "Vídeo subido. Es gratuito para todos.",
+      "drmUploading": "Subiendo {percent} %",
+      "drmReady": "Vídeo subido con DRM. El cifrado tarda unos minutos.",
+      "drmBadge": "DRM",
+      "drmProcessing": "Cifrando…",
+      "drmFailed": "El cifrado falló",
+      "accessPaidDrm": "De pago: protección DRM",
+      "accessPaidDrmBody": "Cifrado con Widevine y FairPlay: solo lo ven los compradores, su nombre se mueve por el cuadro y las descargas o herramientas de desarrollo no obtienen nada reproducible. El archivo va directo al servicio de vídeo."
     },
     "brand": {
       "body": "Tus campañas, gasto y resultados.",
@@ -1864,7 +1876,14 @@
     "signInAgain": "Iniciar sesión aquí de nuevo",
     "appHint": "Máxima protección: en la app de escritorio de FAITH, la grabación de pantalla de este vídeo sale en blanco.",
     "appLink": "Descargar la app",
-    "freeNote": "Vídeo gratuito: cualquiera puede verlo."
+    "freeNote": "Vídeo gratuito: cualquiera puede verlo.",
+    "drmPlay": "Reproducir vídeo protegido",
+    "drmTitle": "Vídeo protegido",
+    "drmProcessing": "El vídeo aún se está cifrando. Inténtalo de nuevo en unos minutos.",
+    "drmRetry": "Reintentar",
+    "drmUnsupported": "Este navegador o app no puede reproducir vídeo con DRM. Abre la página en Chrome, Edge, Firefox o Safari.",
+    "drmFailed": "No se pudo preparar este vídeo. El autor tiene que volver a subirlo.",
+    "drmNote": "Protección DRM: el vídeo está cifrado (Widevine, FairPlay). Las descargas, las herramientas de desarrollo y el tráfico guardado no dan nada reproducible."
   },
   "directPay": {
     "title": "Paga directamente al vendedor",

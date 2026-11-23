@@ -57,6 +57,13 @@ const schema = z.object({
   EMAIL_DRIVER: z.enum(['dev', 'smtp']).default(process.env.SMTP_URL ? 'smtp' : 'dev'),
   SMTP_URL: z.string().optional(),
   EMAIL_FROM: z.string().default('FAITH <no-reply@faith.local>'),
+  /**
+   * DRM for paid video. `vdocipher` hosts paid video encrypted with Widevine and FairPlay and
+   * serves it through its own player; the key never reaches page code. `none` keeps paid video on
+   * FAITH's own protected stream. `fake` is a stand-in for tests and is refused in production.
+   */
+  DRM_PROVIDER: z.enum(['none', 'vdocipher', 'fake']).default(process.env.VDOCIPHER_API_SECRET ? 'vdocipher' : 'none'),
+  VDOCIPHER_API_SECRET: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default('claude-opus-5-5'),
   GOOGLE_CLIENT_ID: z.string().optional(),
@@ -86,6 +93,8 @@ function load(): Env {
     if (missing.length) throw new Error(`STORAGE_DRIVER=s3 needs ${missing.join(', ')}.`);
   }
   if (env.EMAIL_DRIVER === 'smtp' && !env.SMTP_URL) throw new Error('EMAIL_DRIVER=smtp needs SMTP_URL.');
+  if (env.DRM_PROVIDER === 'vdocipher' && !env.VDOCIPHER_API_SECRET) throw new Error('DRM_PROVIDER=vdocipher needs VDOCIPHER_API_SECRET.');
+  if (env.DRM_PROVIDER === 'fake' && env.NODE_ENV === 'production') throw new Error('DRM_PROVIDER=fake cannot run in production.');
   if (env.NODE_ENV === 'production' && !env.PUBLIC_DEMO) {
     if (env.PAYMENT_PROVIDER === 'mock' || env.ALLOW_MOCK_PAYMENTS) {
       throw new Error('The mock payment provider cannot run with NODE_ENV=production.');

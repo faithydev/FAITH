@@ -21,6 +21,7 @@ import { SellerService } from './commerce/seller.service';
 import { UploadsController } from './commerce/uploads.controller';
 import { EmailService, StorageService } from './core/adapters';
 import { BackupService } from './core/backup.service';
+import { DrmService } from './core/drm.service';
 import { BackupController } from './admin/backup.controller';
 import { AllExceptionsFilter } from './core/errors';
 import { AuditService, EventsService, FlagsService, SettingsService } from './core/platform.services';
@@ -51,6 +52,7 @@ import { WorkService } from './work/work.service';
 const shared = [
   PrismaService, AuditService, EventsService, SettingsService, FlagsService, EmailService, StorageService, BackupService,
   EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService, BadgesService, ProtectionService,
+  DrmService,
 ];
 
 /** Services every domain may depend on. Domains never reach into each other's internals. */

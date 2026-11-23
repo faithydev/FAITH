@@ -1,9 +1,10 @@
 import { IntlScope } from '@/components/auth/scope';
 import { PostComposer } from '@/components/communities/post-composer';
+import { DrmPlayer } from '@/components/courses/drm-player';
 import { ProtectedVideo } from '@/components/courses/protected-video';
 import { ActionButton, AutoForm } from '@/components/ui/client';
 import { Badge, Breadcrumbs, Card, EmptyState, LinkButton } from '@/components/ui/primitives';
-import { api, getMe, publicApi } from '@/lib/api';
+import { api, getMe, publicApi, tryPublicApi } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
 import { date } from '@/lib/format';
 import { Lock } from 'lucide-react';
@@ -16,11 +17,11 @@ type View = {
   member: { status: string; role: string } | null;
   product: { slug: string } | null;
   _count: { members: number };
-  posts: { id: string; title: string; body: string; createdAt: string; hasVideo: boolean; author: Author; comments: { id: string; body: string; author: Author }[] }[];
+  posts: { id: string; title: string; body: string; createdAt: string; hasVideo: boolean; drm?: boolean; author: Author; comments: { id: string; body: string; author: Author }[] }[];
 };
 
 export default async function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [{ slug }, t, locale, me] = await Promise.all([params, getTranslations(), getLocale(), getMe()]);
+  const [{ slug }, t, locale, me, drm] = await Promise.all([params, getTranslations(), getLocale(), getMe(), tryPublicApi<{ enabled: boolean }>('/drm/config', 60)]);
   const c = await (me ? api<View>(`/communities/${slug}`) : publicApi<View>(`/communities/${slug}`, 15)).catch((e: unknown) => {
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;
@@ -37,7 +38,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ slug
           <p className="mt-2 flex items-center gap-2 text-sm text-subtle"><Badge>{t(`communities.${c.visibility}`)}</Badge>{t('communities.memberCount', { count: c._count.members })}</p>
         </div>
         <div className="flex gap-2">
-          {member && <IntlScope ns={['communities']}><PostComposer slug={c.slug} canVideo={c.member?.role !== 'MEMBER'} /></IntlScope>}
+          {member && <IntlScope ns={['communities']}><PostComposer slug={c.slug} canVideo={c.member?.role !== 'MEMBER'} drm={!!drm?.enabled && c.visibility === 'PRIVATE'} /></IntlScope>}
           {!member && me && c.visibility === 'PUBLIC' && <ActionButton endpoint={`/communities/${c.slug}/join`} label={t('communities.join')} variant="primary" size="md" />}
           {!me && <LinkButton href={`/login?next=/communities/${c.slug}`}>{t('communities.join')}</LinkButton>}
         </div>
@@ -58,7 +59,9 @@ export default async function CommunityPage({ params }: { params: Promise<{ slug
                 {p.hasVideo && (
                   <IntlScope ns={['courses', 'protect']}>
                     {/* A private (VIP) community's video is paid content and fully protected. */}
-                    <ProtectedVideo src={`/api/v1/posts/${p.id}/stream`} contentId={p.id} viewer={viewer} protect={c.visibility === 'PRIVATE'} />
+                    {p.drm
+                      ? <DrmPlayer endpoint={`/posts/${p.id}/playback`} contentId={p.id} />
+                      : <ProtectedVideo src={`/api/v1/posts/${p.id}/stream`} contentId={p.id} viewer={viewer} protect={c.visibility === 'PRIVATE'} />}
                   </IntlScope>
                 )}
                 {p.comments.length > 0 && <ul className="mt-3 space-y-1.5 border-t border-line pt-3 text-sm">{p.comments.map((x) => <li key={x.id}><span className="font-medium">{x.author.profile?.displayName}</span> <span className="text-muted">{x.body}</span></li>)}</ul>}

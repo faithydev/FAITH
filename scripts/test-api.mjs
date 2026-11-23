@@ -46,6 +46,8 @@ const env = {
   STORAGE_DIR: join(dir ?? tmpdir(), 'storage'),
   EMAIL_DRIVER: 'dev',
   ANTHROPIC_API_KEY: '',
+  DRM_PROVIDER: 'fake',
+  VDOCIPHER_API_SECRET: '',
   REDIS_URL: '',
 };
 

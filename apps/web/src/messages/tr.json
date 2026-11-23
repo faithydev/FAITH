@@ -139,7 +139,11 @@
     "RECEIPT_NOT_FOUND": "Dekont bulunamadı.",
     "PAYMENT_NOT_FOUND": "Ödeme bulunamadı.",
     "COMMUNITY_MODERATOR_REQUIRED": "Bunu yalnızca sahip ve moderatörler yapabilir.",
-    "NOT_A_DIRECT_PAYMENT": "Bu ödeme doğrudan transfer değil."
+    "NOT_A_DIRECT_PAYMENT": "Bu ödeme doğrudan transfer değil.",
+    "DRM_PROVIDER_ERROR": "Video hizmeti yanıt vermedi. Bir dakika sonra yeniden deneyin.",
+    "DRM_NOT_CONFIGURED": "Korumalı video barındırma henüz açılmadı.",
+    "DRM_UPLOAD_FAILED": "Video yüklenemedi. Bağlantıyı kontrol edip yeniden deneyin.",
+    "VIDEO_NOT_FOUND": "Video bulunamadı."
   },
   "status": {
     "DRAFT": "Taslak",
@@ -796,7 +800,8 @@
     "addVideo": "Video ekle (MP4)",
     "videoHint": "Videoyu yalnızca üyeler, kendi adlarıyla korumalı oynatıcıda görür.",
     "uploading": "Video yükleniyor…",
-    "posted": "Paylaşıldı"
+    "posted": "Paylaşıldı",
+    "uploadingPercent": "Video yükleniyor… %{percent}"
   },
   "creators": {
     "title": "İçerik üreticileri",
@@ -1414,7 +1419,14 @@
       "accessFreeBody": "Giriş yapsın yapmasın herkes korumasız izler.",
       "current": "şu an",
       "videoReadyPaid": "Video yüklendi ve korunuyor.",
-      "videoReadyFree": "Video yüklendi ve herkese ücretsiz."
+      "videoReadyFree": "Video yüklendi ve herkese ücretsiz.",
+      "drmUploading": "Yükleniyor %{percent}",
+      "drmReady": "Video DRM ile yüklendi. Şifreleme birkaç dakika sürer.",
+      "drmBadge": "DRM",
+      "drmProcessing": "Şifreleniyor…",
+      "drmFailed": "Şifreleme başarısız",
+      "accessPaidDrm": "Ücretli: DRM koruması",
+      "accessPaidDrmBody": "Widevine ve FairPlay ile şifrelenir: yalnızca alıcılar izler, adları karede dolaşır, indirme veya geliştirici araçları oynatılabilir hiçbir şey vermez. Dosya doğrudan video hizmetine gider."
     },
     "brand": {
       "body": "Kampanyalarınız, harcamalarınız ve sonuçlarınız.",
@@ -1864,7 +1876,14 @@
     "signInAgain": "Burada yeniden giriş yap",
     "appHint": "En güçlü koruma: FAITH masaüstü uygulamasında bu videonun ekran kaydı boş çıkar.",
     "appLink": "Uygulamayı indir",
-    "freeNote": "Ücretsiz video: herkes izleyebilir."
+    "freeNote": "Ücretsiz video: herkes izleyebilir.",
+    "drmPlay": "Korumalı videoyu aç",
+    "drmTitle": "Korumalı video",
+    "drmProcessing": "Video hâlâ şifreleniyor. Birkaç dakika sonra yeniden deneyin.",
+    "drmRetry": "Yeniden dene",
+    "drmUnsupported": "Bu tarayıcı veya uygulama DRM’li videoyu oynatamıyor. Sayfayı Chrome, Edge, Firefox veya Safari’de açın.",
+    "drmFailed": "Bu video hazırlanamadı. Yazarın yeniden yüklemesi gerekiyor.",
+    "drmNote": "DRM koruması: video şifreli (Widevine, FairPlay). İndirme, geliştirici araçları ve kaydedilen trafik oynatılabilir hiçbir şey vermez."
   },
   "directPay": {
     "title": "Satıcıya doğrudan öde",

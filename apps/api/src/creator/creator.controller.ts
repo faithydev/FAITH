@@ -1,12 +1,14 @@
 import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
-  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonAccessBody, lessonBody, lessonVideoBody, memberModerationBody, postBody, sectionBody,
+  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, drmUploadBody, drmVideoBody, lessonAccessBody, lessonBody, lessonVideoBody,
+  memberModerationBody, postBody, sectionBody,
 } from '@faith/validators';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { Auth, AuthContext, OptionalAuth, Public, RequirePermission } from '../auth/context';
 import { StorageService } from '../core/adapters';
+import { DrmService } from '../core/drm.service';
 import { forbidden, notFound } from '../core/errors';
 import { RateLimit } from '../core/rate-limit';
 import { QText, ZBody } from '../core/zod';
@@ -51,7 +53,49 @@ export function isPlayerRequest(headers: Request['headers']) {
 @ApiTags('creator')
 @Controller()
 export class CreatorController {
-  constructor(private readonly creator: CreatorService, private readonly storage: StorageService) {}
+  constructor(private readonly creator: CreatorService, private readonly storage: StorageService, private readonly drm: DrmService) {}
+
+  // DRM ----------------------------------------------------------------------
+
+  /** Whether paid video goes to the DRM provider; the upload screens choose their path from this. */
+  @Public() @Get('drm/config')
+  drmConfig() {
+    return { enabled: this.drm.enabled };
+  }
+
+  /** Step one of a DRM upload. The browser then sends the file straight to the provider. */
+  @Post('drm/videos') @RateLimit(30, 3600)
+  drmUpload(@Auth() a: AuthContext, @ZBody(drmUploadBody) b: z.infer<typeof drmUploadBody>) {
+    if (!a.permissions.has('course.manage') && !a.permissions.has('community.manage')) throw forbidden('MISSING_PERMISSION');
+    return this.drm.createUpload(a.user.id, b.title);
+  }
+
+  /** How far the provider got with encrypting the video. */
+  @Get('drm/videos/:id')
+  async drmVideo(@Auth() a: AuthContext, @Param('id') id: string) {
+    const v = await this.drm.refresh(await this.drm.owned(id, a.user.id));
+    return { id: v.id, status: v.status, durationSec: v.durationSec };
+  }
+
+  @Put('creator/lessons/:id/drm-video') @RequirePermission('course.manage')
+  setDrmVideo(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(drmVideoBody) b: z.infer<typeof drmVideoBody>) {
+    return this.creator.setLessonDrm(id, a.user.id, b.videoId);
+  }
+
+  /**
+   * A one-time, five-minute player address for a DRM lesson, issued after the same access checks
+   * as the plain stream. The watermark names the viewer by username, not email: it is drawn by the
+   * provider, and FAITH sends it no more personal data than it needs.
+   */
+  @Public() @Get('lessons/:id/playback') @RateLimit(60, 60)
+  lessonPlayback(@Param('id') id: string, @OptionalAuth() a?: AuthContext) {
+    return this.creator.lessonPlayback(id, a?.user.id);
+  }
+
+  @Public() @Get('posts/:id/playback') @RateLimit(60, 60)
+  postPlayback(@Param('id') id: string, @OptionalAuth() a?: AuthContext) {
+    return this.creator.postPlayback(id, a?.user.id);
+  }
 
   @Public() @Get('creators')
   creators(@QText('q') q?: string) {

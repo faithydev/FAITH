@@ -5,12 +5,20 @@ import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import { notFound } from 'next/navigation';
 
-type Course = { id: string; slug: string; title: string; summary: string; status: string; sections: { id: string; title: string; lessons: { id: string; title: string; isPreview: boolean; videoKey: string | null }[] }[] };
+type EditorLesson = { id: string; title: string; isPreview: boolean; videoKey: string | null; drmVideoId: string | null; drmVideo: { status: string } | null };
+type Course = { id: string; slug: string; title: string; summary: string; status: string; sections: { id: string; title: string; lessons: EditorLesson[] }[] };
 
 export default async function CourseEditor({ params }: { params: Promise<{ id: string }> }) {
   const [{ id }, { t, status }] = await Promise.all([params, pageContext()]);
-  const course = (await api<Course[]>('/creator/courses')).find((c) => c.id === id);
+  const [courses, drm] = await Promise.all([api<Course[]>('/creator/courses'), api<{ enabled: boolean }>('/drm/config').catch(() => ({ enabled: false }))]);
+  const course = courses.find((c) => c.id === id);
   if (!course) notFound();
+  // Videos the provider is still encrypting: ask once per page view how far it got.
+  const pending = course.sections.flatMap((s) => s.lessons).filter((l) => l.drmVideoId && l.drmVideo?.status !== 'ready');
+  const fresh = new Map(await Promise.all(pending.map(async (l) => {
+    const v = await api<{ status: string }>(`/drm/videos/${l.drmVideoId}`).catch(() => null);
+    return [l.id, v?.status ?? l.drmVideo?.status ?? 'processing'] as const;
+  })));
   const published = course.status === 'PUBLISHED';
   return (
     <>
@@ -51,12 +59,18 @@ export default async function CourseEditor({ params }: { params: Promise<{ id: s
                     <span className="flex flex-wrap items-center gap-2">
                       {l.isPreview ? <Badge tone="accent">{t('app.creator.previewBadge')}</Badge> : <Badge tone="positive">{t('app.creator.protectedBadge')}</Badge>}
                       {l.videoKey && <Badge tone="positive">{t('app.creator.videoBadge')}</Badge>}
+                      {l.drmVideoId && <Badge tone="positive">{t('app.creator.drmBadge')}</Badge>}
+                      {l.drmVideoId && (fresh.get(l.id) ?? l.drmVideo?.status) !== 'ready' && (
+                        <Badge tone={(fresh.get(l.id) ?? l.drmVideo?.status) === 'failed' ? 'negative' : 'warning'}>
+                          {(fresh.get(l.id) ?? l.drmVideo?.status) === 'failed' ? t('app.creator.drmFailed') : t('app.creator.drmProcessing')}
+                        </Badge>
+                      )}
                       <ActionButton
                         endpoint={`/creator/lessons/${l.id}/access`} method="PUT" body={{ access: l.isPreview ? 'paid' : 'free' }} variant="ghost"
                         label={l.isPreview ? t('app.creator.makePaid') : t('app.creator.makeFree')}
                       />
-                      <LessonVideoUpload lessonId={l.id} hasVideo={!!l.videoKey} isPreview={l.isPreview} />
-                      {l.videoKey && <ActionButton endpoint={`/creator/lessons/${l.id}/video`} method="DELETE" variant="ghost" label={t('app.creator.videoRemove')} />}
+                      <LessonVideoUpload lessonId={l.id} hasVideo={!!l.videoKey || !!l.drmVideoId} isPreview={l.isPreview} drm={drm.enabled} />
+                      {(l.videoKey || l.drmVideoId) && <ActionButton endpoint={`/creator/lessons/${l.id}/video`} method="DELETE" variant="ghost" label={t('app.creator.videoRemove')} />}
                     </span>
                   </li>
                 ))}

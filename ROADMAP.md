@@ -226,6 +226,19 @@ Halol chegaralar: brauzer ekran yozuvchisini (OBS, telefon kamerasi) **ko'ra olm
 tugmasini ko'radi. Yozuvda qora ekran faqat **FAITH kompyuter ilovasida** (Windows ekrandan yozishni
 taqiqlaydi) yoki DRM bilan bo'ladi. Jonli efir hali yo'q: unga oqim xizmati kerak (2-bosqich).
 
+**DRM (VdoCipher, 23-noyabr).** Render'da `VDOCIPHER_API_SECRET` qo'yilsa, pullik dars va VIP post
+videolari brauzerdan to'g'ridan-to'g'ri VdoCipher'ga yuklanadi (FAITH serveri va 300 MB chegarasi
+orqali emas) va Widevine (Chrome, Edge, Firefox, Android) hamda FairPlay (Safari, iPhone) bilan
+shifrlanadi. Kalit brauzerning himoyalangan modulida qoladi: DevTools, IDM yoki saqlangan trafikdan
+ko'riladigan video chiqmaydi. Har ko'rish uchun FAITH 5 daqiqalik bir martalik OTP beradi (kirish
+huquqi tekshiriladi), pleyer ustida tomoshabinning `@username`i suzadi (email uchinchi tomonga
+berilmaydi). DRM videoda oddiy oqim umuman yo'q. Kalit bo'lmasa — hozirgi himoyalangan oqim ishlaydi.
+Cheklovlar: kompyuterda Chrome'da (Widevine L3) ekran yozuvi qora bo'lishi kafolatlanmaydi; Safari,
+iPhone va ko'p Android'larda (FairPlay/L1) qora chiqadi. FAITH kompyuter ilovasi oddiy Electron —
+unda Widevine yo'q, DRM video ochilmaydi; buning uchun ilovani castlabs ECS Electron'ga o'tkazish
+kerak. FairPlay uchun VdoCipher Apple sertifikatini o'zi boshqaradi. Narx: VdoCipher yillik paket
+(~$149/yil dan), 30 kunlik bepul sinov bor.
+
 ---
 
 ## 4. Nima haqiqiy, nima hali simulyatsiya

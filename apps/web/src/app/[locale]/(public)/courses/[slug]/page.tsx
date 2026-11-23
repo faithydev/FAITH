@@ -1,4 +1,5 @@
 import { IntlScope } from '@/components/auth/scope';
+import { DrmPlayer } from '@/components/courses/drm-player';
 import { ProtectedVideo } from '@/components/courses/protected-video';
 import { Approx } from '@/components/money/currency';
 import { ActionButton } from '@/components/ui/client';
@@ -10,7 +11,7 @@ import { CheckCircle2, Lock, PlayCircle } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
-type Lesson = { id: string; title: string; durationSec: number | null; isPreview: boolean; completed: boolean; locked: boolean; body: string | null; hasVideo: boolean };
+type Lesson = { id: string; title: string; durationSec: number | null; isPreview: boolean; completed: boolean; locked: boolean; body: string | null; hasVideo: boolean; drm?: boolean };
 type Course = {
   slug: string; title: string; summary: string; level: string; access: boolean; enrolled: boolean; completedAt: string | null;
   creator: { profile: { displayName: string } | null };
@@ -63,7 +64,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     </summary>
                     {l.hasVideo && !l.locked && (
                       <IntlScope ns={['courses', 'protect']}>
-                        <ProtectedVideo src={`/api/v1/lessons/${l.id}/stream`} contentId={l.id} viewer={viewer} protect={!l.isPreview} />
+                        {l.drm
+                          ? <DrmPlayer endpoint={`/lessons/${l.id}/playback`} contentId={l.id} />
+                          : <ProtectedVideo src={`/api/v1/lessons/${l.id}/stream`} contentId={l.id} viewer={viewer} protect={!l.isPreview} />}
                       </IntlScope>
                     )}
                     {l.body && <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap text-muted">{l.body}</p>}

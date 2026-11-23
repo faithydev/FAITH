@@ -4,6 +4,7 @@ import { Modal, toast, useErrorMessage } from '@/components/ui/client';
 import { Button, fieldClass } from '@/components/ui/primitives';
 import { useRouter } from '@/i18n/navigation';
 import { clientApi, uploadFile } from '@/lib/client';
+import { uploadDrmVideo } from '@/lib/drm-upload';
 import { Loader2, Plus, Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useState } from 'react';
@@ -12,7 +13,7 @@ import { useId, useState } from 'react';
  * A new community post. The owner and moderators of a VIP community may attach an MP4: it is
  * then streamed only to members, in the protected player, with no Telegram channel needed.
  */
-export function PostComposer({ slug, canVideo }: { slug: string; canVideo: boolean }) {
+export function PostComposer({ slug, canVideo, drm }: { slug: string; canVideo: boolean; drm: boolean }) {
   const t = useTranslations();
   const id = useId();
   const router = useRouter();
@@ -22,17 +23,21 @@ export function PostComposer({ slug, canVideo }: { slug: string; canVideo: boole
   const [body, setBody] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState<'upload' | 'post' | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     try {
       let videoUploadId: string | undefined;
+      let drmVideoId: string | undefined;
       if (file) {
         setBusy('upload');
-        videoUploadId = (await uploadFile(file, 'post')).id;
+        // In a VIP community the video goes under DRM, straight to the provider.
+        if (drm) drmVideoId = await uploadDrmVideo(file, (f) => setProgress(Math.round(f * 100)));
+        else videoUploadId = (await uploadFile(file, 'post')).id;
       }
       setBusy('post');
-      await clientApi(`/communities/${slug}/posts`, { body: { title, body, videoUploadId } });
+      await clientApi(`/communities/${slug}/posts`, { body: { title, body, videoUploadId, drmVideoId } });
       toast.success(t('communities.posted'));
       setOpen(false);
       setTitle('');
@@ -43,6 +48,7 @@ export function PostComposer({ slug, canVideo }: { slug: string; canVideo: boole
       toast.error(errorMessage(err));
     } finally {
       setBusy(null);
+      setProgress(null);
     }
   }
 
@@ -69,7 +75,7 @@ export function PostComposer({ slug, canVideo }: { slug: string; canVideo: boole
           <div className="flex justify-end">
             <Button type="submit" disabled={!!busy}>
               {busy && <Loader2 size={15} className="animate-spin" />}
-              {busy === 'upload' ? t('communities.uploading') : t('communities.publish')}
+              {busy === 'upload' ? (progress !== null ? t('communities.uploadingPercent', { percent: progress }) : t('communities.uploading')) : t('communities.publish')}
             </Button>
           </div>
         </form>

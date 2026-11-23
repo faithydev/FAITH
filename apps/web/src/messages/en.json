@@ -139,7 +139,11 @@
     "RECEIPT_NOT_FOUND": "Receipt not found.",
     "PAYMENT_NOT_FOUND": "Payment not found.",
     "COMMUNITY_MODERATOR_REQUIRED": "Only the owner and moderators can do this.",
-    "NOT_A_DIRECT_PAYMENT": "This payment is not a direct transfer."
+    "NOT_A_DIRECT_PAYMENT": "This payment is not a direct transfer.",
+    "DRM_PROVIDER_ERROR": "The video service did not answer. Try again in a minute.",
+    "DRM_NOT_CONFIGURED": "Protected video hosting is not switched on yet.",
+    "DRM_UPLOAD_FAILED": "The video could not be uploaded. Check the connection and try again.",
+    "VIDEO_NOT_FOUND": "Video not found."
   },
   "status": {
     "DRAFT": "Draft",
@@ -796,7 +800,8 @@
     "addVideo": "Attach a video (MP4)",
     "videoHint": "Only members see the video, in the protected player with their name on it.",
     "uploading": "Uploading video…",
-    "posted": "Posted"
+    "posted": "Posted",
+    "uploadingPercent": "Uploading video… {percent}%"
   },
   "creators": {
     "title": "Creators",
@@ -1414,7 +1419,14 @@
       "accessFreeBody": "Anyone can watch, signed in or not, without protection.",
       "current": "now",
       "videoReadyPaid": "Video uploaded and protected.",
-      "videoReadyFree": "Video uploaded. It is free for everyone."
+      "videoReadyFree": "Video uploaded. It is free for everyone.",
+      "drmUploading": "Uploading {percent}%",
+      "drmReady": "Video uploaded under DRM. Encryption takes a few minutes.",
+      "drmBadge": "DRM",
+      "drmProcessing": "Encrypting…",
+      "drmFailed": "Encryption failed",
+      "accessPaidDrm": "Paid: DRM protection",
+      "accessPaidDrmBody": "Encrypted with Widevine and FairPlay: only buyers can watch, their name moves across the frame, and downloads or developer tools get nothing playable. The file goes straight to the video service."
     },
     "brand": {
       "body": "Your campaigns, spend and results.",
@@ -1864,7 +1876,14 @@
     "signInAgain": "Sign in here again",
     "appHint": "Strongest protection: in the FAITH desktop app, screen recordings of this video come out blank.",
     "appLink": "Get the app",
-    "freeNote": "Free video: anyone can watch it."
+    "freeNote": "Free video: anyone can watch it.",
+    "drmPlay": "Play protected video",
+    "drmTitle": "Protected video",
+    "drmProcessing": "The video is still being encrypted. Try again in a few minutes.",
+    "drmRetry": "Try again",
+    "drmUnsupported": "This browser or app cannot play DRM video. Open the page in Chrome, Edge, Firefox or Safari.",
+    "drmFailed": "This video could not be prepared. The author needs to upload it again.",
+    "drmNote": "DRM protection: the video is encrypted (Widevine, FairPlay). Downloads, developer tools and saved traffic get nothing playable."
   },
   "directPay": {
     "title": "Pay the seller directly",
