@@ -199,6 +199,33 @@ Backend qayta tekshirildi; topilgan kamchiliklar va yechimlar:
 | Email faqat bazaga yozilardi va sozlash noqulay edi | Parolni tiklash xati kelmaydi | Render'da `SMTP_URL` qo'yilsa xatlar haqiqatan yuboriladi va yangi akkauntlar emailini tasdiqlaydi (0-bosqich) |
 | Bazaning zaxira nusxasi yo'q edi | Ma'lumot butunlay yo'qolishi mumkin | **API o'zi** har kecha butun bazaning shifrlangan nusxasini R2'ga yozadi (GitHub'ga bog'liq emas), 14 kun saqlaydi; Admin → Sozlamalar → Zaxira nusxalar: ro'yxat, "Hozir zaxira qilish", yuklab olish. Bo'sh bazaga tiklash skripti bor (`scripts/restore-backup.mjs`), sinovda 11 281 qator 3 soniyada aynan tiklandi. Qo'shimcha: GitHub `Database backup` workflow. Yo'riqnoma: `docs/BACKUP.md` |
 
+### 3.16. Treyderlar va kurs egalari uchun (yangi, 23-noyabr)
+VIP kanal va pullik darslarni Telegram'siz, FAITH ichida yuritish uchun:
+- **Chek orqali to'g'ridan-to'g'ri to'lov.** Sotuvchi Do'kon sozlamalarida o'z kartasini yoki
+  MChJ/YaTT hisob raqamini (STIR, bank, MFO) kiritadi. Xaridor pulni shu rekvizitlarga o'tkazadi,
+  chek rasmini yoki PDF'ini yuboradi; sotuvchi Buyurtmalar sahifasida chekni ko'rib "Pul tushdi"
+  deydi — kurs yoki VIP hamjamiyat **avtomatik** ochiladi, hech kimni qo'lda qo'shish shart emas.
+  Rad etilsa sabab yoziladi va xaridor yangi chek yuboradi. To'lov tizimi bilan shartnoma kerak
+  emas; pul FAITH orqali o'tmaydi. Bu sotuvlardan FAITH komissiyasi do'konning qarzi sifatida
+  yoziladi (balans manfiy bo'ladi, to'lab bo'lmaydi); komissiya foizi admin sozlamasida.
+- **Bitta hisob — bitta qurilma.** Yangi qurilmadan kirilsa, oldingisi darhol chiqib ketadi va
+  sababini ko'radi; o'ynayotgan video 20 soniya ichida to'xtaydi. Xodimlar (admin va boshqalar)
+  bundan ozod; admin `security.singleDevice` sozlamasi bilan o'chira oladi.
+- **Skrinshotga ogohlantirish va vaqtincha blok.** Himoyalangan video ochiq turganda skrinshot
+  tugmasi bosilsa — ogohlantirish (1/3, 2/3). Bir hafta ichida 3-marta — hisob 24 soatga bloklanadi
+  va hamma qurilmada chiqib ketadi. Admin Foydalanuvchilar sahifasida blokni oldinroq olib tashlay oladi.
+  Ijodkor o'z videosida ogohlantirish olmaydi.
+- **Yuklab olish dasturlariga (IDM va h.k.) yopiq.** Video faqat brauzerning o'z pleyeriga beriladi
+  (`Sec-Fetch-Dest: video`); havolani nusxalash, IDM yoki skript bilan so'rasa — rad etiladi.
+- **Pullik yoki bepul?** Video yuklanganda tizim so'raydi: pullik (to'liq himoya, faqat xaridorlar)
+  yoki bepul (hamma ko'radi, himoyasiz). Keyin ham bir tugma bilan almashtiriladi.
+- **VIP hamjamiyat postlarida video.** Egasi va moderatorlar postga MP4 biriktiradi; uni faqat a'zolar,
+  himoyalangan pleyerda ko'radi.
+
+Halol chegaralar: brauzer ekran yozuvchisini (OBS, telefon kamerasi) **ko'ra olmaydi** — skrinshot
+tugmasini ko'radi. Yozuvda qora ekran faqat **FAITH kompyuter ilovasida** (Windows ekrandan yozishni
+taqiqlaydi) yoki DRM bilan bo'ladi. Jonli efir hali yo'q: unga oqim xizmati kerak (2-bosqich).
+
 ---
 
 ## 4. Nima haqiqiy, nima hali simulyatsiya
@@ -208,6 +235,7 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 | Qism | Holat | Izoh |
 |---|---|---|
 | To'lovlar | **Simulyator** | "SIMULYATSIYA: haqiqiy pul harakatlanmaydi" deb ochiq yozilgan. Payme, Click, Stripe adapterlari bor, lekin ulanmagan |
+| Chek orqali to'lov | **Haqiqiy** | Pul xaridordan to'g'ridan-to'g'ri sotuvchining kartasi yoki MChJ/YaTT hisobiga o'tadi; sotuvchi chekni tasdiqlaydi. FAITH pulni ushlamaydi |
 | Sotuvchilarga pul o'tkazish | **Simulyatsiya** | So'rov va tasdiqlash oqimi bor, real o'tkazma yo'q |
 | Email | **Tayyor, kalit kutadi** | Render'da `SMTP_URL` qo'yilmaguncha xatlar faqat bazaga yoziladi |
 | Zaxira nusxa (backup) | **Ishlaydi** | API har kecha o'zi oladi (R2, 14 kun). Kalit — Render'dagi `APP_ENCRYPTION_KEY`: uni parol menejeringizda saqlang |
@@ -217,7 +245,7 @@ Bu bo'lim muhim: platforma **hali haqiqiy pul qabul qilmaydi**.
 | Valyuta kurslari | **Haqiqiy** | Markaziy bank, cbu.uz |
 | AI | Demo | Anthropic kaliti qo'yilsa haqiqiy bo'ladi |
 | Bog'langan kartalar | **Faqat saqlanadi** | Karta turi va oxirgi 4 raqam saqlanadi; hech narsa yechilmaydi. Haqiqiy bog'lash (token) Payme/Click bilan 1-bosqichda |
-| Video himoyasi | **Brauzer darajasida** | Suv belgisi, pauza, bo'lakli oqim bor; DRM (yozuvda qora ekran) — 2-bosqich |
+| Video himoyasi | **Brauzer darajasida** | Suv belgisi, pauza, bo'lakli oqim, bitta qurilma, skrinshotga ogohlantirish va blok, IDM'ga yopiq. Yozuvda qora ekran: kompyuter ilovasida bor; brauzerda — DRM bilan, 2-bosqich |
 | Huquqiy hujjatlar | **Tekshirilmagan** | Shartlar va maxfiylik siyosati yuristdan o'tmagan; platforma huquqiy talablarga mos deb da'vo qilinmaydi |
 
 ---

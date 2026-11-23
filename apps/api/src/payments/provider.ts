@@ -73,6 +73,32 @@ export class MockPaymentProvider implements PaymentProvider {
 }
 
 /**
+ * Direct transfer to the seller's own card or company account, with no payment partner between.
+ * The buyer pays, uploads the receipt, and the seller confirms that the money arrived; only that
+ * confirmation settles the order. FAITH never holds the money, so there is no webhook to accept,
+ * and a refund is the seller returning the money themselves when they approve it.
+ */
+export class ReceiptProvider implements PaymentProvider {
+  readonly name = 'receipt';
+
+  capabilities(): ProviderCapabilities {
+    return { live: true, label: 'Direct transfer to the seller, confirmed by receipt', splitPayments: false, refunds: true, payouts: false };
+  }
+
+  async createPayment(input: CreatePaymentInput): Promise<CreatedPayment> {
+    return { providerRef: `rcpt_${randomUUID()}`, redirectUrl: `/checkout/receipt/${input.paymentId}` };
+  }
+
+  parseWebhook(): NormalizedEvent {
+    throw new Error('receipt payments have no webhook');
+  }
+
+  async refund() {
+    return { status: 'succeeded' as const };
+  }
+}
+
+/**
  * Placeholder for a partner FAITH has no verified integration with. It declares itself not
  * live and refuses every operation, so a misconfiguration can never look like a real charge.
  */
@@ -104,6 +130,7 @@ export function buildProviders(): Map<string, PaymentProvider> {
     new DisabledProvider('click', !!(env.CLICK_MERCHANT_ID && env.CLICK_SECRET_KEY)),
     new DisabledProvider('payme', !!(env.PAYME_MERCHANT_ID && env.PAYME_SECRET_KEY)),
     new DisabledProvider('stripe', !!env.STRIPE_SECRET_KEY),
+    new ReceiptProvider(),
   ];
   if (env.PAYMENT_PROVIDER === 'mock' && env.ALLOW_MOCK_PAYMENTS) providers.push(new MockPaymentProvider());
   return new Map(providers.map((p) => [p.name, p]));

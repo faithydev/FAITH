@@ -40,6 +40,8 @@ model User {
   twoFactorBackupHashes String[]   @default([])
   failedLoginCount      Int        @default(0)
   lockedUntil           DateTime?
+  /// Set after repeated attempts to capture protected video; the account stays signed out until then.
+  contentBlockedUntil   DateTime?
   deletionRequestedAt   DateTime?
   deletedAt             DateTime?
   createdAt             DateTime   @default(now())
@@ -101,6 +103,7 @@ model User {
   ads                 Advertisement[]
   auditLogs           AuditLog[]
   revenueShares       RevenueShare[]
+  paymentReceipts     PaymentReceipt[]
 
   @@index([status])
   @@index([createdAt])
@@ -143,6 +146,8 @@ model Session {
   lastSeenAt  DateTime  @default(now())
   expiresAt   DateTime
   revokedAt   DateTime?
+  /// Why the session ended early: "replaced" (signed in on another device), "blocked", or null.
+  revokedReason String?
 
   @@index([userId, revokedAt])
   @@index([expiresAt])
@@ -406,9 +411,31 @@ model Store {
   discounts    Discount[]
   licenses     LicenseTemplate[]
   checkoutLinks CheckoutLink[]
+  directPay    DirectPayAccount?
+  receipts     PaymentReceipt[]
 
   @@index([ownerId])
   @@index([status])
+}
+
+/**
+ * Where buyers pay a store directly, with no payment partner in between: the seller's own card
+ * or the bank account of their company (MChJ) or sole proprietorship (YaTT). The buyer transfers
+ * the money, uploads the receipt, and the seller confirms it. FAITH never holds this money.
+ */
+model DirectPayAccount {
+  storeId       String   @id
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  enabled       Boolean  @default(false)
+  cardNumber    String?
+  cardHolder    String?
+  legalName     String?
+  tin           String?
+  bankName      String?
+  accountNumber String?
+  mfo           String?
+  note          String?
+  updatedAt     DateTime @updatedAt
 }
 
 model ProductCategory {
@@ -738,6 +765,7 @@ model Payment {
   capturedAt     DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  receipt        PaymentReceipt?
 
   @@unique([provider, providerRef])
   @@index([orderId])
@@ -755,6 +783,33 @@ model PaymentEvent {
   processedAt DateTime?
 
   @@unique([provider, eventId])
+}
+
+enum ReceiptStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+/** The buyer's proof of a direct transfer, waiting for the seller to confirm the money arrived. */
+model PaymentReceipt {
+  id          String        @id @default(cuid())
+  paymentId   String        @unique
+  payment     Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  storeId     String
+  store       Store         @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  payerId     String
+  payer       User          @relation(fields: [payerId], references: [id], onDelete: Restrict)
+  fileKey     String
+  fileMime    String
+  note        String?
+  status      ReceiptStatus @default(SUBMITTED)
+  reason      String?
+  submittedAt DateTime      @default(now())
+  decidedById String?
+  decidedAt   DateTime?
+
+  @@index([storeId, status, submittedAt])
 }
 
 enum RefundStatus {
@@ -1767,6 +1822,8 @@ model Post {
   author      User              @relation(fields: [authorId], references: [id], onDelete: Restrict)
   title       String
   body        String
+  /// A protected MP4 streamed only to people who can read the community.
+  videoKey    String?
   status      ContentStatus     @default(VISIBLE)
   createdAt   DateTime          @default(now())
   comments    Comment[]

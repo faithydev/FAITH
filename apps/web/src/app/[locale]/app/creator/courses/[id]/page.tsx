@@ -49,9 +49,13 @@ export default async function CourseEditor({ params }: { params: Promise<{ id: s
                   <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                     <span className="min-w-0 flex-1">{l.title}</span>
                     <span className="flex flex-wrap items-center gap-2">
-                      {l.isPreview && <Badge tone="accent">{t('app.creator.previewBadge')}</Badge>}
+                      {l.isPreview ? <Badge tone="accent">{t('app.creator.previewBadge')}</Badge> : <Badge tone="positive">{t('app.creator.protectedBadge')}</Badge>}
                       {l.videoKey && <Badge tone="positive">{t('app.creator.videoBadge')}</Badge>}
-                      <LessonVideoUpload lessonId={l.id} hasVideo={!!l.videoKey} />
+                      <ActionButton
+                        endpoint={`/creator/lessons/${l.id}/access`} method="PUT" body={{ access: l.isPreview ? 'paid' : 'free' }} variant="ghost"
+                        label={l.isPreview ? t('app.creator.makePaid') : t('app.creator.makeFree')}
+                      />
+                      <LessonVideoUpload lessonId={l.id} hasVideo={!!l.videoKey} isPreview={l.isPreview} />
                       {l.videoKey && <ActionButton endpoint={`/creator/lessons/${l.id}/video`} method="DELETE" variant="ghost" label={t('app.creator.videoRemove')} />}
                     </span>
                   </li>

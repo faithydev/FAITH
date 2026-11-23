@@ -1,4 +1,4 @@
-import { Breadcrumbs, Card, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
+import { Breadcrumbs, Card, LinkButton, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
 import { FormDialog } from '@/components/ui/client';
 import { Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
@@ -14,10 +14,20 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     throw e;
   });
   const paid = ['PAID', 'PARTIALLY_REFUNDED'].includes(order.status);
+  // A direct transfer waiting for its receipt: the buyer can come back here to send it.
+  const direct = order.status === 'PENDING_PAYMENT' ? order.payments?.find((p) => p.provider === 'receipt' && p.status === 'PENDING') : undefined;
   return (
     <>
       <Breadcrumbs label={t('common.breadcrumbs')} items={[{ label: t('app.orders.title'), href: '/app/orders' }, { label: order.number }]} />
-      <PageHeader title={order.number} description={d(order.createdAt)} actions={<span data-testid="order-status"><StatusBadge status={order.status} label={status(order.status)} /></span>} />
+      <PageHeader
+        title={order.number} description={d(order.createdAt)}
+        actions={
+          <>
+            <span data-testid="order-status"><StatusBadge status={order.status} label={status(order.status)} /></span>
+            {direct && <LinkButton href={`/checkout/receipt/${direct.id}`} size="sm">{t('directPay.finish')}</LinkButton>}
+          </>
+        }
+      />
       <div className="grid gap-6 lg:grid-cols-[1fr_18rem] lg:items-start">
         <ul className="card divide-y divide-line">
           {order.items.map((i) => {

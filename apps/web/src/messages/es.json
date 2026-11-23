@@ -127,7 +127,19 @@
     "INVALID_PURPOSE": "El propósito de la subida no es válido.",
     "BACKUP_RUNNING": "Ya se está haciendo una copia. Inténtalo de nuevo en un minuto.",
     "BACKUP_NOT_FOUND": "No se encontró esa copia.",
-    "REAUTH_REQUIRED": "Por tu seguridad, esta acción requiere iniciar sesión de nuevo. Cierra sesión, vuelve a entrar y repítela en 30 minutos."
+    "REAUTH_REQUIRED": "Por tu seguridad, esta acción requiere iniciar sesión de nuevo. Cierra sesión, vuelve a entrar y repítela en 30 minutos.",
+    "SESSION_REPLACED": "Se inició sesión en tu cuenta desde otro dispositivo. Vuelve a iniciar sesión para seguir aquí.",
+    "ACCOUNT_TEMP_BLOCKED": "Esta cuenta está bloqueada durante 24 horas tras varios intentos de grabar vídeo protegido.",
+    "DIRECT_PAY_ONE_STORE": "Este vendedor cobra directamente. Compra sus productos en un pedido aparte.",
+    "RECEIPT_ALREADY_SUBMITTED": "Tu comprobante ya está con el vendedor.",
+    "RECEIPT_ALREADY_DECIDED": "Este comprobante ya se decidió.",
+    "PAYMENT_ALREADY_SETTLED": "Este pago ya está completo.",
+    "REASON_REQUIRED": "Indica un motivo.",
+    "PROTECTED_VIDEO": "Este vídeo solo se reproduce en el reproductor de FAITH.",
+    "RECEIPT_NOT_FOUND": "No se encontró el comprobante.",
+    "PAYMENT_NOT_FOUND": "No se encontró el pago.",
+    "COMMUNITY_MODERATOR_REQUIRED": "Solo el propietario y los moderadores pueden hacerlo.",
+    "NOT_A_DIRECT_PAYMENT": "Este pago no es una transferencia directa."
   },
   "status": {
     "DRAFT": "Borrador",
@@ -499,7 +511,9 @@
     "demoReadyTitle": "Tu cuenta está lista",
     "demoReadyBody": "Es una demo pública, así que no se envía ningún correo: puedes iniciar sesión ya. Aquí los pagos son simulados.",
     "googleOff": "El acceso con Google aún no está conectado.",
-    "continueApple": "Continuar con Apple"
+    "continueApple": "Continuar con Apple",
+    "replacedNotice": "Se inició sesión en tu cuenta desde otro dispositivo, así que aquí se cerró. Una cuenta funciona en un solo dispositivo a la vez.",
+    "blockedNotice": "Tu cuenta está bloqueada durante 24 horas tras varios intentos de grabar vídeo protegido."
   },
   "market": {
     "title": "Marketplace",
@@ -776,7 +790,13 @@
     "getAccess": "Obtener acceso",
     "noPosts": "Aún no hay publicaciones.",
     "comment": "Comentar",
-    "yourComment": "Tu comentario"
+    "yourComment": "Tu comentario",
+    "postTitle": "Título",
+    "postBody": "Texto",
+    "addVideo": "Adjuntar vídeo (MP4)",
+    "videoHint": "Solo los miembros ven el vídeo, en el reproductor protegido con su nombre.",
+    "uploading": "Subiendo vídeo…",
+    "posted": "Publicado"
   },
   "creators": {
     "title": "Creadores",
@@ -1062,7 +1082,10 @@
         "staff_product_published": "Nuevo producto publicado: {title}",
         "staff_job_application": "Nueva solicitud para {title}",
         "staff_app_installed": "Se instaló una aplicación",
-        "badge_verified": "Tu insignia FAITH Verified está activa"
+        "badge_verified": "Tu insignia FAITH Verified está activa",
+        "receipt_submitted": "Nuevo comprobante por confirmar: pedido {number}, {amount}",
+        "receipt_approved": "Tu pago del pedido {number} está confirmado. El acceso está abierto.",
+        "receipt_rejected": "El comprobante del pedido {number} no se confirmó: {title}"
       }
     },
     "settings": {
@@ -1380,7 +1403,18 @@
       "videoUploading": "Subiendo…",
       "videoReady": "El vídeo se adjuntó y se reproduce en el reproductor protegido.",
       "videoRemove": "Quitar vídeo",
-      "videoBadge": "Vídeo"
+      "videoBadge": "Vídeo",
+      "protectedBadge": "Protegido",
+      "makePaid": "Hacer de pago",
+      "makeFree": "Hacer gratuito",
+      "accessQuestion": "¿Este vídeo es de pago o gratuito?",
+      "accessPaid": "De pago: protegido",
+      "accessPaidBody": "Solo lo ven los compradores. Su nombre se mueve por el cuadro, las capturas reciben advertencias, una cuenta funciona en un solo dispositivo y los gestores de descargas no obtienen nada.",
+      "accessFree": "Gratuito: abierto a todos",
+      "accessFreeBody": "Cualquiera lo ve, con o sin sesión, sin protección.",
+      "current": "ahora",
+      "videoReadyPaid": "Vídeo subido y protegido.",
+      "videoReadyFree": "Vídeo subido. Es gratuito para todos."
     },
     "brand": {
       "body": "Tus campañas, gasto y resultados.",
@@ -1740,7 +1774,9 @@
       "keyApp": "Clave: APP_ENCRYPTION_KEY en Render. Cópiala ahora en tu gestor de contraseñas: sin ella no se pueden abrir ni la copia ni los secretos de los datos.",
       "empty": "Aún no hay copias. La primera se hace 3 minutos después de arrancar el servidor.",
       "download": "Descargar"
-    }
+    },
+    "blockedUntil": "Bloqueada hasta {date}",
+    "unblock": "Desbloquear"
   },
   "badges": {
     "verified": "FAITH Verified",
@@ -1817,5 +1853,73 @@
     "step2": "Si Windows SmartScreen dice “Windows protected your PC”, elige More info y después Run anyway.",
     "step3": "Elige una carpeta, termina la instalación y abre FAITH desde el Escritorio.",
     "otherDevices": "La app es para Windows. En otros dispositivos FAITH funciona igual en el navegador."
+  },
+  "protect": {
+    "strikeTitle": "Advertencia {count} de {limit}",
+    "strikeBody": "No se permiten capturas ni grabaciones de este vídeo. Tras {limit} advertencias la cuenta se bloquea durante 24 horas.",
+    "blockedTitle": "Cuenta bloqueada durante 24 horas",
+    "blockedBody": "Hubo varios intentos de grabar este vídeo protegido, así que se cerró la sesión de la cuenta en todos los dispositivos. Se abrirá de nuevo en 24 horas.",
+    "replacedTitle": "Se inició sesión en otro dispositivo",
+    "replacedBody": "Una cuenta funciona en un solo dispositivo a la vez. Alguien acaba de iniciar sesión en tu cuenta en otro lugar, así que aquí se cerró.",
+    "signInAgain": "Iniciar sesión aquí de nuevo",
+    "appHint": "Máxima protección: en la app de escritorio de FAITH, la grabación de pantalla de este vídeo sale en blanco.",
+    "appLink": "Descargar la app",
+    "freeNote": "Vídeo gratuito: cualquiera puede verlo."
+  },
+  "directPay": {
+    "title": "Paga directamente al vendedor",
+    "toPay": "Pedido {number}",
+    "step1": "Transfiere el importe",
+    "step1Body": "Envía exactamente este importe a {store} con Click, Payme, Uzum o la app de tu banco.",
+    "amount": "Importe",
+    "card": "Número de tarjeta",
+    "cardHolder": "Titular de la tarjeta",
+    "legalName": "Empresa o autónomo",
+    "account": "Cuenta bancaria (20 dígitos)",
+    "bank": "Banco",
+    "mfo": "Código del banco (MFO)",
+    "tin": "NIF (STIR)",
+    "purposeLabel": "Concepto del pago",
+    "purposeText": "Pago del pedido {number}",
+    "noDetails": "El vendedor aún no ha añadido sus datos de pago. Escríbele antes de pagar.",
+    "direct": "El dinero va directamente al vendedor. FAITH no lo retiene.",
+    "copy": "Copiar {what}",
+    "copied": "Copiado",
+    "step2": "Envía el comprobante",
+    "step2Body": "Una captura o PDF de la transferencia donde se vean el importe, la fecha y el destinatario.",
+    "chooseFile": "Elige el comprobante (foto o PDF)",
+    "note": "Comentario",
+    "notePlaceholder": "Por ejemplo: pagué con tarjeta Humo a las 14:20",
+    "send": "Enviar comprobante",
+    "sent": "Comprobante enviado. El vendedor lo revisará.",
+    "waitingTitle": "Comprobante enviado, esperando al vendedor",
+    "waitingBody": "El vendedor comprueba que llegó el dinero. El acceso se abre solo y también recibirás un aviso.",
+    "checking": "Comprobando automáticamente…",
+    "rejectedTitle": "El vendedor no pudo confirmar este comprobante",
+    "step3": "Obtén acceso",
+    "step3Body": "En cuanto el vendedor confirme, el curso o la comunidad VIP se abren solos. Nadie tiene que añadirte a mano.",
+    "approvedTitle": "Pago confirmado",
+    "approvedBody": "Tu acceso está abierto.",
+    "open": "Abrir",
+    "finish": "Terminar el pago",
+    "sellerTitle": "Comprobantes por confirmar",
+    "sellerBody": "Los compradores pagaron directamente en tu tarjeta o cuenta. Comprueba que llegó el dinero y aprueba: el acceso se abre solo.",
+    "history": "Decisiones recientes",
+    "viewReceipt": "Abrir comprobante",
+    "approve": "Llegó el dinero, aprobar",
+    "reject": "Rechazar",
+    "rejectTitle": "Rechazar el comprobante",
+    "rejectReason": "Qué está mal (el comprador lo verá)",
+    "confirmTitle": "¿Llegaron {amount} a tu cuenta?",
+    "confirmBody": "Aprueba solo cuando veas el dinero en tu tarjeta o cuenta bancaria. El comprador recibe acceso al instante.",
+    "settingsTitle": "Pagos directos con comprobante",
+    "settingsBody": "Los compradores pagan en tu propia tarjeta o en la cuenta de tu MChJ o YaTT, envían el comprobante y tú lo confirmas aquí. No hace falta contrato con un proveedor de pagos y FAITH nunca retiene el dinero. La comisión de FAITH en estas ventas se registra como deuda de la tienda.",
+    "enabled": "Cobrar directamente",
+    "enabledHint": "Los compradores de esta tienda pagarán por transferencia y comprobante.",
+    "cardHint": "Tarjeta Uzcard, Humo o Visa de 16 dígitos.",
+    "legalNameHint": "Por ejemplo: Trade Academy MChJ o YaTT Karimov A.",
+    "accountHint": "Cuenta de 20 dígitos de la MChJ o el YaTT.",
+    "payNote": "Nota para compradores",
+    "payNoteHint": "Se muestra en la página de pago, por ejemplo qué poner como concepto."
   }
 }

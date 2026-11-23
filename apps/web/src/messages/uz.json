@@ -127,7 +127,19 @@
     "INVALID_PURPOSE": "Bu fayl qayerga yuklanayotgani notoʻgʻri koʻrsatilgan.",
     "BACKUP_RUNNING": "Zaxira nusxa hozir olinmoqda. Bir daqiqadan keyin qayta urinib koʻring.",
     "BACKUP_NOT_FOUND": "Bunday zaxira nusxa topilmadi.",
-    "REAUTH_REQUIRED": "Xavfsizlik uchun bu amal yangi kirishni talab qiladi. Chiqib, qayta kiring va 30 daqiqa ichida takrorlang."
+    "REAUTH_REQUIRED": "Xavfsizlik uchun bu amal yangi kirishni talab qiladi. Chiqib, qayta kiring va 30 daqiqa ichida takrorlang.",
+    "SESSION_REPLACED": "Hisobingizga boshqa qurilmadan kirildi. Bu yerda davom etish uchun qayta kiring.",
+    "ACCOUNT_TEMP_BLOCKED": "Himoyalangan videoni yozib olishga bir necha bor urinilgani uchun bu hisob 24 soatga bloklangan.",
+    "DIRECT_PAY_ONE_STORE": "Bu sotuvchi toʻlovni toʻgʻridan-toʻgʻri qabul qiladi. Uning mahsulotlarini alohida buyurtmada xarid qiling.",
+    "RECEIPT_ALREADY_SUBMITTED": "Chekingiz allaqachon sotuvchida.",
+    "RECEIPT_ALREADY_DECIDED": "Bu chek boʻyicha qaror allaqachon qabul qilingan.",
+    "PAYMENT_ALREADY_SETTLED": "Bu toʻlov allaqachon yakunlangan.",
+    "REASON_REQUIRED": "Sababini yozing.",
+    "PROTECTED_VIDEO": "Bu video faqat FAITH pleyerida ochiladi.",
+    "RECEIPT_NOT_FOUND": "Chek topilmadi.",
+    "PAYMENT_NOT_FOUND": "Toʻlov topilmadi.",
+    "COMMUNITY_MODERATOR_REQUIRED": "Buni faqat egasi va moderatorlar qila oladi.",
+    "NOT_A_DIRECT_PAYMENT": "Bu toʻlov toʻgʻridan-toʻgʻri oʻtkazma emas."
   },
   "status": {
     "DRAFT": "Qoralama",
@@ -499,7 +511,9 @@
     "demoReadyTitle": "Akkauntingiz tayyor",
     "demoReadyBody": "Bu ochiq demo, shuning uchun email yuborilmaydi: darhol kirishingiz mumkin. Bu yerdagi toʻlovlar simulyatsiya.",
     "googleOff": "Google orqali kirish hali ulanmagan.",
-    "continueApple": "Apple orqali davom etish"
+    "continueApple": "Apple orqali davom etish",
+    "replacedNotice": "Hisobingizga boshqa qurilmadan kirildi, shuning uchun bu yerda chiqib ketdingiz. Bitta hisob bir vaqtda faqat bitta qurilmada ishlaydi.",
+    "blockedNotice": "Himoyalangan videoni yozib olishga bir necha bor urinilgani uchun hisobingiz 24 soatga bloklangan."
   },
   "market": {
     "title": "Marketpleys",
@@ -776,7 +790,13 @@
     "getAccess": "Kirish olish",
     "noPosts": "Hali postlar yoʻq.",
     "comment": "Izoh yozish",
-    "yourComment": "Izohingiz"
+    "yourComment": "Izohingiz",
+    "postTitle": "Sarlavha",
+    "postBody": "Matn",
+    "addVideo": "Video biriktirish (MP4)",
+    "videoHint": "Videoni faqat aʼzolar koʻradi, himoyalangan pleyerda, ustida oʻz ismi bilan.",
+    "uploading": "Video yuklanmoqda…",
+    "posted": "Eʼlon qilindi"
   },
   "creators": {
     "title": "Ijodkorlar",
@@ -1062,7 +1082,10 @@
         "staff_product_published": "Yangi mahsulot chiqdi: {title}",
         "staff_job_application": "{title} uchun yangi ariza",
         "staff_app_installed": "Ilova oʻrnatildi",
-        "badge_verified": "FAITH Verified galochkangiz faollashdi"
+        "badge_verified": "FAITH Verified galochkangiz faollashdi",
+        "receipt_submitted": "Tasdiqlash uchun yangi chek: {number} buyurtma, {amount}",
+        "receipt_approved": "{number} buyurtma uchun toʻlovingiz tasdiqlandi. Kirish ochildi.",
+        "receipt_rejected": "{number} buyurtma cheki tasdiqlanmadi: {title}"
       }
     },
     "settings": {
@@ -1380,7 +1403,18 @@
       "videoUploading": "Yuklanmoqda…",
       "videoReady": "Video darsga biriktirildi va himoyalangan pleyerda koʻrsatiladi.",
       "videoRemove": "Videoni olib tashlash",
-      "videoBadge": "Video"
+      "videoBadge": "Video",
+      "protectedBadge": "Himoyalangan",
+      "makePaid": "Pullik qilish",
+      "makeFree": "Bepul qilish",
+      "accessQuestion": "Bu video pullikmi yoki bepul?",
+      "accessPaid": "Pullik: himoyalangan",
+      "accessPaidBody": "Faqat xaridorlar koʻradi. Ekranda ularning ismi yuradi, skrinshotga ogohlantirish beriladi, bitta hisob — bitta qurilma, yuklab oluvchi dasturlar hech narsa ololmaydi.",
+      "accessFree": "Bepul: hammaga ochiq",
+      "accessFreeBody": "Roʻyxatdan oʻtgan-oʻtmaganidan qatʼi nazar hamma koʻradi, himoyasiz.",
+      "current": "hozir",
+      "videoReadyPaid": "Video yuklandi va himoyalandi.",
+      "videoReadyFree": "Video yuklandi. U hamma uchun bepul."
     },
     "brand": {
       "body": "Kampaniyalaringiz, xarajat va natijalar.",
@@ -1740,7 +1774,9 @@
       "keyApp": "Kalit: Render’dagi APP_ENCRYPTION_KEY. Uni hozir nusxalab, parol menejeringizda saqlang: usiz na nusxani, na bazadagi maxfiy maʼlumotlarni ochib boʻladi.",
       "empty": "Hali zaxira nusxa yoʻq. Birinchisi server ishga tushgandan 3 daqiqa keyin olinadi.",
       "download": "Yuklab olish"
-    }
+    },
+    "blockedUntil": "{date} gacha bloklangan",
+    "unblock": "Blokdan chiqarish"
   },
   "badges": {
     "verified": "FAITH Verified",
@@ -1817,5 +1853,73 @@
     "step2": "Windows SmartScreen “Windows protected your PC” desa, More info, soʻng Run anyway ni tanlang.",
     "step3": "Papkani tanlang, oʻrnatishni tugating va FAITH ni Ish stolidan oching.",
     "otherDevices": "Ilova Windows uchun. Boshqa qurilmalarda FAITH brauzerda xuddi shunday ishlaydi."
+  },
+  "protect": {
+    "strikeTitle": "Ogohlantirish: {count} / {limit}",
+    "strikeBody": "Bu videoni skrinshot qilish va yozib olish taqiqlangan. {limit} ta ogohlantirishdan keyin hisob 24 soatga bloklanadi.",
+    "blockedTitle": "Hisob 24 soatga bloklandi",
+    "blockedBody": "Himoyalangan videoni yozib olishga bir necha marta urinildi, shuning uchun hisob barcha qurilmalarda yopildi. 24 soatdan keyin yana ochiladi.",
+    "replacedTitle": "Boshqa qurilmadan kirildi",
+    "replacedBody": "Bitta hisob bir vaqtda faqat bitta qurilmada ishlaydi. Hisobingizga hozir boshqa joydan kirildi, shuning uchun bu yerda chiqib ketdingiz.",
+    "signInAgain": "Bu yerda qayta kirish",
+    "appHint": "Eng kuchli himoya: FAITH kompyuter ilovasida bu videoni ekrandan yozib olsa, yozuv boʻsh chiqadi.",
+    "appLink": "Ilovani yuklab olish",
+    "freeNote": "Bepul video: uni hamma koʻra oladi."
+  },
+  "directPay": {
+    "title": "Sotuvchiga toʻgʻridan-toʻgʻri toʻlash",
+    "toPay": "{number} buyurtma",
+    "step1": "Summani oʻtkazing",
+    "step1Body": "Aynan shu summani {store} ga Click, Payme, Uzum yoki bank ilovangiz orqali oʻtkazing.",
+    "amount": "Summa",
+    "card": "Karta raqami",
+    "cardHolder": "Karta egasi",
+    "legalName": "Kompaniya yoki YaTT",
+    "account": "Hisob raqami (20 xona)",
+    "bank": "Bank",
+    "mfo": "Bank kodi (MFO)",
+    "tin": "STIR",
+    "purposeLabel": "Toʻlov maqsadi",
+    "purposeText": "{number} buyurtma uchun toʻlov",
+    "noDetails": "Sotuvchi hali toʻlov rekvizitlarini kiritmagan. Toʻlashdan oldin unga yozing.",
+    "direct": "Pul toʻgʻridan-toʻgʻri sotuvchiga tushadi. FAITH bu pulni ushlab turmaydi.",
+    "copy": "{what} — nusxa olish",
+    "copied": "Nusxa olindi",
+    "step2": "Chekni yuboring",
+    "step2Body": "Oʻtkazmaning skrinshoti yoki PDF fayli: summa, sana va qabul qiluvchi koʻrinib tursin.",
+    "chooseFile": "Chekni tanlang (rasm yoki PDF)",
+    "note": "Izoh",
+    "notePlaceholder": "Masalan: Humo kartadan 14:20 da toʻladim",
+    "send": "Chekni yuborish",
+    "sent": "Chek yuborildi. Sotuvchi tekshiradi.",
+    "waitingTitle": "Chek yuborildi, sotuvchi tasdiqlashi kutilmoqda",
+    "waitingBody": "Sotuvchi pul tushganini tekshiradi. Kirish avtomatik ochiladi, sizga bildirishnoma ham keladi.",
+    "checking": "Avtomatik tekshirilmoqda…",
+    "rejectedTitle": "Sotuvchi bu chekni tasdiqlay olmadi",
+    "step3": "Kirishni oling",
+    "step3Body": "Sotuvchi tasdiqlashi bilan kurs yoki VIP hamjamiyat oʻzi ochiladi. Hech kim sizni qoʻlda qoʻshishi shart emas.",
+    "approvedTitle": "Toʻlov tasdiqlandi",
+    "approvedBody": "Kirish ochildi.",
+    "open": "Ochish",
+    "finish": "Toʻlovni yakunlash",
+    "sellerTitle": "Tasdiqlanishi kerak boʻlgan cheklar",
+    "sellerBody": "Xaridorlar kartangiz yoki hisobingizga toʻgʻridan-toʻgʻri toʻlashdi. Pul tushganini tekshiring va tasdiqlang: kirish avtomatik ochiladi.",
+    "history": "Oxirgi qarorlar",
+    "viewReceipt": "Chekni ochish",
+    "approve": "Pul tushdi, tasdiqlash",
+    "reject": "Rad etish",
+    "rejectTitle": "Chekni rad etish",
+    "rejectReason": "Nima notoʻgʻri (xaridor buni koʻradi)",
+    "confirmTitle": "{amount} hisobingizga tushdimi?",
+    "confirmBody": "Faqat pulni kartangiz yoki bank hisobingizda koʻrganingizdan keyin tasdiqlang. Xaridor darhol kirish oladi.",
+    "settingsTitle": "Chek orqali toʻgʻridan-toʻgʻri toʻlov",
+    "settingsBody": "Xaridorlar oʻz kartangizga yoki MChJ/YaTT hisob raqamingizga toʻlaydi, chekni yuboradi, siz shu yerda tasdiqlaysiz. Toʻlov tizimi bilan shartnoma kerak emas, FAITH pulni ushlab turmaydi. Bu sotuvlardan FAITH komissiyasi doʻkonning qarzi sifatida yoziladi.",
+    "enabled": "Toʻlovni toʻgʻridan-toʻgʻri qabul qilish",
+    "enabledHint": "Shunda bu doʻkon xaridorlari oʻtkazma va chek orqali toʻlaydi.",
+    "cardHint": "16 xonali Uzcard, Humo yoki Visa karta.",
+    "legalNameHint": "Masalan: Trade Academy MChJ yoki YaTT Karimov A.",
+    "accountHint": "MChJ yoki YaTT ning 20 xonali hisob raqami.",
+    "payNote": "Xaridorlar uchun izoh",
+    "payNoteHint": "Toʻlov sahifasida koʻrsatiladi, masalan toʻlov maqsadiga nima yozish kerakligi."
   }
 }

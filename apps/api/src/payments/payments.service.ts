@@ -25,6 +25,8 @@ export type StartPayment = {
   campaignId?: string;
   adId?: string;
   installationId?: string;
+  /** A provider other than the platform's active one, such as `receipt` for a direct transfer. */
+  provider?: string;
 };
 
 /**
@@ -60,7 +62,8 @@ export class PaymentsService {
     const existing = await this.prisma.db.payment.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
     if (existing) return this.describe(existing);
 
-    const provider = this.active();
+    const provider = input.provider ? this.providers.get(input.provider) : this.active();
+    if (!provider) throw conflict('PAYMENT_PROVIDER_UNAVAILABLE');
     const id = randomUUID();
     const created = await provider.createPayment({
       paymentId: id, amountMinor: input.amountMinor, currency: input.currency, description: input.description,
@@ -80,7 +83,9 @@ export class PaymentsService {
     return {
       paymentId: p.id, status: p.status, amountMinor: p.amountMinor, currency: p.currency, purpose: p.purpose,
       provider: p.provider, simulated: !this.providers.get(p.provider)?.capabilities().live,
-      redirectUrl: p.status === 'PENDING' && p.provider === 'mock' ? `/checkout/simulator/${p.id}` : null,
+      redirectUrl: p.status !== 'PENDING' ? null
+        : p.provider === 'mock' ? `/checkout/simulator/${p.id}`
+        : p.provider === 'receipt' ? `/checkout/receipt/${p.id}` : null,
     };
   }
 
@@ -144,6 +149,24 @@ export class PaymentsService {
       const updated = await tx.payment.update({ where: { id: payment.id }, data: { status: 'FAILED', failureCode: event.failureCode ?? 'declined' } });
       await handler.failed?.(tx, updated);
     }
+  }
+
+  /**
+   * Settles a direct transfer once the seller has confirmed, from the receipt, that the money
+   * reached them. Runs inside the caller's transaction and locks the payment row first, so two
+   * confirmations cannot settle one order twice. Returns false when it was already settled.
+   */
+  async confirmDirect(tx: Tx, paymentId: string) {
+    const locked = await tx.$queryRaw<{ id: string }[]>`SELECT "id" FROM "Payment" WHERE "id" = ${paymentId} FOR UPDATE`;
+    if (!locked[0]) throw notFound('PAYMENT_NOT_FOUND');
+    const payment = await tx.payment.findUniqueOrThrow({ where: { id: paymentId } });
+    if (payment.provider !== 'receipt') throw conflict('NOT_A_DIRECT_PAYMENT');
+    if (payment.status !== 'PENDING') return false;
+    await this.apply(tx, payment, {
+      eventId: `confirm:${payment.id}`, type: 'payment.succeeded', providerRef: payment.providerRef,
+      amountMinor: payment.amountMinor, currency: payment.currency,
+    });
+    return true;
   }
 
   /** The buyer's click on the labelled simulator page, delivered as a real signed webhook. */

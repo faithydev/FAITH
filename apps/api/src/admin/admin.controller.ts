@@ -6,6 +6,7 @@ import {
 } from '@faith/validators';
 import { z } from 'zod';
 import { Auth, AuthContext, RequirePermission, RequireRecentAuth } from '../auth/context';
+import { ProtectionService } from '../auth/protection';
 import { QEnum, ZBody, ZQuery } from '../core/zod';
 import { PayoutStatus, ProductStatus } from '@faith/database';
 import { DeveloperService } from '../developer/developer.service';
@@ -38,7 +39,14 @@ export class AdminController {
     private readonly dev: DeveloperService,
     private readonly badges: BadgesService,
     private readonly removal: RemovalService,
+    private readonly protection: ProtectionService,
   ) {}
+
+  /** Lifts a temporary block for repeated video capture attempts before it runs out. */
+  @Post('users/:id/unblock') @HttpCode(200) @RequirePermission('admin.users.write')
+  unblock(@Auth() a: AuthContext, @Param('id') id: string) {
+    return this.protection.unblock(a.user.id, id);
+  }
 
   /** Counts what removing every other account would do. Super admins only. */
   @Post('users/removal/preview') @HttpCode(200) @RequirePermission('admin.users.write')

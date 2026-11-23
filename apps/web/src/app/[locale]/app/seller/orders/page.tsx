@@ -1,3 +1,4 @@
+import { SellerReceipts, type ReceiptRow } from '@/components/seller/receipts';
 import { CreateStore, NoRole } from '@/components/seller/shared';
 import { ActionButton } from '@/components/ui/client';
 import { DataTable, EmptyState, PageHeader, SectionTitle, StatusBadge } from '@/components/ui/primitives';
@@ -11,15 +12,26 @@ type RefundRow = { id: string; status: string; reason: string; amountMinor: stri
 export default async function SellerOrdersPage() {
   const { t, m, d, status, me } = await pageContext();
   if (!me.permissions.includes('order.sell.read')) return <NoRole persona="sell" />;
-  const { store } = await activeStore();
+  const { store, stores } = await activeStore();
   if (!store) return <CreateStore />;
-  const [orders, refunds] = await Promise.all([
+  const [orders, refunds, perStore] = await Promise.all([
     api<Paged<Row>>(`/seller/stores/${store.id}/orders?pageSize=50`), api<RefundRow[]>(`/seller/stores/${store.id}/refunds`),
+    // Receipts from every store the seller runs, so none waits unseen behind a store switch.
+    Promise.all(stores.map((s) => api<ReceiptRow[]>(`/seller/stores/${s.id}/receipts`))),
   ]);
+  const receipts = perStore.flat().sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const open = refunds.filter((r) => r.status === 'REQUESTED');
   return (
     <>
       <PageHeader title={t('nav.items.orders')} description={t('app.seller.ordersBody')} />
+      <SellerReceipts
+        rows={receipts} m={m} d={d}
+        labels={{
+          title: t('directPay.sellerTitle'), body: t('directPay.sellerBody'), history: t('directPay.history'), view: t('directPay.viewReceipt'),
+          approve: t('directPay.approve'), reject: t('directPay.reject'), rejectTitle: t('directPay.rejectTitle'), reason: t('directPay.rejectReason'),
+          confirmTitle: (amount: string) => t('directPay.confirmTitle', { amount }), confirmBody: t('directPay.confirmBody'), note: t('directPay.note'), status,
+        }}
+      />
       {open.length > 0 && (
         <section className="mb-8">
           <SectionTitle title={t('app.seller.refundRequests')} />

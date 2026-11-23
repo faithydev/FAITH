@@ -38,6 +38,7 @@ export type Order = {
   id: string; number: string; status: string; currency: string; subtotalMinor: string; discountMinor: string; totalMinor: string; createdAt: string; paidAt: string | null;
   items: { id: string; title: string; variantName: string; netMinor: string; refundedMinor: string; productId: string; review: { id: string } | null; product?: { slug: string } }[];
   refunds: { id: string; status: string; amountMinor: string; createdAt: string; reason?: string }[];
+  payments?: { id: string; status: string; provider: string; amountMinor: string; currency: string; createdAt: string }[];
 };
 export type LibraryItem = {
   id: string; licenseKey: string; licenseTerms: { name?: string; terms?: string } | null; grantedAt: string; expiresAt: string | null;

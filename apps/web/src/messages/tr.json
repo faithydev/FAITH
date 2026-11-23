@@ -127,7 +127,19 @@
     "INVALID_PURPOSE": "Yüklemenin amacı geçersiz.",
     "BACKUP_RUNNING": "Bir yedekleme zaten sürüyor. Bir dakika sonra tekrar deneyin.",
     "BACKUP_NOT_FOUND": "Bu yedek bulunamadı.",
-    "REAUTH_REQUIRED": "Güvenliğiniz için bu işlem yeni bir oturum açmayı gerektirir. Çıkış yapıp yeniden giriş yapın ve 30 dakika içinde tekrarlayın."
+    "REAUTH_REQUIRED": "Güvenliğiniz için bu işlem yeni bir oturum açmayı gerektirir. Çıkış yapıp yeniden giriş yapın ve 30 dakika içinde tekrarlayın.",
+    "SESSION_REPLACED": "Hesabınıza başka bir cihazdan giriş yapıldı. Burada devam etmek için yeniden giriş yapın.",
+    "ACCOUNT_TEMP_BLOCKED": "Korumalı videoyu kaydetmeye yönelik tekrarlanan girişimler nedeniyle bu hesap 24 saat engellendi.",
+    "DIRECT_PAY_ONE_STORE": "Bu satıcı ödemeyi doğrudan alıyor. Ürünlerini ayrı bir siparişle satın alın.",
+    "RECEIPT_ALREADY_SUBMITTED": "Dekontunuz zaten satıcıda.",
+    "RECEIPT_ALREADY_DECIDED": "Bu dekont hakkında zaten karar verildi.",
+    "PAYMENT_ALREADY_SETTLED": "Bu ödeme zaten tamamlandı.",
+    "REASON_REQUIRED": "Lütfen bir sebep yazın.",
+    "PROTECTED_VIDEO": "Bu video yalnızca FAITH oynatıcısında oynar.",
+    "RECEIPT_NOT_FOUND": "Dekont bulunamadı.",
+    "PAYMENT_NOT_FOUND": "Ödeme bulunamadı.",
+    "COMMUNITY_MODERATOR_REQUIRED": "Bunu yalnızca sahip ve moderatörler yapabilir.",
+    "NOT_A_DIRECT_PAYMENT": "Bu ödeme doğrudan transfer değil."
   },
   "status": {
     "DRAFT": "Taslak",
@@ -499,7 +511,9 @@
     "demoReadyTitle": "Hesabınız hazır",
     "demoReadyBody": "Bu herkese açık bir demo, e-posta gönderilmez: hemen giriş yapabilirsiniz. Buradaki ödemeler simülasyondur.",
     "googleOff": "Google ile giriş henüz bağlı değil.",
-    "continueApple": "Apple ile devam et"
+    "continueApple": "Apple ile devam et",
+    "replacedNotice": "Hesabınıza başka bir cihazdan giriş yapıldı, bu yüzden burada çıkış yapıldı. Bir hesap aynı anda yalnızca bir cihazda çalışır.",
+    "blockedNotice": "Korumalı videoyu kaydetmeye yönelik tekrarlanan girişimler nedeniyle hesabınız 24 saat engellendi."
   },
   "market": {
     "title": "Pazar yeri",
@@ -776,7 +790,13 @@
     "getAccess": "Erişim alın",
     "noPosts": "Henüz gönderi yok.",
     "comment": "Yorum yap",
-    "yourComment": "Yorumunuz"
+    "yourComment": "Yorumunuz",
+    "postTitle": "Başlık",
+    "postBody": "Metin",
+    "addVideo": "Video ekle (MP4)",
+    "videoHint": "Videoyu yalnızca üyeler, kendi adlarıyla korumalı oynatıcıda görür.",
+    "uploading": "Video yükleniyor…",
+    "posted": "Paylaşıldı"
   },
   "creators": {
     "title": "İçerik üreticileri",
@@ -1062,7 +1082,10 @@
         "staff_product_published": "Yeni ürün yayınlandı: {title}",
         "staff_job_application": "{title} için yeni başvuru",
         "staff_app_installed": "Bir uygulama yüklendi",
-        "badge_verified": "FAITH Verified rozetiniz yayında"
+        "badge_verified": "FAITH Verified rozetiniz yayında",
+        "receipt_submitted": "Onaylanacak yeni dekont: sipariş {number}, {amount}",
+        "receipt_approved": "{number} siparişi için ödemeniz onaylandı. Erişim açık.",
+        "receipt_rejected": "{number} siparişinin dekontu onaylanmadı: {title}"
       }
     },
     "settings": {
@@ -1380,7 +1403,18 @@
       "videoUploading": "Yükleniyor…",
       "videoReady": "Video derse eklendi ve korumalı oynatıcıda oynatılır.",
       "videoRemove": "Videoyu kaldır",
-      "videoBadge": "Video"
+      "videoBadge": "Video",
+      "protectedBadge": "Korumalı",
+      "makePaid": "Ücretli yap",
+      "makeFree": "Ücretsiz yap",
+      "accessQuestion": "Bu video ücretli mi, ücretsiz mi?",
+      "accessPaid": "Ücretli: korumalı",
+      "accessPaidBody": "Yalnızca alıcılar izler. Adları karede dolaşır, ekran görüntüleri uyarı alır, bir hesap bir cihazda çalışır, indirme yöneticileri hiçbir şey alamaz.",
+      "accessFree": "Ücretsiz: herkese açık",
+      "accessFreeBody": "Giriş yapsın yapmasın herkes korumasız izler.",
+      "current": "şu an",
+      "videoReadyPaid": "Video yüklendi ve korunuyor.",
+      "videoReadyFree": "Video yüklendi ve herkese ücretsiz."
     },
     "brand": {
       "body": "Kampanyalarınız, harcamalarınız ve sonuçlarınız.",
@@ -1740,7 +1774,9 @@
       "keyApp": "Anahtar: Render’daki APP_ENCRYPTION_KEY. Şimdi parola yöneticinize kopyalayın: o olmadan ne yedek ne de verideki gizli bilgiler açılabilir.",
       "empty": "Henüz yedek yok. İlki sunucu başladıktan 3 dakika sonra alınır.",
       "download": "İndir"
-    }
+    },
+    "blockedUntil": "{date} tarihine kadar engelli",
+    "unblock": "Engeli kaldır"
   },
   "badges": {
     "verified": "FAITH Verified",
@@ -1817,5 +1853,73 @@
     "step2": "Windows SmartScreen “Windows protected your PC” derse More info, ardından Run anyway seçin.",
     "step3": "Bir klasör seçin, kurulumu bitirin ve FAITH’i Masaüstünden açın.",
     "otherDevices": "Uygulama Windows içindir. Diğer cihazlarda FAITH tarayıcıda aynı şekilde çalışır."
+  },
+  "protect": {
+    "strikeTitle": "Uyarı {count} / {limit}",
+    "strikeBody": "Bu videonun ekran görüntüsünü almak ve kaydetmek yasaktır. {limit} uyarıdan sonra hesap 24 saat engellenir.",
+    "blockedTitle": "Hesap 24 saat engellendi",
+    "blockedBody": "Korumalı videoyu kaydetmek için tekrarlanan girişimler oldu, bu yüzden hesaptan tüm cihazlarda çıkış yapıldı. 24 saat sonra yeniden açılır.",
+    "replacedTitle": "Başka bir cihazdan giriş yapıldı",
+    "replacedBody": "Bir hesap aynı anda yalnızca bir cihazda çalışır. Hesabınıza az önce başka bir yerden giriş yapıldı, bu yüzden burada çıkış yapıldı.",
+    "signInAgain": "Burada yeniden giriş yap",
+    "appHint": "En güçlü koruma: FAITH masaüstü uygulamasında bu videonun ekran kaydı boş çıkar.",
+    "appLink": "Uygulamayı indir",
+    "freeNote": "Ücretsiz video: herkes izleyebilir."
+  },
+  "directPay": {
+    "title": "Satıcıya doğrudan öde",
+    "toPay": "Sipariş {number}",
+    "step1": "Tutarı gönderin",
+    "step1Body": "Tam olarak bu tutarı Click, Payme, Uzum veya banka uygulamanızla {store} mağazasına gönderin.",
+    "amount": "Tutar",
+    "card": "Kart numarası",
+    "cardHolder": "Kart sahibi",
+    "legalName": "Şirket veya şahıs işletmesi",
+    "account": "Banka hesabı (20 hane)",
+    "bank": "Banka",
+    "mfo": "Banka kodu (MFO)",
+    "tin": "Vergi no (STIR)",
+    "purposeLabel": "Ödeme açıklaması",
+    "purposeText": "{number} siparişi için ödeme",
+    "noDetails": "Satıcı henüz ödeme bilgilerini eklemedi. Ödemeden önce ona yazın.",
+    "direct": "Para doğrudan satıcıya gider. FAITH parayı tutmaz.",
+    "copy": "Kopyala: {what}",
+    "copied": "Kopyalandı",
+    "step2": "Dekontu gönderin",
+    "step2Body": "Tutarın, tarihin ve alıcının göründüğü transferin ekran görüntüsü veya PDF’i.",
+    "chooseFile": "Dekont seçin (fotoğraf veya PDF)",
+    "note": "Not",
+    "notePlaceholder": "Örneğin: 14:20’de Humo kartından ödedim",
+    "send": "Dekontu gönder",
+    "sent": "Dekont gönderildi. Satıcı kontrol edecek.",
+    "waitingTitle": "Dekont gönderildi, satıcı bekleniyor",
+    "waitingBody": "Satıcı paranın geldiğini kontrol ediyor. Erişim kendiliğinden açılır, ayrıca bildirim alırsınız.",
+    "checking": "Otomatik kontrol ediliyor…",
+    "rejectedTitle": "Satıcı bu dekontu onaylayamadı",
+    "step3": "Erişim alın",
+    "step3Body": "Satıcı onaylar onaylamaz kurs veya VIP topluluk kendiliğinden açılır. Kimsenin sizi elle eklemesi gerekmez.",
+    "approvedTitle": "Ödeme onaylandı",
+    "approvedBody": "Erişiminiz açık.",
+    "open": "Aç",
+    "finish": "Ödemeyi tamamla",
+    "sellerTitle": "Onay bekleyen dekontlar",
+    "sellerBody": "Alıcılar doğrudan kartınıza veya hesabınıza ödedi. Paranın geldiğini kontrol edip onaylayın: erişim kendiliğinden açılır.",
+    "history": "Son kararlar",
+    "viewReceipt": "Dekontu aç",
+    "approve": "Para geldi, onayla",
+    "reject": "Reddet",
+    "rejectTitle": "Dekontu reddet",
+    "rejectReason": "Sorun ne (alıcı bunu görür)",
+    "confirmTitle": "{amount} hesabınıza geldi mi?",
+    "confirmBody": "Yalnızca parayı kartınızda veya hesabınızda gördükten sonra onaylayın. Alıcı hemen erişim alır.",
+    "settingsTitle": "Dekontla doğrudan ödeme",
+    "settingsBody": "Alıcılar kendi kartınıza veya MChJ ya da YaTT hesabınıza öder, dekontu gönderir, siz burada onaylarsınız. Ödeme sağlayıcısıyla sözleşme gerekmez ve FAITH parayı asla tutmaz. Bu satışlardaki FAITH komisyonu mağazanın borcu olarak kaydedilir.",
+    "enabled": "Ödemeyi doğrudan al",
+    "enabledHint": "Bu mağazanın alıcıları transfer ve dekontla öder.",
+    "cardHint": "16 haneli Uzcard, Humo veya Visa kart.",
+    "legalNameHint": "Örneğin: Trade Academy MChJ veya YaTT Karimov A.",
+    "accountHint": "MChJ veya YaTT’nin 20 haneli hesabı.",
+    "payNote": "Alıcılar için not",
+    "payNoteHint": "Ödeme sayfasında gösterilir, örneğin ödeme açıklamasına ne yazılacağı."
   }
 }

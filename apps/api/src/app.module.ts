@@ -9,9 +9,12 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { OriginGuard, PermissionGuard, SessionGuard } from './auth/context';
 import { EntitlementsService } from './auth/entitlements.service';
+import { ProtectionController, ProtectionService } from './auth/protection';
 import { BillingController } from './billing/billing.controller';
 import { BillingService } from './billing/billing.service';
 import { CatalogService } from './commerce/catalog.service';
+import { DirectPayController } from './commerce/direct-pay.controller';
+import { DirectPayService } from './commerce/direct-pay.service';
 import { BuyerController, MarketplaceController, SellerController } from './commerce/commerce.controller';
 import { OrdersService } from './commerce/orders.service';
 import { SellerService } from './commerce/seller.service';
@@ -47,7 +50,7 @@ import { WorkService } from './work/work.service';
 
 const shared = [
   PrismaService, AuditService, EventsService, SettingsService, FlagsService, EmailService, StorageService, BackupService,
-  EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService, BadgesService,
+  EntitlementsService, LedgerService, PaymentsService, PayoutsService, IdentityService, BadgesService, ProtectionService,
 ];
 
 /** Services every domain may depend on. Domains never reach into each other's internals. */
@@ -56,8 +59,8 @@ const shared = [
 export class CoreModule {}
 
 @Module({
-  controllers: [MarketplaceController, BuyerController, SellerController, UploadsController],
-  providers: [CatalogService, SellerService, OrdersService],
+  controllers: [MarketplaceController, BuyerController, SellerController, UploadsController, DirectPayController],
+  providers: [CatalogService, SellerService, OrdersService, DirectPayService],
   exports: [CatalogService, SellerService, OrdersService],
 })
 export class CommerceModule {}
@@ -107,7 +110,7 @@ export class AdminModule {}
     CoreModule, CommerceModule, RewardsModule, WorkModule, CreatorModule, DeveloperModule, AiModule,
     CommunicationModule, AdminModule,
   ],
-  controllers: [HealthController, RatesController, AuthController, IdentityController, PaymentsController, BillingController],
+  controllers: [HealthController, RatesController, AuthController, IdentityController, PaymentsController, BillingController, ProtectionController],
   providers: [
     AuthService, BillingService,
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

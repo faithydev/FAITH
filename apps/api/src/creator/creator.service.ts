@@ -168,12 +168,24 @@ export class CreatorService {
     return lesson;
   }
 
-  /** Attaches an uploaded MP4 to a lesson; it is then only ever streamed to people with access. */
-  async setLessonVideo(lessonId: string, userId: string, uploadId: string | null) {
+  /**
+   * Attaches an uploaded MP4 to a lesson. The creator says whether it is paid (protected, only for
+   * buyers) or free (anyone may watch); left out, the lesson keeps what it had.
+   */
+  async setLessonVideo(lessonId: string, userId: string, uploadId: string | null, access?: 'paid' | 'free') {
     await this.ownedLesson(lessonId, userId);
     const videoKey = uploadId ? (await this.ownUpload({ id: uploadId }, userId, 'video/mp4')).storageKey : null;
-    await this.prisma.db.lesson.update({ where: { id: lessonId }, data: { videoKey } });
-    return { id: lessonId, hasVideo: !!videoKey };
+    const lesson = await this.prisma.db.lesson.update({
+      where: { id: lessonId },
+      data: { videoKey, ...(access ? { isPreview: access === 'free' } : {}) },
+    });
+    return { id: lessonId, hasVideo: !!videoKey, access: lesson.isPreview ? 'free' : 'paid' };
+  }
+
+  async setLessonAccess(lessonId: string, userId: string, access: 'paid' | 'free') {
+    await this.ownedLesson(lessonId, userId);
+    await this.prisma.db.lesson.update({ where: { id: lessonId }, data: { isPreview: access === 'free' } });
+    return { id: lessonId, access };
   }
 
   /**
@@ -279,7 +291,7 @@ export class CreatorService {
     if (!c) throw notFound('COMMUNITY_NOT_FOUND');
     const member = await this.membership(c.id, userId);
     const canRead = c.visibility === 'PUBLIC' || (member?.status === 'ACTIVE');
-    const posts = canRead
+    const rows = canRead
       ? await this.prisma.db.post.findMany({
           where: { communityId: c.id, status: 'VISIBLE' },
           orderBy: { createdAt: 'desc' },
@@ -290,6 +302,8 @@ export class CreatorService {
           },
         })
       : [];
+    // Where a video is stored never leaves the server; the page only learns that there is one.
+    const posts = rows.map(({ videoKey, ...p }) => ({ ...p, hasVideo: !!videoKey }));
     return { ...c, member, canRead, posts };
   }
 
@@ -340,7 +354,30 @@ export class CreatorService {
     if (!c) throw notFound('COMMUNITY_NOT_FOUND');
     const m = await this.membership(c.id, userId);
     if (m?.status !== 'ACTIVE') throw forbidden('COMMUNITY_MEMBER_REQUIRED');
-    return this.prisma.db.post.create({ data: { ...body, channelId: body.channelId ?? null, communityId: c.id, authorId: userId } });
+    const { videoUploadId, ...rest } = body;
+    let videoKey: string | null = null;
+    if (videoUploadId) {
+      // Video is the paid content of a VIP channel: only its owner and moderators post it.
+      if (m.role === 'MEMBER') throw forbidden('COMMUNITY_MODERATOR_REQUIRED');
+      videoKey = (await this.ownUpload({ id: videoUploadId }, userId, 'video/mp4')).storageKey;
+    }
+    const created = await this.prisma.db.post.create({
+      data: { ...rest, videoKey, channelId: rest.channelId ?? null, communityId: c.id, authorId: userId },
+    });
+    const { videoKey: stored, ...post } = created;
+    return { ...post, hasVideo: !!stored };
+  }
+
+  /** Where a post's video lives, for the streaming route: only for people who can read the community. */
+  async postVideo(postId: string, userId?: string) {
+    const post = await this.prisma.db.post.findUnique({ where: { id: postId }, include: { community: true } });
+    if (!post?.videoKey || post.status !== 'VISIBLE') throw notFound('POST_NOT_FOUND');
+    if (post.community.visibility === 'PRIVATE') {
+      if (!userId) throw unauthorized();
+      const m = await this.membership(post.communityId, userId);
+      if (m?.status !== 'ACTIVE') throw forbidden('COMMUNITY_MEMBER_REQUIRED');
+    }
+    return { key: post.videoKey };
   }
 
   async comment(postId: string, userId: string, body: string) {

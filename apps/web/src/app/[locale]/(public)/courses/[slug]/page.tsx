@@ -1,3 +1,4 @@
+import { IntlScope } from '@/components/auth/scope';
 import { ProtectedVideo } from '@/components/courses/protected-video';
 import { Approx } from '@/components/money/currency';
 import { ActionButton } from '@/components/ui/client';
@@ -26,10 +27,6 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const lessons = c.sections.flatMap((s) => s.lessons);
   // The viewer's own address on the frame: a recording that leaks says who made it.
   const viewer = me ? `${me.email} · ${me.id.slice(-6)}` : t('courses.video.guest');
-  const videoLabels = {
-    shieldTitle: t('courses.video.shieldTitle'), shieldBody: t('courses.video.shieldBody'), resume: t('courses.video.resume'),
-    fullscreen: t('courses.video.fullscreen'), exitFullscreen: t('courses.video.exitFullscreen'), note: t('courses.video.note'),
-  };
   const done = lessons.filter((l) => l.completed).length;
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -64,7 +61,11 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                       {l.hasVideo && <PlayCircle size={15} className={l.locked ? 'text-subtle' : 'text-neon'} aria-label={t('courses.video.has')} />}
                       {l.isPreview && <Badge tone="accent">{t('app.creator.previewBadge')}</Badge>}
                     </summary>
-                    {l.hasVideo && !l.locked && <ProtectedVideo lessonId={l.id} viewer={viewer} labels={videoLabels} />}
+                    {l.hasVideo && !l.locked && (
+                      <IntlScope ns={['courses', 'protect']}>
+                        <ProtectedVideo src={`/api/v1/lessons/${l.id}/stream`} contentId={l.id} viewer={viewer} protect={!l.isPreview} />
+                      </IntlScope>
+                    )}
                     {l.body && <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap text-muted">{l.body}</p>}
                     {!l.locked && c.access && !l.completed && me && <div className="mt-3"><ActionButton endpoint={`/lessons/${l.id}/complete`} label={t('courses.markDone')} /></div>}
                   </details>

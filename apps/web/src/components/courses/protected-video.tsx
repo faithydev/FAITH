@@ -1,10 +1,12 @@
 'use client';
 
 import { cx } from '@/components/ui/primitives';
-import { Maximize2, Minimize2, Play, ShieldCheck } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
+import { clientApi } from '@/lib/client';
+import { ApiError } from '@/lib/errors';
+import { AlertTriangle, LogIn, Maximize2, Minimize2, Monitor, Play, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-export type ProtectedVideoLabels = { shieldTitle: string; shieldBody: string; resume: string; fullscreen: string; exitFullscreen: string; note: string };
 
 /** A watermark tile repeated over the whole frame, faint enough to watch through. */
 function tile(text: string) {
@@ -13,28 +15,57 @@ function tile(text: string) {
   return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 }
 
+type Strike = { strikes: number; limit: number; blockedUntil: string | null; exempt?: boolean };
+/** Why the player stopped for good: this device was signed out, or the account was blocked. */
+type Ended = 'replaced' | 'blocked' | null;
+
+/** How often a playing video checks that this device is still the signed-in one. */
+const HEARTBEAT_MS = 20_000;
+
 /**
- * The lesson player for paid courses. A browser cannot stop every screen recorder (only
- * hardware DRM can blank a recording; that is on the roadmap), so the player does what a web
- * page can:
- *  - the video streams in slices from a same-origin, signed-in, never-cached route;
+ * The player for lesson and VIP video. Paid video is protected as far as a web page can go:
+ *  - only the browser's own player may fetch it (the server refuses download managers and
+ *    pasted addresses), in slices, never cached;
  *  - the viewer's own name moves across the frame, so any leak points back to its source;
- *  - switching window or app, a screenshot shortcut or a hidden tab pauses and blanks the frame;
- *  - no download button, no picture-in-picture, no casting, no right-click menu;
- *  - fullscreen keeps the watermark, because the frame goes fullscreen, not the bare video.
+ *  - switching window or app, a screenshot key or a hidden tab pauses and blanks the frame;
+ *  - each screenshot key is a warning, and the third within a week blocks the account for a day;
+ *  - a sign-in on another device stops playback here within seconds;
+ *  - no download button, picture-in-picture, casting or right-click menu.
+ * A browser cannot see a screen recorder; in the FAITH desktop app the window is excluded from
+ * screen capture by the operating system, so a recording shows nothing.
+ * Free video plays without any of this.
  */
-export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string; viewer: string; labels: ProtectedVideoLabels }) {
+export function ProtectedVideo({ src, contentId, viewer, protect = true }: { src: string; contentId: string; viewer: string; protect?: boolean }) {
+  const t = useTranslations();
   const frame = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [shield, setShield] = useState(false);
   const [mark, setMark] = useState({ top: 12, left: 10 });
   const [full, setFull] = useState(false);
   const [fallbackFull, setFallbackFull] = useState(false);
+  const [strike, setStrike] = useState<Strike | null>(null);
+  const [ended, setEnded] = useState<Ended>(null);
   const stamp = `${viewer} · ${new Date().toISOString().slice(0, 10)}`;
-  const posKey = `faith-lesson-pos:${lessonId}`;
+  const posKey = `faith-lesson-pos:${contentId}`;
 
   const started = useRef(false);
   const lastSave = useRef(0);
+  const lastReport = useRef(0);
+
+  const stop = useCallback((why: Ended) => {
+    video.current?.pause();
+    video.current?.removeAttribute('src');
+    video.current?.load();
+    setEnded(why);
+  }, []);
+
+  /** Learns from an API error whether this device lost its session. */
+  const sessionEnded = useCallback((e: unknown) => {
+    if (!(e instanceof ApiError)) return false;
+    const why: Ended = e.code === 'SESSION_REPLACED' ? 'replaced' : e.code === 'ACCOUNT_TEMP_BLOCKED' ? 'blocked' : null;
+    if (why) stop(why);
+    return !!why;
+  }, [stop]);
 
   // Before the first play there is nothing on screen to protect, so switching away is left alone.
   const blank = useCallback(() => {
@@ -44,8 +75,23 @@ export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string;
     setShield(true);
   }, []);
 
+  const report = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastReport.current < 5_000) return;
+    lastReport.current = now;
+    try {
+      const r = await clientApi<Strike>('/protection/violations', { body: { kind: 'screenshot_key', contentId } });
+      if (r.exempt) return;
+      setStrike(r);
+      if (r.blockedUntil) stop('blocked');
+    } catch (e) {
+      sessionEnded(e);
+    }
+  }, [contentId, stop, sessionEnded]);
+
   // Pause and blank whenever the page stops being the thing on screen.
   useEffect(() => {
+    if (!protect) return;
     const onVisibility = () => { if (document.visibilityState === 'hidden') blank(); };
     const onKey = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
@@ -57,6 +103,7 @@ export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string;
         blank();
         // Best effort: overwrite what a screenshot tool may have put on the clipboard.
         navigator.clipboard?.writeText('').catch(() => {});
+        if (started.current) void report();
       }
     };
     window.addEventListener('blur', blank);
@@ -69,13 +116,24 @@ export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string;
       window.removeEventListener('keydown', onKey, true);
       window.removeEventListener('keyup', onKey, true);
     };
-  }, [blank]);
+  }, [blank, protect, report]);
+
+  // While it plays, the player checks that this device is still the signed-in one.
+  useEffect(() => {
+    if (!protect) return;
+    const id = window.setInterval(() => {
+      if (!started.current || video.current?.paused) return;
+      clientApi('/protection/status').catch(sessionEnded);
+    }, HEARTBEAT_MS);
+    return () => window.clearInterval(id);
+  }, [protect, sessionEnded]);
 
   // The name wanders, so it cannot be cropped out of a recording.
   useEffect(() => {
+    if (!protect) return;
     const id = window.setInterval(() => setMark({ top: 6 + Math.random() * 78, left: 4 + Math.random() * 62 }), 4500);
     return () => window.clearInterval(id);
-  }, []);
+  }, [protect]);
 
   useEffect(() => {
     const onChange = () => setFull(document.fullscreenElement === frame.current);
@@ -103,6 +161,11 @@ export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string;
     lastSave.current = now;
     try { localStorage.setItem(posKey, String(Math.floor(video.current.currentTime))); } catch { /* ignore */ }
   }
+  /** A refused slice usually means the session ended; ask once to tell which. */
+  function onError() {
+    if (!protect || ended) return;
+    clientApi('/protection/status').catch(sessionEnded);
+  }
 
   return (
     <div className="mt-3">
@@ -117,45 +180,62 @@ export function ProtectedVideo({ lessonId, viewer, labels }: { lessonId: string;
       >
         <video
           ref={video}
-          src={`/api/v1/lessons/${lessonId}/stream`}
+          src={src}
           controls preload="metadata" playsInline
           controlsList="nodownload nofullscreen noremoteplayback"
           disablePictureInPicture disableRemotePlayback
           draggable={false}
           onLoadedMetadata={restorePosition}
           onTimeUpdate={savePosition}
+          onError={onError}
           onPlay={() => { started.current = true; setShield(false); }}
-          className={cx('block aspect-video w-full bg-black', shield && 'invisible', (full || fallbackFull) && 'h-full max-h-full')}
+          className={cx('block aspect-video w-full bg-black', (shield || ended) && 'invisible', (full || fallbackFull) && 'h-full max-h-full')}
         />
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: tile(stamp) }} />
-        <span
-          aria-hidden data-testid="video-watermark"
-          className="pointer-events-none absolute rounded bg-black/25 px-1.5 py-0.5 font-mono text-[0.7rem] text-white/55 transition-[top,left] duration-[1400ms] ease-in-out sm:text-xs"
-          style={{ top: `${mark.top}%`, left: `${mark.left}%` }}
-        >
-          {stamp}
-        </span>
+        {protect && (
+          <>
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: tile(stamp) }} />
+            <span
+              aria-hidden data-testid="video-watermark"
+              className="pointer-events-none absolute rounded bg-black/25 px-1.5 py-0.5 font-mono text-[0.7rem] text-white/55 transition-[top,left] duration-[1400ms] ease-in-out sm:text-xs"
+              style={{ top: `${mark.top}%`, left: `${mark.left}%` }}
+            >
+              {stamp}
+            </span>
+          </>
+        )}
         <button
-          type="button" onClick={toggleFullscreen} aria-label={full || fallbackFull ? labels.exitFullscreen : labels.fullscreen}
+          type="button" onClick={toggleFullscreen} aria-label={full || fallbackFull ? t('courses.video.exitFullscreen') : t('courses.video.fullscreen')}
           className="absolute end-2.5 top-2.5 rounded-lg bg-black/55 p-2 text-white/85 opacity-80 backdrop-blur transition-opacity hover:opacity-100 focus-visible:opacity-100"
         >
           {full || fallbackFull ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
         </button>
-        {shield && (
+        {ended ? (
+          <div role="alert" data-testid="video-ended" className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black p-6 text-center">
+            <ShieldAlert size={30} className="text-negative" />
+            <p className="font-medium text-white">{ended === 'blocked' ? t('protect.blockedTitle') : t('protect.replacedTitle')}</p>
+            <p className="max-w-sm text-sm text-white/60">{ended === 'blocked' ? t('protect.blockedBody') : t('protect.replacedBody')}</p>
+            {ended === 'replaced' && <Link href="/login" className="fx-btn fx-primary fx-sm mt-1"><LogIn size={14} />{t('protect.signInAgain')}</Link>}
+          </div>
+        ) : shield && (
           <div role="status" data-testid="video-shield" className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black p-6 text-center">
-            <ShieldCheck size={30} className="text-neon" />
-            <p className="font-medium text-white">{labels.shieldTitle}</p>
-            <p className="max-w-sm text-sm text-white/60">{labels.shieldBody}</p>
+            {strike ? <AlertTriangle size={30} className="text-warning" /> : <ShieldCheck size={30} className="text-neon" />}
+            <p className="font-medium text-white">{strike ? t('protect.strikeTitle', { count: strike.strikes, limit: strike.limit }) : t('courses.video.shieldTitle')}</p>
+            <p className="max-w-sm text-sm text-white/60">{strike ? t('protect.strikeBody', { limit: strike.limit }) : t('courses.video.shieldBody')}</p>
             <button
               type="button" onClick={() => { setShield(false); void video.current?.play().catch(() => {}); }}
               className="fx-btn fx-primary fx-sm mt-1"
             >
-              <Play size={14} />{labels.resume}
+              <Play size={14} />{t('courses.video.resume')}
             </button>
           </div>
         )}
       </div>
-      <p className="mt-2 flex items-center gap-1.5 text-xs text-subtle"><ShieldCheck size={13} />{labels.note}</p>
+      {protect ? (
+        <div className="mt-2 space-y-1 text-xs text-subtle">
+          <p className="flex items-center gap-1.5"><ShieldCheck size={13} className="shrink-0" />{t('courses.video.note')}</p>
+          <p className="flex items-center gap-1.5"><Monitor size={13} className="shrink-0" />{t('protect.appHint')} <Link href="/download" className="underline hover:text-ink">{t('protect.appLink')}</Link></p>
+        </div>
+      ) : <p className="mt-2 text-xs text-subtle">{t('protect.freeNote')}</p>}
     </div>
   );
 }

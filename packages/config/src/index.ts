@@ -34,6 +34,8 @@ export const SETTING_KEYS = {
   appCommissionBps: 'finance.appCommissionBps',
   rewardHoldDays: 'rewards.holdDays',
   defaultCurrency: 'finance.defaultCurrency',
+  /** One device per account: a new sign-in ends the others. Staff accounts are exempt. */
+  singleDevice: 'security.singleDevice',
 } as const;
 
 // ---------------------------------------------------------------------------

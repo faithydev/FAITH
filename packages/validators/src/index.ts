@@ -162,6 +162,47 @@ export const checkoutBody = z.object({
   affiliateCode: z.string().trim().max(40).optional(),
 });
 export const mockPaymentBody = z.object({ outcome: z.enum(['success', 'failure']) });
+
+// --- Direct payments (receipt) ------------------------------------------------
+
+const digits = (min: number, max: number) => z.string().trim().transform((v) => v.replace(/[\s-]/g, '')).pipe(z.string().regex(new RegExp(`^[0-9]{${min},${max}}$`), 'invalid_number'));
+const optionalText = (max: number) => z.string().trim().max(max).optional().nullable().transform((v) => (v ? v : null));
+
+/**
+ * Where a store takes money directly: the seller's own card, or the bank account of their
+ * company (MChJ) or sole proprietorship (YaTT). At least one of the two once it is switched on.
+ */
+export const directPayBody = z.object({
+  enabled: z.boolean(),
+  cardNumber: z.union([z.literal(''), z.null(), digits(16, 19)]).optional().transform((v) => (v ? v : null)),
+  cardHolder: optionalText(80),
+  legalName: optionalText(160),
+  /** STIR (9 digits) of a company, or JShShIR (14 digits) of a sole proprietor. */
+  tin: z.union([z.literal(''), z.null(), digits(9, 14)]).optional().transform((v) => (v ? v : null)),
+  bankName: optionalText(120),
+  accountNumber: z.union([z.literal(''), z.null(), digits(20, 20)]).optional().transform((v) => (v ? v : null)),
+  mfo: z.union([z.literal(''), z.null(), digits(5, 5)]).optional().transform((v) => (v ? v : null)),
+  note: optionalText(500),
+}).refine((b) => !b.enabled || !!b.cardNumber || !!b.accountNumber, { path: ['cardNumber'], message: 'DIRECT_PAY_DETAILS_REQUIRED' });
+
+export const receiptBody = z.object({
+  uploadId: z.string().min(1).max(40),
+  note: z.string().trim().max(500).optional(),
+});
+export const receiptDecisionBody = z.object({
+  approve: z.boolean(),
+  reason: z.string().trim().max(500).optional(),
+});
+
+// --- Content protection --------------------------------------------------------
+
+/** What a protected player saw: a screenshot key, open developer tools, or a capture program. */
+export const violationKinds = ['screenshot_key', 'devtools', 'capture_tool'] as const;
+export const violationBody = z.object({
+  kind: z.enum(violationKinds),
+  /** The lesson or post whose video was on screen. */
+  contentId: z.string().max(40).optional(),
+});
 export const reviewBody = z.object({
   orderItemId: z.string().min(1),
   rating: z.number().int().min(1).max(5),
@@ -274,7 +315,12 @@ export const cardBody = z.object({
   holder: z.string().trim().max(60).regex(/^[\p{L} .'-]*$/u).optional(),
 }).refine((c) => cardExpiryValid(c.expMonth, c.expYear), { path: ['expMonth'], message: 'CARD_EXPIRED' });
 
-export const lessonVideoBody = z.object({ uploadId: z.string().min(1).max(40) });
+export const lessonVideoBody = z.object({
+  uploadId: z.string().min(1).max(40),
+  /** Paid lessons are protected and need access; free ones play for anyone. Unchanged when omitted. */
+  access: z.enum(['paid', 'free']).optional(),
+});
+export const lessonAccessBody = z.object({ access: z.enum(['paid', 'free']) });
 export const planPriceBody = z.object({
   monthlyMinor: minorAmount.nullable(),
   yearlyMinor: minorAmount.nullable(),
@@ -476,6 +522,8 @@ export const postBody = z.object({
   title: shortText,
   body: longText,
   channelId: z.string().nullable().optional(),
+  /** An MP4 the author uploaded; only the community's owner and moderators may attach video. */
+  videoUploadId: z.string().min(1).max(40).optional(),
 });
 export const commentBody = z.object({ body: z.string().trim().min(1).max(4000) });
 export const memberModerationBody = z.object({

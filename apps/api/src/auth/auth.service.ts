@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DEFAULT_LOCALE, LOCALES, Locale, PERSONA_ROLE } from '@faith/config';
+import { DEFAULT_LOCALE, LOCALES, Locale, PERSONA_ROLE, SETTING_KEYS, STAFF_ROLES } from '@faith/config';
 import type { AuthTokenType, User } from '@faith/database';
 import { hash, verify } from '@node-rs/argon2';
 import { generateSecret, generateURI, verifySync } from 'otplib';
@@ -10,8 +10,8 @@ import { decrypt, encrypt, randomToken, sha256, slugify } from '../core/crypto';
 import { autoVerifyEmail, env } from '../core/env';
 import { appleConfigured } from './apple';
 import { applyFounder } from '../identity/badges';
-import { badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
-import { AuditService } from '../core/platform.services';
+import { AppError, badRequest, conflict, forbidden, notFound, unauthorized } from '../core/errors';
+import { AuditService, SettingsService } from '../core/platform.services';
 import { PrismaService } from '../core/prisma.service';
 import { renderEmail } from './emails';
 
@@ -30,6 +30,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
     private readonly audit: AuditService,
+    private readonly settings: SettingsService,
   ) {}
 
   private link(path: string, token: string, locale: string) {
@@ -167,13 +168,34 @@ export class AuthService {
     throw unauthorized('INVALID_TOTP');
   }
 
+  /** Every way of signing in ends here, so the temporary block and the one-device rule hold for all of them. */
   async createSession(userId: string, meta: SessionMeta) {
+    const user = await this.prisma.db.user.findUnique({ where: { id: userId }, select: { contentBlockedUntil: true } });
+    if (user?.contentBlockedUntil && user.contentBlockedUntil > new Date()) {
+      throw new AppError(403, 'ACCOUNT_TEMP_BLOCKED', { until: user.contentBlockedUntil });
+    }
     const token = randomToken();
     const expiresAt = new Date(Date.now() + SESSION_DAYS * 86_400_000);
-    await this.prisma.db.session.create({
+    const session = await this.prisma.db.session.create({
       data: { userId, tokenHash: sha256(token), expiresAt, userAgent: meta.userAgent?.slice(0, 300), ipAddress: meta.ip },
     });
+    // One device per account: signing in here signs every other device out, so a paid account
+    // cannot be shared by handing over the password.
+    if (await this.oneDevice(userId)) {
+      const { count } = await this.prisma.db.session.updateMany({
+        where: { userId, revokedAt: null, id: { not: session.id } },
+        data: { revokedAt: new Date(), revokedReason: 'replaced' },
+      });
+      if (count > 0) await this.audit.security('auth.session_replaced', { userId, ip: meta.ip, metadata: { count } });
+    }
     return { token, expiresAt };
+  }
+
+  /** On unless an administrator turned it off. Staff keep several devices for support work. */
+  private async oneDevice(userId: string) {
+    if (!(await this.settings.get<boolean>(SETTING_KEYS.singleDevice, true))) return false;
+    const staff = await this.prisma.db.userRole.count({ where: { userId, role: { key: { in: [...STAFF_ROLES] } } } });
+    return staff === 0;
   }
 
   logout(sessionId: string) {

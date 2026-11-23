@@ -70,7 +70,7 @@ export class AdminService {
       this.prisma.db.user.findMany({
         where, orderBy: { createdAt: 'desc' }, skip: (page.page - 1) * page.pageSize, take: page.pageSize,
         select: {
-          id: true, email: true, status: true, emailVerifiedAt: true, createdAt: true,
+          id: true, email: true, status: true, emailVerifiedAt: true, createdAt: true, contentBlockedUntil: true,
           profile: { select: { displayName: true, username: true } },
           roles: { select: { role: { select: { key: true } } } },
         },

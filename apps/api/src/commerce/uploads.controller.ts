@@ -65,7 +65,9 @@ function sniff(b: Buffer): Kind | null {
   return null;
 }
 
-const PURPOSES = new Set(['product', 'image', 'evidence', 'campaign', 'lesson', 'app']);
+/** `evidence` and `receipt` images are private: they can carry personal and bank details. */
+const PURPOSES = new Set(['product', 'image', 'evidence', 'campaign', 'lesson', 'app', 'receipt', 'post']);
+const PRIVATE_PURPOSES = new Set(['evidence', 'receipt']);
 
 @ApiTags('files')
 @Controller()
@@ -91,7 +93,7 @@ export class UploadsController implements OnModuleInit {
       const limit = kind.public ? LIMITS.image : kind.mime === 'video/mp4' ? LIMITS.video : LIMITS.file;
       if (file.size > limit) throw new AppError(413, 'FILE_TOO_LARGE', { maxBytes: limit });
 
-      const isPublicImage = kind.public && use !== 'evidence';
+      const isPublicImage = kind.public && !PRIVATE_PURPOSES.has(use);
       const storageKey = `${isPublicImage ? 'public' : 'private'}/${a.user.id}/${randomUUID()}${ext}`;
       await this.storage.store.put(storageKey, { path: file.path, size: file.size }, kind.mime);
       return await this.prisma.db.upload.create({

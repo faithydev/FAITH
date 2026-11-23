@@ -42,6 +42,11 @@ export async function tryPublicApi<T>(path: string, revalidate = 30): Promise<T 
   }
 }
 
+/** Why this request's session ended, when the API said so: another device signed in, or a block. */
+const sessionEnd = cache(() => ({ reason: null as 'replaced' | 'blocked' | null }));
+/** Read after `getMe()` resolved to null. */
+export const endedSession = () => sessionEnd().reason;
+
 /** The signed-in person, or null. Deduplicated across one render. */
 export const getMe = cache(async (): Promise<Me | null> => {
   const jar = await cookies();
@@ -49,7 +54,11 @@ export const getMe = cache(async (): Promise<Me | null> => {
   try {
     return await api<Me>('/me');
   } catch (e) {
-    if (e instanceof ApiError && (e.status === 401 || e.status === 403)) return null;
+    if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
+      if (e.code === 'SESSION_REPLACED') sessionEnd().reason = 'replaced';
+      if (e.code === 'ACCOUNT_TEMP_BLOCKED') sessionEnd().reason = 'blocked';
+      return null;
+    }
     throw e;
   }
 });

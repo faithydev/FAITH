@@ -7,14 +7,19 @@ import { activeStore, pageContext } from '@/lib/page';
 
 type Discount = { id: string; code: string; kind: string; value: string; redemptions: number; active: boolean };
 type License = { id: string; name: string; storeId: string | null };
+type DirectPay = {
+  enabled: boolean; cardNumber?: string | null; cardHolder?: string | null; legalName?: string | null; tin?: string | null;
+  bankName?: string | null; accountNumber?: string | null; mfo?: string | null; note?: string | null;
+};
 
 export default async function StoreSettingsPage() {
   const { t, me } = await pageContext();
   if (!me.permissions.includes('store.manage')) return <NoRole persona="sell" />;
   const { store } = await activeStore();
   if (!store) return <CreateStore />;
-  const [discounts, licenses] = await Promise.all([
+  const [discounts, licenses, direct] = await Promise.all([
     api<Discount[]>(`/seller/stores/${store.id}/discounts`), api<License[]>(`/seller/stores/${store.id}/licenses`),
+    api<DirectPay>(`/seller/stores/${store.id}/direct-pay`),
   ]);
   return (
     <>
@@ -26,6 +31,24 @@ export default async function StoreSettingsPage() {
             <ImageSlot endpoint={`/seller/stores/${store.id}/images/logo`} current={store.logoKey ?? null} label={t('app.seller.logo')} upload={t('app.seller.uploadImage')} remove={t('common.remove')} />
             <ImageSlot endpoint={`/seller/stores/${store.id}/images/banner`} current={store.bannerKey ?? null} label={t('app.seller.banner')} upload={t('app.seller.uploadImage')} remove={t('common.remove')} shape="wide" />
           </div>
+        </Card>
+        <Card className="p-5 lg:col-span-2" data-testid="direct-pay-settings">
+          <SectionTitle title={t('directPay.settingsTitle')} action={direct.enabled ? <Badge tone="positive">{t('common.on')}</Badge> : <Badge>{t('common.off')}</Badge>} />
+          <p className="-mt-2 mb-4 max-w-3xl text-sm text-muted">{t('directPay.settingsBody')}</p>
+          <AutoForm
+            endpoint={`/seller/stores/${store.id}/direct-pay`} method="PUT" submitLabel={t('common.save')} success={t('common.saved')} columns={2}
+            fields={[
+              { name: 'enabled', label: t('directPay.enabled'), hint: t('directPay.enabledHint'), type: 'checkbox', defaultValue: direct.enabled },
+              { name: 'cardNumber', label: t('directPay.card'), hint: t('directPay.cardHint'), defaultValue: direct.cardNumber ?? '' },
+              { name: 'cardHolder', label: t('directPay.cardHolder'), defaultValue: direct.cardHolder ?? '' },
+              { name: 'legalName', label: t('directPay.legalName'), hint: t('directPay.legalNameHint'), defaultValue: direct.legalName ?? '' },
+              { name: 'tin', label: t('directPay.tin'), defaultValue: direct.tin ?? '' },
+              { name: 'accountNumber', label: t('directPay.account'), hint: t('directPay.accountHint'), defaultValue: direct.accountNumber ?? '' },
+              { name: 'bankName', label: t('directPay.bank'), defaultValue: direct.bankName ?? '' },
+              { name: 'mfo', label: t('directPay.mfo'), defaultValue: direct.mfo ?? '' },
+              { name: 'note', label: t('directPay.payNote'), hint: t('directPay.payNoteHint'), type: 'textarea', defaultValue: direct.note ?? '' },
+            ]}
+          />
         </Card>
         <Card className="p-5">
           <SectionTitle title={t('app.seller.branding')} />

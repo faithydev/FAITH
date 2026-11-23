@@ -321,21 +321,22 @@ describe('creator studio', () => {
     expect(outline.sections[0].lessons[0]).toMatchObject({ hasVideo: true, locked: true });
     expect(JSON.stringify(outline)).not.toContain(video.storageKey);
 
-    await t.http.get(`/v1/lessons/${lesson.id}/stream`).expect(401);
-    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).expect(403);
+    const player = { 'Sec-Fetch-Dest': 'video', 'Sec-Fetch-Site': 'same-origin' };
+    await t.http.get(`/v1/lessons/${lesson.id}/stream`).set(player).expect(401);
+    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set(player).expect(403);
     await buy(t, student, variantId);
-    const part = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=0-99').expect(206);
+    const part = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set(player).set('Range', 'bytes=0-99').expect(206);
     expect(part.headers['content-range']).toBe(`bytes 0-99/${fixtures.mp4.length}`);
     expect(part.headers['cache-control']).toBe('private, no-store');
     expect(Number(part.headers['content-length'])).toBe(100);
-    const tail = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=-10').expect(206);
+    const tail = await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set(player).set('Range', 'bytes=-10').expect(206);
     expect(tail.headers['content-range']).toBe(`bytes ${fixtures.mp4.length - 10}-${fixtures.mp4.length - 1}/${fixtures.mp4.length}`);
     // Opened as a page (a copied address), the video is refused.
     await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Sec-Fetch-Dest', 'document').expect(403);
-    await creator.agent.get(`/v1/lessons/${lesson.id}/stream`).set('Range', 'bytes=0-').expect(206);
+    await creator.agent.get(`/v1/lessons/${lesson.id}/stream`).set(player).set('Range', 'bytes=0-').expect(206);
 
     await creator.agent.delete(`/v1/creator/lessons/${lesson.id}/video`).expect(200);
-    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).expect(404);
+    await student.agent.get(`/v1/lessons/${lesson.id}/stream`).set(player).expect(404);
   });
 
   it('keeps private communities private and enforces moderation', async () => {

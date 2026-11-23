@@ -62,13 +62,23 @@ export class SessionGuard implements CanActivate {
     const req = ctx.switchToHttp().getRequest<AuthedRequest>();
     const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [ctx.getHandler(), ctx.getClass()]);
     const token = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
-    if (token) req.auth = await this.resolve(token);
+    let ended: string | undefined;
+    if (token) {
+      const resolved = await this.resolve(token);
+      if (resolved && 'ended' in resolved) ended = resolved.ended;
+      else req.auth = resolved;
+    }
     if (req.auth?.user.status === 'SUSPENDED' && !isPublic) throw forbidden('ACCOUNT_SUSPENDED');
-    if (!req.auth && !isPublic) throw unauthorized();
+    if (!req.auth && !isPublic) {
+      // Say why the session ended, so the device that lost it can tell its owner.
+      if (ended === 'replaced') throw unauthorized('SESSION_REPLACED');
+      if (ended === 'blocked') throw unauthorized('ACCOUNT_TEMP_BLOCKED');
+      throw unauthorized();
+    }
     return true;
   }
 
-  private async resolve(token: string): Promise<AuthContext | undefined> {
+  private async resolve(token: string): Promise<AuthContext | { ended: string } | undefined> {
     const session = await this.prisma.db.session.findUnique({
       where: { tokenHash: sha256(token) },
       include: {
@@ -80,6 +90,7 @@ export class SessionGuard implements CanActivate {
         },
       },
     });
+    if (session?.revokedAt && session.revokedReason) return { ended: session.revokedReason };
     if (!session || session.revokedAt || session.expiresAt <= new Date()) return undefined;
     const { user, ...rest } = session;
     if (user.status === 'DELETED') return undefined;

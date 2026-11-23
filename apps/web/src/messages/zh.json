@@ -127,7 +127,19 @@
     "INVALID_PURPOSE": "上传用途无效。",
     "BACKUP_RUNNING": "备份正在进行，请一分钟后重试。",
     "BACKUP_NOT_FOUND": "未找到该备份。",
-    "REAUTH_REQUIRED": "为了你的安全，此操作需要重新登录。请先退出再登录，并在 30 分钟内重试。"
+    "REAUTH_REQUIRED": "为了你的安全，此操作需要重新登录。请先退出再登录，并在 30 分钟内重试。",
+    "SESSION_REPLACED": "你的账户已在另一台设备登录。请重新登录以在此继续。",
+    "ACCOUNT_TEMP_BLOCKED": "由于多次尝试录制受保护视频，此账户已被封禁 24 小时。",
+    "DIRECT_PAY_ONE_STORE": "该卖家直接收款，请将其商品单独下单。",
+    "RECEIPT_ALREADY_SUBMITTED": "你的凭证已在卖家处。",
+    "RECEIPT_ALREADY_DECIDED": "此凭证已处理。",
+    "PAYMENT_ALREADY_SETTLED": "此付款已完成。",
+    "REASON_REQUIRED": "请填写原因。",
+    "PROTECTED_VIDEO": "此视频只能在 FAITH 播放器中播放。",
+    "RECEIPT_NOT_FOUND": "未找到凭证。",
+    "PAYMENT_NOT_FOUND": "未找到付款。",
+    "COMMUNITY_MODERATOR_REQUIRED": "只有所有者和版主可以这样做。",
+    "NOT_A_DIRECT_PAYMENT": "此付款不是直接转账。"
   },
   "status": {
     "DRAFT": "草稿",
@@ -499,7 +511,9 @@
     "demoReadyTitle": "您的账户已就绪",
     "demoReadyBody": "这是公开演示，不会发送邮件：您可以立即登录。此处的付款均为模拟。",
     "googleOff": "Google 登录尚未接通。",
-    "continueApple": "通过 Apple 继续"
+    "continueApple": "通过 Apple 继续",
+    "replacedNotice": "你的账户已在另一台设备登录，因此这里已退出。一个账户同一时间只能在一台设备上使用。",
+    "blockedNotice": "由于多次尝试录制受保护视频，你的账户已被封禁 24 小时。"
   },
   "market": {
     "title": "市场",
@@ -776,7 +790,13 @@
     "getAccess": "获取访问权",
     "noPosts": "暂无帖子。",
     "comment": "评论",
-    "yourComment": "您的评论"
+    "yourComment": "您的评论",
+    "postTitle": "标题",
+    "postBody": "正文",
+    "addVideo": "附加视频（MP4）",
+    "videoHint": "只有成员能在带有其姓名的受保护播放器中观看此视频。",
+    "uploading": "正在上传视频…",
+    "posted": "已发布"
   },
   "creators": {
     "title": "创作者",
@@ -1062,7 +1082,10 @@
         "staff_product_published": "新商品上架：{title}",
         "staff_job_application": "{title} 收到新申请",
         "staff_app_installed": "有应用被安装",
-        "badge_verified": "你的 FAITH Verified 徽章已生效"
+        "badge_verified": "你的 FAITH Verified 徽章已生效",
+        "receipt_submitted": "有新凭证待确认：订单 {number}，{amount}",
+        "receipt_approved": "订单 {number} 的付款已确认，访问权限已开通。",
+        "receipt_rejected": "订单 {number} 的凭证未通过确认：{title}"
       }
     },
     "settings": {
@@ -1380,7 +1403,18 @@
       "videoUploading": "上传中…",
       "videoReady": "视频已添加到课程，并在受保护的播放器中播放。",
       "videoRemove": "移除视频",
-      "videoBadge": "视频"
+      "videoBadge": "视频",
+      "protectedBadge": "受保护",
+      "makePaid": "设为付费",
+      "makeFree": "设为免费",
+      "accessQuestion": "这个视频是付费还是免费？",
+      "accessPaid": "付费：受保护",
+      "accessPaidBody": "只有买家能观看。画面上会移动显示其姓名，截图会收到警告，一个账户只能一台设备，下载工具什么也拿不到。",
+      "accessFree": "免费：对所有人开放",
+      "accessFreeBody": "无论是否登录，任何人都能观看，不加保护。",
+      "current": "当前",
+      "videoReadyPaid": "视频已上传并受保护。",
+      "videoReadyFree": "视频已上传，对所有人免费。"
     },
     "brand": {
       "body": "您的活动、支出和成果。",
@@ -1740,7 +1774,9 @@
       "keyApp": "密钥：Render 上的 APP_ENCRYPTION_KEY。请立即复制到密码管理器：没有它，备份和数据中的机密都无法打开。",
       "empty": "暂无备份。服务器启动 3 分钟后会生成第一份。",
       "download": "下载"
-    }
+    },
+    "blockedUntil": "封禁至 {date}",
+    "unblock": "解除封禁"
   },
   "badges": {
     "verified": "FAITH Verified",
@@ -1817,5 +1853,73 @@
     "step2": "如果 Windows SmartScreen 提示“Windows protected your PC”，请选择 More info，然后选择 Run anyway。",
     "step3": "选择文件夹，完成安装，然后从桌面打开 FAITH。",
     "otherDevices": "该应用适用于 Windows。在其他设备上，FAITH 在浏览器中同样好用。"
+  },
+  "protect": {
+    "strikeTitle": "警告 {count}/{limit}",
+    "strikeBody": "禁止对此视频截图或录屏。累计 {limit} 次警告后，账户将被封禁 24 小时。",
+    "blockedTitle": "账户已封禁 24 小时",
+    "blockedBody": "多次尝试录制此受保护视频，因此账户已在所有设备上退出。24 小时后恢复。",
+    "replacedTitle": "已在另一台设备登录",
+    "replacedBody": "一个账户同一时间只能在一台设备上使用。你的账户刚刚在别处登录，因此这里已退出。",
+    "signInAgain": "在此重新登录",
+    "appHint": "最强保护：在 FAITH 桌面应用中，录屏得到的此视频画面是空白的。",
+    "appLink": "下载应用",
+    "freeNote": "免费视频：任何人都可以观看。"
+  },
+  "directPay": {
+    "title": "直接付款给卖家",
+    "toPay": "订单 {number}",
+    "step1": "转账金额",
+    "step1Body": "通过 Click、Payme、Uzum 或银行应用，向 {store} 转入正好这个金额。",
+    "amount": "金额",
+    "card": "卡号",
+    "cardHolder": "持卡人",
+    "legalName": "公司或个体户",
+    "account": "银行账户（20 位）",
+    "bank": "银行",
+    "mfo": "银行代码（MFO）",
+    "tin": "税号（STIR）",
+    "purposeLabel": "付款用途",
+    "purposeText": "订单 {number} 的付款",
+    "noDetails": "卖家还没有填写收款信息。付款前请先联系卖家。",
+    "direct": "钱直接到卖家手中，FAITH 不经手。",
+    "copy": "复制{what}",
+    "copied": "已复制",
+    "step2": "上传付款凭证",
+    "step2Body": "转账截图或 PDF，需能看到金额、日期和收款人。",
+    "chooseFile": "选择凭证（图片或 PDF）",
+    "note": "备注",
+    "notePlaceholder": "例如：14:20 用 Humo 卡付款",
+    "send": "提交凭证",
+    "sent": "凭证已提交，卖家会核对。",
+    "waitingTitle": "凭证已提交，等待卖家确认",
+    "waitingBody": "卖家正在核对是否到账。访问权限会自动开通，你也会收到通知。",
+    "checking": "正在自动检查…",
+    "rejectedTitle": "卖家无法确认此凭证",
+    "step3": "获得访问权限",
+    "step3Body": "卖家确认后，课程或 VIP 社区会自动开通，无需任何人手动添加。",
+    "approvedTitle": "付款已确认",
+    "approvedBody": "访问权限已开通。",
+    "open": "打开",
+    "finish": "完成付款",
+    "sellerTitle": "待确认的付款凭证",
+    "sellerBody": "买家已直接付款到你的卡或账户。确认到账后批准，访问权限会自动开通。",
+    "history": "最近的处理",
+    "viewReceipt": "查看凭证",
+    "approve": "已到账，确认",
+    "reject": "拒绝",
+    "rejectTitle": "拒绝凭证",
+    "rejectReason": "问题所在（买家可见）",
+    "confirmTitle": "{amount} 已到账了吗？",
+    "confirmBody": "请在卡或银行账户上看到这笔钱后再确认。买家会立即获得访问权限。",
+    "settingsTitle": "凭证直接收款",
+    "settingsBody": "买家付款到你自己的卡，或你的公司（MChJ）、个体户（YaTT）账户，然后上传凭证，你在这里确认。无需与支付机构签约，FAITH 从不经手这笔钱。这些销售的 FAITH 佣金记为店铺应付款。",
+    "enabled": "直接收款",
+    "enabledHint": "开启后，此店铺的买家通过转账和凭证付款。",
+    "cardHint": "16 位 Uzcard、Humo 或 Visa 卡。",
+    "legalNameHint": "例如：Trade Academy MChJ 或 YaTT Karimov A.",
+    "accountHint": "公司或个体户的 20 位结算账户。",
+    "payNote": "给买家的说明",
+    "payNoteHint": "显示在付款页面，例如付款用途应填写什么。"
   }
 }

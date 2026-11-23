@@ -127,7 +127,19 @@
     "INVALID_PURPOSE": "The upload’s purpose is not valid.",
     "BACKUP_RUNNING": "A backup is already running. Try again in a minute.",
     "BACKUP_NOT_FOUND": "That backup was not found.",
-    "REAUTH_REQUIRED": "For your safety, this action needs a fresh sign-in. Sign out, sign in again, then repeat it within 30 minutes."
+    "REAUTH_REQUIRED": "For your safety, this action needs a fresh sign-in. Sign out, sign in again, then repeat it within 30 minutes.",
+    "SESSION_REPLACED": "Your account was signed in on another device. Sign in again to continue here.",
+    "ACCOUNT_TEMP_BLOCKED": "This account is blocked for 24 hours after repeated attempts to capture protected video.",
+    "DIRECT_PAY_ONE_STORE": "This seller takes payment directly. Buy their items in a separate order.",
+    "RECEIPT_ALREADY_SUBMITTED": "Your receipt is already with the seller.",
+    "RECEIPT_ALREADY_DECIDED": "This receipt has already been decided.",
+    "PAYMENT_ALREADY_SETTLED": "This payment is already complete.",
+    "REASON_REQUIRED": "Please give a reason.",
+    "PROTECTED_VIDEO": "This video plays only in the FAITH player.",
+    "RECEIPT_NOT_FOUND": "Receipt not found.",
+    "PAYMENT_NOT_FOUND": "Payment not found.",
+    "COMMUNITY_MODERATOR_REQUIRED": "Only the owner and moderators can do this.",
+    "NOT_A_DIRECT_PAYMENT": "This payment is not a direct transfer."
   },
   "status": {
     "DRAFT": "Draft",
@@ -499,7 +511,9 @@
     "demoReadyTitle": "Your account is ready",
     "demoReadyBody": "This is a public demo, so no email is sent: you can sign in straight away. Payments here are simulated.",
     "googleOff": "Google sign-in is not connected yet.",
-    "continueApple": "Continue with Apple"
+    "continueApple": "Continue with Apple",
+    "replacedNotice": "Your account was signed in on another device, so it was signed out here. One account works on one device at a time.",
+    "blockedNotice": "Your account is blocked for 24 hours after repeated attempts to capture protected video."
   },
   "market": {
     "title": "Marketplace",
@@ -776,7 +790,13 @@
     "getAccess": "Get access",
     "noPosts": "No posts yet.",
     "comment": "Comment",
-    "yourComment": "Your comment"
+    "yourComment": "Your comment",
+    "postTitle": "Title",
+    "postBody": "Text",
+    "addVideo": "Attach a video (MP4)",
+    "videoHint": "Only members see the video, in the protected player with their name on it.",
+    "uploading": "Uploading video…",
+    "posted": "Posted"
   },
   "creators": {
     "title": "Creators",
@@ -1062,7 +1082,10 @@
         "staff_product_published": "New product published: {title}",
         "staff_job_application": "New application for {title}",
         "staff_app_installed": "An app was installed",
-        "badge_verified": "Your FAITH Verified badge is live"
+        "badge_verified": "Your FAITH Verified badge is live",
+        "receipt_submitted": "New receipt to confirm: order {number}, {amount}",
+        "receipt_approved": "Your payment for order {number} is confirmed. Access is open.",
+        "receipt_rejected": "Your receipt for order {number} was not confirmed: {title}"
       }
     },
     "settings": {
@@ -1380,7 +1403,18 @@
       "videoUploading": "Uploading…",
       "videoReady": "The video is attached and plays in the protected player.",
       "videoRemove": "Remove video",
-      "videoBadge": "Video"
+      "videoBadge": "Video",
+      "protectedBadge": "Protected",
+      "makePaid": "Make paid",
+      "makeFree": "Make free",
+      "accessQuestion": "Is this video paid or free?",
+      "accessPaid": "Paid: protected",
+      "accessPaidBody": "Only buyers can watch. Their name moves across the frame, screenshots get warnings, one account works on one device, and download managers get nothing.",
+      "accessFree": "Free: open to everyone",
+      "accessFreeBody": "Anyone can watch, signed in or not, without protection.",
+      "current": "now",
+      "videoReadyPaid": "Video uploaded and protected.",
+      "videoReadyFree": "Video uploaded. It is free for everyone."
     },
     "brand": {
       "body": "Your campaigns, spend and results.",
@@ -1740,7 +1774,9 @@
       "keyApp": "Key: APP_ENCRYPTION_KEY on Render. Copy it into your password manager now: without it neither the backup nor the secrets in the data can be opened.",
       "empty": "No backups yet. The first one is made 3 minutes after the server starts.",
       "download": "Download"
-    }
+    },
+    "blockedUntil": "Blocked until {date}",
+    "unblock": "Unblock"
   },
   "badges": {
     "verified": "FAITH Verified",
@@ -1817,5 +1853,73 @@
     "step2": "If Windows SmartScreen says “Windows protected your PC”, choose More info, then Run anyway.",
     "step3": "Choose a folder, finish setup and open FAITH from the Desktop.",
     "otherDevices": "The app is for Windows. On other devices FAITH works the same in the browser."
+  },
+  "protect": {
+    "strikeTitle": "Warning {count} of {limit}",
+    "strikeBody": "Screenshots and recordings of this video are not allowed. After {limit} warnings the account is blocked for 24 hours.",
+    "blockedTitle": "Account blocked for 24 hours",
+    "blockedBody": "There were repeated attempts to capture this protected video, so the account was signed out on every device. It opens again in 24 hours.",
+    "replacedTitle": "Signed in on another device",
+    "replacedBody": "One account works on one device at a time. Your account was just signed in somewhere else, so it was signed out here.",
+    "signInAgain": "Sign in here again",
+    "appHint": "Strongest protection: in the FAITH desktop app, screen recordings of this video come out blank.",
+    "appLink": "Get the app",
+    "freeNote": "Free video: anyone can watch it."
+  },
+  "directPay": {
+    "title": "Pay the seller directly",
+    "toPay": "Order {number}",
+    "step1": "Transfer the amount",
+    "step1Body": "Send exactly this amount to {store} with Click, Payme, Uzum or your bank app.",
+    "amount": "Amount",
+    "card": "Card number",
+    "cardHolder": "Card holder",
+    "legalName": "Company or sole proprietor",
+    "account": "Bank account (20 digits)",
+    "bank": "Bank",
+    "mfo": "Bank code (MFO)",
+    "tin": "Tax ID (STIR)",
+    "purposeLabel": "Payment purpose",
+    "purposeText": "Payment for order {number}",
+    "noDetails": "The seller has not added payment details yet. Write to them before paying.",
+    "direct": "The money goes straight to the seller. FAITH does not hold it.",
+    "copy": "Copy {what}",
+    "copied": "Copied",
+    "step2": "Send the receipt",
+    "step2Body": "A screenshot or PDF of the transfer that shows the amount, the date and the recipient.",
+    "chooseFile": "Choose a receipt (photo or PDF)",
+    "note": "Comment",
+    "notePlaceholder": "For example: paid from a Humo card at 14:20",
+    "send": "Send receipt",
+    "sent": "Receipt sent. The seller will check it.",
+    "waitingTitle": "Receipt sent, waiting for the seller",
+    "waitingBody": "The seller checks that the money arrived. Access opens on its own, and you will get a notification.",
+    "checking": "Checking automatically…",
+    "rejectedTitle": "The seller could not confirm this receipt",
+    "step3": "Get access",
+    "step3Body": "Once the seller confirms, the course or VIP community opens on its own. Nobody has to add you by hand.",
+    "approvedTitle": "Payment confirmed",
+    "approvedBody": "Your access is open.",
+    "open": "Open",
+    "finish": "Finish payment",
+    "sellerTitle": "Receipts to confirm",
+    "sellerBody": "Buyers paid your card or account directly. Check that the money arrived, then approve: access opens on its own.",
+    "history": "Recent decisions",
+    "viewReceipt": "Open receipt",
+    "approve": "Money arrived, approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject the receipt",
+    "rejectReason": "What is wrong (the buyer sees this)",
+    "confirmTitle": "Did {amount} reach your account?",
+    "confirmBody": "Approve only once you see the money on your card or bank account. The buyer gets access at once.",
+    "settingsTitle": "Direct payments by receipt",
+    "settingsBody": "Buyers pay your own card or the account of your MChJ or YaTT, send the receipt, and you confirm it here. No payment provider contract is needed and FAITH never holds the money. FAITH’s commission on these sales is recorded as owed by the store.",
+    "enabled": "Take payments directly",
+    "enabledHint": "Buyers of this store then pay by transfer and receipt.",
+    "cardHint": "16-digit Uzcard, Humo or Visa card.",
+    "legalNameHint": "For example: Trade Academy MChJ or YaTT Karimov A.",
+    "accountHint": "20-digit settlement account of the MChJ or YaTT.",
+    "payNote": "Note for buyers",
+    "payNoteHint": "Shown on the payment page, for example what to write as the payment purpose."
   }
 }

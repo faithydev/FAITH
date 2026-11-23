@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { pageContext } from '@/lib/page';
 import type { Paged } from '@/lib/types';
 
-type UserRow = { id: string; email: string; status: string; createdAt: string; profile: { displayName: string } | null; roles: { role: { key: string } }[] };
+type UserRow = { id: string; email: string; status: string; createdAt: string; contentBlockedUntil: string | null; profile: { displayName: string } | null; roles: { role: { key: string } }[] };
 type Verification = { id: string; kind: string; createdAt: string; user: { email: string; profile: { displayName: string } | null }; org: { name: string } | null };
 const STAFF = ['moderator', 'finance', 'support', 'admin'];
 type BadgeRow = { userId: string; kind: string; status: string; grantAt: string; user: { email: string; profile: { displayName: string } | null } };
@@ -74,7 +74,15 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
         columns={[
           { header: t('app.settings.displayName'), cell: (u) => <span><span className="font-medium">{u.profile?.displayName}</span><span className="block text-xs text-muted">{u.email}</span></span> },
           { header: t('app.settings.roles'), cell: (u) => <span className="flex flex-wrap gap-1">{u.roles.map((r) => <Badge key={r.role.key}>{t(`app.roles.${r.role.key}`)}</Badge>)}</span> },
-          { header: t('app.orders.status'), cell: (u) => <StatusBadge status={u.status} label={status(u.status)} /> },
+          {
+            header: t('app.orders.status'),
+            cell: (u) => (
+              <span className="flex flex-wrap items-center gap-1">
+                <StatusBadge status={u.status} label={status(u.status)} />
+                {u.contentBlockedUntil && new Date(u.contentBlockedUntil) > new Date() && <Badge tone="negative">{t('admin.blockedUntil', { date: d(u.contentBlockedUntil) })}</Badge>}
+              </span>
+            ),
+          },
           { header: t('app.orders.date'), cell: (u) => d(u.createdAt) },
           {
             header: '', align: 'end',
@@ -85,6 +93,9 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
                     trigger={t('admin.grantRole')} title={t('admin.grantRole')} triggerVariant="secondary" endpoint={`/admin/users/${u.id}/roles/grant`} submitLabel={t('admin.grantRole')} success={t('common.saved')}
                     fields={[{ name: 'role', label: t('app.settings.roles'), type: 'select', required: true, defaultValue: 'moderator', options: STAFF.map((r) => ({ value: r, label: t(`app.roles.${r}`) })) }]}
                   />
+                )}
+                {canWrite && u.contentBlockedUntil && new Date(u.contentBlockedUntil) > new Date() && (
+                  <ActionButton endpoint={`/admin/users/${u.id}/unblock`} label={t('admin.unblock')} success={t('common.saved')} />
                 )}
                 {canWrite && u.status !== 'DELETED' && (
                   <FormDialog

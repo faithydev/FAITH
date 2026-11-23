@@ -27,7 +27,7 @@ export class OrdersService implements OnModuleInit {
 
   onModuleInit() {
     this.payments.register('ORDER', {
-      succeeded: (tx, payment) => this.settle(tx, payment.orderId!),
+      succeeded: (tx, payment) => this.settle(tx, payment.orderId!, payment.provider === 'receipt'),
       failed: async (tx, payment) => {
         await tx.order.updateMany({ where: { id: payment.orderId!, status: 'PENDING_PAYMENT' }, data: { status: 'PAYMENT_FAILED' } });
         await tx.sellerOrder.updateMany({ where: { orderId: payment.orderId! }, data: { status: 'PAYMENT_FAILED' } });
@@ -134,6 +134,9 @@ export class OrdersService implements OnModuleInit {
       const id = l.variant.product.storeId;
       byStore.set(id, [...(byStore.get(id) ?? []), l]);
     }
+    // A store that takes money directly is paid on its own: one transfer, one receipt, one seller.
+    const direct = await this.prisma.db.directPayAccount.findMany({ where: { storeId: { in: [...byStore.keys()] }, enabled: true }, select: { storeId: true } });
+    if (direct.length > 0 && byStore.size > 1) throw badRequest('DIRECT_PAY_ONE_STORE');
 
     const created = await this.prisma.tx(async (tx) => {
       let subtotal = 0n;
@@ -193,6 +196,7 @@ export class OrdersService implements OnModuleInit {
     const payment = await this.payments.start({
       purpose: 'ORDER', payerId: userId, amountMinor: created.totalMinor, currency, idempotencyKey,
       description: `FAITH order ${created.number}`, orderId: created.id,
+      provider: direct.length > 0 ? 'receipt' : undefined,
     });
     return { orderId: created.id, number: created.number, status: created.status, payment };
   }
@@ -214,8 +218,11 @@ export class OrdersService implements OnModuleInit {
    * Runs once per order, inside the payment transaction. Everything a buyer paid for becomes
    * true atomically: access, sale counts, and the ledger entries. If any step fails, the
    * payment stays unprocessed and the provider's retry runs this again.
+   *
+   * `direct` means the buyer paid the seller's own account and the seller confirmed it: FAITH
+   * received nothing, so instead of owing the seller their share, the seller owes FAITH its fee.
    */
-  private async settle(tx: Tx, orderId: string) {
+  private async settle(tx: Tx, orderId: string, direct = false) {
     const { count } = await tx.order.updateMany({
       where: { id: orderId, status: { in: ['PENDING_PAYMENT'] } },
       data: { status: 'PAID', paidAt: new Date() },
@@ -293,7 +300,20 @@ export class OrdersService implements OnModuleInit {
 
     await tx.cartItem.deleteMany({ where: { cart: { userId: order.buyerId }, variantId: { in: order.items.map((i) => i.variantId) } } });
 
-    if (order.totalMinor > 0n) {
+    if (order.totalMinor > 0n && direct) {
+      const c = order.currency;
+      const debit: Leg[] = [];
+      const credit: Leg[] = [];
+      for (const s of order.sellerOrders) {
+        debit.push({ account: Accounts.storePayable(s.storeId, c), amountMinor: s.commissionMinor + (storeDeductions.get(s.storeId) ?? 0n) });
+        credit.push({ account: Accounts.commission(c), amountMinor: s.commissionMinor });
+      }
+      for (const [userId, amount] of earnings) credit.push({ account: Accounts.userEarnings(userId, c), amountMinor: amount });
+      await this.ledger.post(tx, {
+        idempotencyKey: `order:${order.id}:paid`, kind: 'sale_direct', currency: c, refType: 'Order', refId: order.id,
+        memo: 'Paid directly to the seller', debit, credit,
+      });
+    } else if (order.totalMinor > 0n) {
       const c = order.currency;
       const credit: Leg[] = [];
       for (const s of order.sellerOrders) {
@@ -428,8 +448,11 @@ export class OrdersService implements OnModuleInit {
   private async applyRefund(tx: Tx, refundId: string) {
     const refund = await tx.refund.findUniqueOrThrow({ where: { id: refundId }, include: { items: true } });
     const c = refund.currency;
+    // Paid directly: the seller hands the money back themselves, and FAITH only returns its fee.
+    const paid = await tx.payment.findFirst({ where: { orderId: refund.orderId, status: 'SUCCEEDED' }, select: { provider: true } });
+    const direct = paid?.provider === 'receipt';
     const debit: Leg[] = [];
-    const credit: Leg[] = [{ account: Accounts.clearing(c), amountMinor: refund.amountMinor }];
+    const credit: Leg[] = direct ? [] : [{ account: Accounts.clearing(c), amountMinor: refund.amountMinor }];
     let reversedTotal = 0n;
 
     for (const line of refund.items) {
@@ -454,7 +477,8 @@ export class OrdersService implements OnModuleInit {
       });
       reversedTotal += reversal;
       const storeId = refund.storeId;
-      debit.push({ account: Accounts.storePayable(storeId, c), amountMinor: line.amountMinor - reversal });
+      if (direct) credit.push({ account: Accounts.storePayable(storeId, c), amountMinor: reversal });
+      else debit.push({ account: Accounts.storePayable(storeId, c), amountMinor: line.amountMinor - reversal });
       debit.push({ account: Accounts.commission(c), amountMinor: reversal });
 
       // Claw back partner shares in proportion, so the seller does not fund them twice.

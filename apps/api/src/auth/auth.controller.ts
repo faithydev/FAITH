@@ -7,7 +7,7 @@ import type { CookieOptions, Request, Response } from 'express';
 import type { z } from 'zod';
 import { randomToken } from '../core/crypto';
 import { env, isProd } from '../core/env';
-import { badRequest, notFound } from '../core/errors';
+import { AppError, badRequest, notFound } from '../core/errors';
 import { logger } from '../core/logger';
 import { PrismaService } from '../core/prisma.service';
 import { RateLimit } from '../core/rate-limit';
@@ -22,6 +22,15 @@ const OAUTH_STATE = 'faith_oauth_state';
 const APPLE_STATE = 'faith_apple_state';
 /** Providers return through the web origin, so their cookies are first-party to the site. */
 const callback = (provider: string) => `${env.WEB_ORIGIN}/api/v1/auth/oauth/${provider}/callback`;
+
+/** A temporarily blocked account comes back to the sign-in page with the reason, not to a raw error. */
+const blockedToLogin = (res: Response) => (err: unknown): null => {
+  if (err instanceof AppError && err.code === 'ACCOUNT_TEMP_BLOCKED') {
+    res.redirect(303, `${env.WEB_ORIGIN}/login?reason=blocked`);
+    return null;
+  }
+  throw err;
+};
 
 @ApiTags('auth')
 @Controller('auth')
@@ -175,7 +184,8 @@ export class AuthController {
     const session = await this.auth.oauthSignIn(
       { provider: 'google', subject: p.sub, email: p.email, name: p.name ?? p.email.split('@')[0]!, locale: p.locale },
       meta(req),
-    );
+    ).catch(blockedToLogin(res));
+    if (!session) return;
     this.setSession(res, session);
     res.redirect(`${env.WEB_ORIGIN}/app`);
   }
@@ -211,7 +221,9 @@ export class AuthController {
       const full = [u?.name?.firstName, u?.name?.lastName].filter(Boolean).join(' ');
       if (full) name = full;
     } catch { /* keep the email-based name */ }
-    const session = await this.auth.oauthSignIn({ provider: 'apple', subject: identity.sub, email: identity.email, name }, meta(req));
+    const session = await this.auth.oauthSignIn({ provider: 'apple', subject: identity.sub, email: identity.email, name }, meta(req))
+      .catch(blockedToLogin(res));
+    if (!session) return;
     this.setSession(res, session);
     res.redirect(303, `${env.WEB_ORIGIN}/app`);
   }

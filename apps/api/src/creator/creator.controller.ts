@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
-  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonBody, lessonVideoBody, memberModerationBody, postBody, sectionBody,
+  channelBody, commentBody, communityBody, courseBody, creatorProfileBody, lessonAccessBody, lessonBody, lessonVideoBody, memberModerationBody, postBody, sectionBody,
 } from '@faith/validators';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
@@ -33,6 +33,20 @@ function parseRange(header: string | undefined, size: number): [number, number] 
 }
 
 const publishedBody = z.object({ published: z.boolean() });
+
+/**
+ * Only the browser's own video player may fetch protected video. Browsers label that request
+ * `Sec-Fetch-Dest: video`; download managers (IDM and the like), scripts and a pasted address do
+ * not, so they are refused even with the viewer's cookies. iPhones and iPads load video through
+ * the system media player, which sends no such label but says who it is.
+ */
+export function isPlayerRequest(headers: Request['headers']) {
+  const dest = headers['sec-fetch-dest'];
+  const site = headers['sec-fetch-site'];
+  if (site !== undefined && site !== 'same-origin') return false;
+  if (dest === 'video' || dest === 'audio') return true;
+  return dest === undefined && /AppleCoreMedia|iPhone|iPad|iPod/i.test(headers['user-agent'] ?? '');
+}
 
 @ApiTags('creator')
 @Controller()
@@ -113,7 +127,13 @@ export class CreatorController {
 
   @Put('creator/lessons/:id/video') @RequirePermission('course.manage')
   setVideo(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(lessonVideoBody) b: z.infer<typeof lessonVideoBody>) {
-    return this.creator.setLessonVideo(id, a.user.id, b.uploadId);
+    return this.creator.setLessonVideo(id, a.user.id, b.uploadId, b.access);
+  }
+
+  /** Paid (protected, buyers only) or free (anyone may watch). */
+  @Put('creator/lessons/:id/access') @RequirePermission('course.manage')
+  setAccess(@Auth() a: AuthContext, @Param('id') id: string, @ZBody(lessonAccessBody) b: z.infer<typeof lessonAccessBody>) {
+    return this.creator.setLessonAccess(id, a.user.id, b.access);
   }
 
   @Delete('creator/lessons/:id/video') @RequirePermission('course.manage')
@@ -123,13 +143,25 @@ export class CreatorController {
 
   /**
    * Lesson video, streamed in slices to the signed-in viewer who has access. Same origin as the
-   * site (through its /api rewrite), never cached, and refused when opened as a page, so a copied
-   * address does not play or download outside the protected player.
+   * site (through its /api rewrite), never cached, and served only to the browser's own video
+   * player, so a copied address or a download manager gets nothing.
    */
   @Public() @Get('lessons/:id/stream') @RateLimit(600, 60)
   async stream(@Param('id') id: string, @OptionalAuth() a: AuthContext | undefined, @Req() req: Request, @Res() res: Response) {
-    if (req.headers['sec-fetch-dest'] === 'document') throw forbidden('PROTECTED_VIDEO');
+    if (!isPlayerRequest(req.headers)) throw forbidden('PROTECTED_VIDEO');
     const { key } = await this.creator.lessonVideo(id, a?.user.id);
+    return this.pipeVideo(key, req, res);
+  }
+
+  /** Video in a VIP community post, for the people who can read that community. */
+  @Public() @Get('posts/:id/stream') @RateLimit(600, 60)
+  async postStream(@Param('id') id: string, @OptionalAuth() a: AuthContext | undefined, @Req() req: Request, @Res() res: Response) {
+    if (!isPlayerRequest(req.headers)) throw forbidden('PROTECTED_VIDEO');
+    const { key } = await this.creator.postVideo(id, a?.user.id);
+    return this.pipeVideo(key, req, res);
+  }
+
+  private async pipeVideo(key: string, req: Request, res: Response) {
     const size = await this.storage.store.size(key);
     if (size === null) throw notFound('LESSON_NOT_FOUND');
     res.setHeader('Content-Type', 'video/mp4');
